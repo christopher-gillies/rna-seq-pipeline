@@ -76,6 +76,8 @@ public class TestMakeFileWriter {
 		
 		when(applicationOptionsMock.getNumThreadsGenomeIndex()).thenReturn("11");
 		
+		when(applicationOptionsMock.getUncompressCommand()).thenReturn("zcat");
+		
 		LoggerService loggerService = new LoggerService();
 		
 		MakeFileWriter makeFileWriter = new MakeFileWriter(loggerService);

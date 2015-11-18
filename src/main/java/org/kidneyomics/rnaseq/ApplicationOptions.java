@@ -16,7 +16,7 @@ public class ApplicationOptions {
 	private String numThreadsGenomeIndex;
 	private String gtf;
 	private int readLength = 100;
-	
+	private String uncompressCommand = "zcat";
 	
 	Logger logger;
 	
@@ -96,6 +96,14 @@ public class ApplicationOptions {
 	}
 	
 	
+	
+	
+	public String getUncompressCommand() {
+		return uncompressCommand;
+	}
+	public void setUncompressCommand(String uncompressCommand) {
+		this.uncompressCommand = uncompressCommand;
+	}
 	
 	public Mode validateOptions() {
 		Mode result = Mode.ERROR;

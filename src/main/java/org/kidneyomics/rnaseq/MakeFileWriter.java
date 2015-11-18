@@ -149,10 +149,11 @@ public class MakeFileWriter {
 			firstPassAlignEntry.addDependency(loadGenomeEntry);
 			firstPassAlignEntry.setTarget(dirBase +  "/" + sample.getSampleId()  + ".FIRST_PASS.OK");
 			
-			ST firstPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files>");
+			ST firstPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress>");
 			firstPassAlign.add("star", applicationOptions.getStar());
 			firstPassAlign.add("genomeDir", genomeOutDir);
 			firstPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), " "));
+			firstPassAlign.add("uncompress", applicationOptions.getUncompressCommand());
 			
 			String sampleDir = dirBase + "/" + sample.getSampleId() + "_1";
 			
@@ -192,17 +193,20 @@ public class MakeFileWriter {
 			
 			secondPassAlignEntry.setTarget(dirBase +  "/" + sample.getSampleId()  + ".SECOND_PASS.OK");
 			
-			ST firstPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --sjdbFileChrStartEnd <sjdbs>");
-			firstPassAlign.add("star", applicationOptions.getStar());
-			firstPassAlign.add("genomeDir", genomeOutDir);
-			firstPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), " "));
-			firstPassAlign.add("sjdbs", StringUtils.collectionToDelimitedString(sjdbFiles, " "));
+			ST SecondPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --sjdbFileChrStartEnd <sjdbs>");
+			SecondPassAlign.add("star", applicationOptions.getStar());
+			SecondPassAlign.add("genomeDir", genomeOutDir);
+			SecondPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), " "));
+			SecondPassAlign.add("sjdbs", StringUtils.collectionToDelimitedString(sjdbFiles, " "));
+			SecondPassAlign.add("uncompress", applicationOptions.getUncompressCommand());
+			
+			
 			String sampleDir = dirBase + "/" + sample.getSampleId();
 			
 			
 			secondPassAlignEntry.addCommand("mkdir " + sampleDir);
 			secondPassAlignEntry.addCommand("cd " + sampleDir);
-			secondPassAlignEntry.addCommand(firstPassAlign.render());
+			secondPassAlignEntry.addCommand(SecondPassAlign.render());
 			secondPassAlignEntry.addCommand("touch $@");
 			
 			// add to make file
