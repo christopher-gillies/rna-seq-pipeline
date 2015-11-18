@@ -67,7 +67,7 @@ public class MakeFileWriter {
 		
 		genomeIndex1stPassEntry.setTarget("FIRST_PASS_GENOME_INDEX.OK");
 		
-		genomeIndex1stPassEntry.addCommand(genomeIndex1stPass.toString());
+		genomeIndex1stPassEntry.addCommand(genomeIndex1stPass.render());
 		
 		genomeIndex1stPassEntry.addCommand("touch $@");
 		
