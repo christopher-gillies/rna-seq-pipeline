@@ -36,6 +36,7 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("outputDir",true,"the output directory");
 		options.addOption("starAligner",true,"the path to star aligner");
 		options.addOption("gtf",true,"the gtf file for annotations");
+		options.addOption("readLength",true,"the read length");
 		options.addOption("numberOfThreadsForGenomeIndex",true,"the number of threads to use for genome indexing");
 		
 		
@@ -78,6 +79,10 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		if(cmd.hasOption("numberOfThreadsForGenomeIndex")) {
 			applicationOptions.setNumThreadsGenomeIndex(cmd.getOptionValue("numberOfThreadsForGenomeIndex"));
+		}
+		
+		if(cmd.hasOption("readLength")) {
+			applicationOptions.setReadLength(Integer.parseInt(cmd.getOptionValue("readLength")));
 		}
 		
 		

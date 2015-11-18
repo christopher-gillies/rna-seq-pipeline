@@ -15,6 +15,8 @@ public class ApplicationOptions {
 	private String referenceSequence;
 	private String numThreadsGenomeIndex;
 	private String gtf;
+	private int readLength = 100;
+	
 	
 	Logger logger;
 	
@@ -79,6 +81,22 @@ public class ApplicationOptions {
 		this.logger = logger;
 	}
 	
+	
+	
+	public int getSjdbOverhang() {
+		return readLength - 1;
+	}
+	
+	public int getReadLength() {
+		return readLength;
+	}
+	
+	public void setReadLength(int readLength) {
+		this.readLength = readLength;
+	}
+	
+	
+	
 	public Mode validateOptions() {
 		Mode result = Mode.ERROR;
 		
@@ -92,6 +110,16 @@ public class ApplicationOptions {
 				System.exit(1);
 			}
 			
+			if(StringUtils.isEmpty(getReferenceSequence())) {
+				logger.error("Please specify a reference sequence");
+				System.exit(1);
+			}
+			
+			if(StringUtils.endsWithIgnoreCase(getReferenceSequence(), ".gz")) {
+				logger.error("please uncompress reference sequence file");
+				System.exit(1);
+			}
+			
 			if(StringUtils.isEmpty(getOutputDirectory())) {
 				logger.error("please specify an output");
 				System.exit(1);
@@ -99,6 +127,12 @@ public class ApplicationOptions {
 			
 			if(StringUtils.isEmpty(getGtf())) {
 				logger.error("please specify a gtf file");
+				System.exit(1);
+			}
+			
+			
+			if(StringUtils.endsWithIgnoreCase(getGtf(), ".gz")) {
+				logger.error("please uncompress gtf file");
 				System.exit(1);
 			}
 			

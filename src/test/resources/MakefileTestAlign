@@ -1,0 +1,46 @@
+all:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED.OK	/tmp/test/SAMPLE2.FIRST_PASS.OK	/tmp/test/SAMPLE1.FIRST_PASS.OK	/tmp/test/SAMPLE2.SECOND_PASS.OK	/tmp/test/SAMPLE1.SECOND_PASS.OK	/tmp/test/GENOME_REMOVED.OK	
+	touch $@.OK
+
+#Generate the genome for first pass alignment
+/tmp/test/FIRST_PASS_GENOME_INDEX.OK:	
+	/tmp/star --runMode genomeGenerate --genomeDir /tmp/test/genomeDirPassOne --genomeFastaFiles /tmp/reference.fa --runThreadN 11 --sjdbGTFfile /tmp/genecode.gtf --sjdbOverhang 0
+	touch $@
+
+#Load the genome into RAM
+/tmp/test/GENOME_LOADED.OK:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	
+	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndExit
+	touch $@
+
+#Load the genome into RAM
+/tmp/test/SAMPLE2.FIRST_PASS.OK:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED.OK	
+	mkdir /tmp/test/SAMPLE2_1
+	cd /tmp/test/SAMPLE2_1
+	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq3.fastq.gz /tmp/fastq4.fastq.gz
+	touch $@
+
+#Load the genome into RAM
+/tmp/test/SAMPLE1.FIRST_PASS.OK:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED.OK	
+	mkdir /tmp/test/SAMPLE1_1
+	cd /tmp/test/SAMPLE1_1
+	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq1.fastq.gz /tmp/fastq2.fastq.gz
+	touch $@
+
+#Load the genome into RAM
+/tmp/test/SAMPLE2.SECOND_PASS.OK:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED.OK	/tmp/test/SAMPLE2.FIRST_PASS.OK	/tmp/test/SAMPLE1.FIRST_PASS.OK	
+	mkdir /tmp/test/SAMPLE2
+	cd /tmp/test/SAMPLE2
+	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq3.fastq.gz /tmp/fastq4.fastq.gz --sjdbFileChrStartEnd /tmp/test/SAMPLE2_1/SJ.out.tab /tmp/test/SAMPLE1_1/SJ.out.tab
+	touch $@
+
+#Load the genome into RAM
+/tmp/test/SAMPLE1.SECOND_PASS.OK:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED.OK	/tmp/test/SAMPLE2.FIRST_PASS.OK	/tmp/test/SAMPLE1.FIRST_PASS.OK	
+	mkdir /tmp/test/SAMPLE1
+	cd /tmp/test/SAMPLE1
+	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq1.fastq.gz /tmp/fastq2.fastq.gz --sjdbFileChrStartEnd /tmp/test/SAMPLE2_1/SJ.out.tab /tmp/test/SAMPLE1_1/SJ.out.tab
+	touch $@
+
+#Remove the genome from RAM
+/tmp/test/GENOME_REMOVED.OK:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED.OK	/tmp/test/SAMPLE2.FIRST_PASS.OK	/tmp/test/SAMPLE1.FIRST_PASS.OK	/tmp/test/SAMPLE2.SECOND_PASS.OK	/tmp/test/SAMPLE1.SECOND_PASS.OK	
+	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad Remove
+	touch $@
+

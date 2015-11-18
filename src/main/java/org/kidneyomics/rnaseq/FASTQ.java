@@ -39,4 +39,13 @@ public class FASTQ {
 
 	}
 	
+	@Override
+	public String toString() {
+		if(!isPairedEnd()) {
+			return file1;
+		} else {
+			return file1 + " " + file2;
+		}
+	}
+	
 }
