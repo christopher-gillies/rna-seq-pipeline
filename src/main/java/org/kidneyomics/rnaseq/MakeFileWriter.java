@@ -149,19 +149,20 @@ public class MakeFileWriter {
 			firstPassAlignEntry.addDependency(loadGenomeEntry);
 			firstPassAlignEntry.setTarget(dirBase +  "/" + sample.getSampleId()  + ".FIRST_PASS.OK");
 			
-			ST firstPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress>");
+			String sampleDir = dirBase + "/" + sample.getSampleId() + "_1/";
+			
+			ST firstPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir>");
 			firstPassAlign.add("star", applicationOptions.getStar());
 			firstPassAlign.add("genomeDir", genomeOutDir);
 			firstPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), " "));
 			firstPassAlign.add("uncompress", applicationOptions.getUncompressCommand());
+			firstPassAlign.add("outdir", sampleDir);
 			
-			String sampleDir = dirBase + "/" + sample.getSampleId() + "_1";
 			
 			String sjdbFile = sampleDir + "/SJ.out.tab";
 			sjdbFiles.add(sjdbFile);
 			
-			firstPassAlignEntry.addCommand("mkdir " + sampleDir);
-			firstPassAlignEntry.addCommand("cd " + sampleDir);
+			firstPassAlignEntry.addCommand("mkdir -p " + sampleDir);
 			firstPassAlignEntry.addCommand(firstPassAlign.render());
 			firstPassAlignEntry.addCommand("touch $@");
 			
@@ -193,19 +194,20 @@ public class MakeFileWriter {
 			
 			secondPassAlignEntry.setTarget(dirBase +  "/" + sample.getSampleId()  + ".SECOND_PASS.OK");
 			
-			ST SecondPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --sjdbFileChrStartEnd <sjdbs>");
+			String sampleDir = dirBase + "/" + sample.getSampleId() + "/";
+			
+			ST SecondPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --sjdbFileChrStartEnd <sjdbs> --outFileNamePrefix <outdir>");
 			SecondPassAlign.add("star", applicationOptions.getStar());
 			SecondPassAlign.add("genomeDir", genomeOutDir);
 			SecondPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), " "));
 			SecondPassAlign.add("sjdbs", StringUtils.collectionToDelimitedString(sjdbFiles, " "));
 			SecondPassAlign.add("uncompress", applicationOptions.getUncompressCommand());
+			SecondPassAlign.add("outdir", sampleDir);
 			
 			
-			String sampleDir = dirBase + "/" + sample.getSampleId();
 			
 			
-			secondPassAlignEntry.addCommand("mkdir " + sampleDir);
-			secondPassAlignEntry.addCommand("cd " + sampleDir);
+			secondPassAlignEntry.addCommand("mkdir -p" + sampleDir);
 			secondPassAlignEntry.addCommand(SecondPassAlign.render());
 			secondPassAlignEntry.addCommand("touch $@");
 			

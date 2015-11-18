@@ -78,6 +78,8 @@ public class TestMakeFileWriter {
 		
 		when(applicationOptionsMock.getUncompressCommand()).thenReturn("zcat");
 		
+		when(applicationOptionsMock.getSjdbOverhang()).thenReturn(40);
+		
 		LoggerService loggerService = new LoggerService();
 		
 		MakeFileWriter makeFileWriter = new MakeFileWriter(loggerService);
