@@ -59,6 +59,10 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 			applicationOptions.setStar(cmd.getOptionValue("starAligner"));
 		}
 		
+		if(cmd.hasOption("referenceSequence")) {
+			applicationOptions.setReferenceSequence(cmd.getOptionValue("referenceSequence"));
+		}
+		
 		
 		if(cmd.hasOption("outputDir")) {
 			applicationOptions.setOutputDirectory(cmd.getOptionValue("outputDir"));
