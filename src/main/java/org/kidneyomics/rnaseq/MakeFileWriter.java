@@ -47,6 +47,7 @@ public class MakeFileWriter {
 		File baseDir = new File(dirBase);
 		
 		if(!baseDir.exists()) {
+			logger.info("Creating " + baseDir);
 			baseDir.mkdirs();
 		}
 		
@@ -57,7 +58,14 @@ public class MakeFileWriter {
 		ST genomeIndex1stPass = new ST("<star> --runMode genomeGenerate --genomeDir <genomeDir> --genomeFastaFiles <reference> --runThreadN <n> --sjdbGTFfile <gtf>");
 		genomeIndex1stPass.add("star", applicationOptions.getStar());
 		
-		genomeIndex1stPass.add("genomeDir", dirBase + "/" + "genomeDirPassOne");
+		//Make directory
+		String outDir = dirBase + "/" + "genomeDirPassOne";
+		File outDirRef = new File(outDir);
+		if(!outDirRef.exists()) {
+			logger.info("Creating " + outDir);
+			outDirRef.mkdirs();
+		}
+		genomeIndex1stPass.add("genomeDir", outDir);
 		
 		genomeIndex1stPass.add("reference", applicationOptions.getReferenceSequence());
 		
@@ -80,6 +88,8 @@ public class MakeFileWriter {
 		
 		//Write makefile
 		String makefileText = make.toString();
+		
+		logger.info("Writing Makefile");
 		
 		FileUtils.write(new File(baseDir + "/Makefile"), makefileText);
 	}
