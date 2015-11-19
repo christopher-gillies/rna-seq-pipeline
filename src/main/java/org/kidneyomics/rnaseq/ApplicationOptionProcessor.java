@@ -27,6 +27,9 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 	@Autowired
 	ApplicationOptionProcessor(ApplicationArguments args, LoggerService loggerService) throws ParseException {
 		this.logger = loggerService.getLogger(this);
+		if(args == null) {
+			throw new NullPointerException("ApplicationArguments args is null");
+		}
 		processInputs(args.getSourceArgs());
 	}
 	
