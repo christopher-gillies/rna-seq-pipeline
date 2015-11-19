@@ -17,7 +17,7 @@ import org.springframework.util.StringUtils;
 @Component
 public class ApplicationOptionProcessor implements OptionProcessor {
 
-	@Autowired
+	
 	ApplicationOptions applicationOptions;
 	
 	
@@ -25,8 +25,9 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 	
 	
 	@Autowired
-	ApplicationOptionProcessor(ApplicationArguments args, LoggerService loggerService) throws ParseException {
+	ApplicationOptionProcessor(ApplicationArguments args, LoggerService loggerService, ApplicationOptions applicationOptions) throws ParseException {
 		this.logger = loggerService.getLogger(this);
+		this.applicationOptions = applicationOptions;
 		if(args == null) {
 			throw new NullPointerException("ApplicationArguments args is null");
 		}
