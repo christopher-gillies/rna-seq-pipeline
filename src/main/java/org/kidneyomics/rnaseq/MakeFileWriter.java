@@ -63,13 +63,12 @@ public class MakeFileWriter {
 		 * 
 		 */
 		
-		MakeEntry genomeIndex1stPassEntry = new MakeEntry();
+		MakeEntry genomeIndexFirstPassEntry = new MakeEntry();
+
+		genomeIndexFirstPassEntry.setComment("Generate the genome for first pass alignment");
 		
-		
-		genomeIndex1stPassEntry.setComment("Generate the genome for first pass alignment");
-		
-		ST genomeIndex1stPass = new ST("<star> --runMode genomeGenerate --genomeDir <genomeDir> --genomeFastaFiles <reference> --runThreadN <n> --sjdbGTFfile <gtf> --sjdbOverhang <overhang>");
-		genomeIndex1stPass.add("star", applicationOptions.getStar());
+		ST genomeIndexFirstPass = new ST("<star> --runMode genomeGenerate --genomeDir <genomeDir> --genomeFastaFiles <reference> --runThreadN <n> --sjdbGTFfile <gtf> --sjdbOverhang <overhang>");
+		genomeIndexFirstPass.add("star", applicationOptions.getStar());
 		
 		//Make directory
 		String genomeOutDir = dirBase + "/" + "genomeDirPassOne";
@@ -78,55 +77,56 @@ public class MakeFileWriter {
 			logger.info("Creating " + genomeOutDir);
 			outDirRef.mkdirs();
 		}
-		genomeIndex1stPass.add("genomeDir", genomeOutDir);
+		genomeIndexFirstPass.add("genomeDir", genomeOutDir);
 		
-		genomeIndex1stPass.add("reference", applicationOptions.getReferenceSequence());
+		genomeIndexFirstPass.add("reference", applicationOptions.getReferenceSequence());
 		
-		genomeIndex1stPass.add("n", applicationOptions.getNumThreadsGenomeIndex());
+		genomeIndexFirstPass.add("n", applicationOptions.getNumThreadsGenomeIndex());
 		
-		genomeIndex1stPass.add("gtf", applicationOptions.getGtf());
+		genomeIndexFirstPass.add("gtf", applicationOptions.getGtf());
 		
-		genomeIndex1stPass.add("overhang", applicationOptions.getSjdbOverhang());
+		genomeIndexFirstPass.add("overhang", applicationOptions.getSjdbOverhang());
 		
-		genomeIndex1stPassEntry.setTarget(dirBase + "/FIRST_PASS_GENOME_INDEX.OK");
+		genomeIndexFirstPassEntry.setTarget(dirBase + "/FIRST_PASS_GENOME_INDEX.OK");
 		
-		genomeIndex1stPassEntry.addCommand(genomeIndex1stPass.render());
+		genomeIndexFirstPassEntry.addCommand(genomeIndexFirstPass.render());
 		
-		genomeIndex1stPassEntry.addCommand("touch $@");
+		genomeIndexFirstPassEntry.addCommand("touch $@");
 		
 		// add to make file
-		make.addMakeEntry(genomeIndex1stPassEntry);
+		make.addMakeEntry(genomeIndexFirstPassEntry);
 		
 		
 		/*
 		 * 
 		 * 
-		 * Load genome command
+		 * Load genome for first pass command
 		 * 
 		 * 
 		 * 
 		 */
-		MakeEntry loadGenomeEntry = new MakeEntry();
-		loadGenomeEntry.setComment("Load the genome into RAM");
-		loadGenomeEntry.addDependency(genomeIndex1stPassEntry);
-		loadGenomeEntry.setTarget(baseDir + "/GENOME_LOADED.OK");
+		MakeEntry loadGenomeFirstPassEntry = new MakeEntry();
+		
+		loadGenomeFirstPassEntry.setComment("Load the genome into RAM");
+		loadGenomeFirstPassEntry.addDependency(genomeIndexFirstPassEntry);
+		loadGenomeFirstPassEntry.setTarget(baseDir + "/GENOME_LOADED_FIRST_PASS.OK");
 		
 		ST loadGenome = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndExit");
 		loadGenome.add("star", applicationOptions.getStar());
 		loadGenome.add("genomeDir", genomeOutDir);
 		
 		
-		loadGenomeEntry.addCommand(loadGenome.render());
-		loadGenomeEntry.addCommand("touch $@");
+		loadGenomeFirstPassEntry.addCommand(loadGenome.render());
+		loadGenomeFirstPassEntry.addCommand("touch $@");
 		
 		// add to make file
-		make.addMakeEntry(loadGenomeEntry);
+		make.addMakeEntry(loadGenomeFirstPassEntry);
 		
 		
 		/*
 		 * 
 		 * 
-		 * Generating Alignment for first pass
+		 * Generating alignment for first pass
 		 * 
 		 * 
 		 * 
@@ -135,23 +135,22 @@ public class MakeFileWriter {
 		//Read files
 		Collection<Sample> samples = Sample.getFastqFileList(new File(applicationOptions.getFastqFiles()));
 		
-		
-		
+		//Dependencies for pass one
 		Collection<MakeEntry> pass1Dependencies = new LinkedList<MakeEntry>();
-		
 	
+		//splice junction databases
 		Collection<String> sjdbFiles = new LinkedList<String>();
 		
 		for(Sample sample : samples) {
 			MakeEntry firstPassAlignEntry = new MakeEntry();
-			firstPassAlignEntry.setComment("Load the genome into RAM");
-			firstPassAlignEntry.addDependency(genomeIndex1stPassEntry);
-			firstPassAlignEntry.addDependency(loadGenomeEntry);
+			firstPassAlignEntry.setComment("Run first pass alignment for sample " + sample.getSampleId());
+			firstPassAlignEntry.addDependency(genomeIndexFirstPassEntry);
+			firstPassAlignEntry.addDependency(loadGenomeFirstPassEntry);
 			firstPassAlignEntry.setTarget(dirBase +  "/" + sample.getSampleId()  + ".FIRST_PASS.OK");
 			
 			String sampleDir = dirBase + "/" + sample.getSampleId() + "_1/";
 			
-			ST firstPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir>");
+			ST firstPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir> --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2");
 			firstPassAlign.add("star", applicationOptions.getStar());
 			firstPassAlign.add("genomeDir", genomeOutDir);
 			firstPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), " "));
@@ -174,6 +173,115 @@ public class MakeFileWriter {
 		}
 		
 		
+		
+		
+		/*
+		 * 
+		 * 
+		 * Remove genome after first pass command 
+		 * 
+		 * 
+		 * 
+		 */
+		MakeEntry removeGenomeFirstPassEntry = new MakeEntry();
+		removeGenomeFirstPassEntry.setComment("Remove the genome from RAM");
+		removeGenomeFirstPassEntry.addDependency(genomeIndexFirstPassEntry);
+		removeGenomeFirstPassEntry.addDependency(loadGenomeFirstPassEntry);
+		
+		removeGenomeFirstPassEntry.addDependencies(pass1Dependencies);
+		
+		removeGenomeFirstPassEntry.setTarget(baseDir + "/GENOME_REMOVED_FIRST_PASS.OK");
+		
+		ST removeGenomeFirstPass = new ST("<star> --genomeDir <genomeDir> --genomeLoad Remove");
+		removeGenomeFirstPass.add("star", applicationOptions.getStar());
+		removeGenomeFirstPass.add("genomeDir", genomeOutDir);
+		
+		
+		removeGenomeFirstPassEntry.addCommand(removeGenomeFirstPass.render());
+		removeGenomeFirstPassEntry.addCommand("touch $@");
+		
+		// add to make file
+		make.addMakeEntry(removeGenomeFirstPassEntry);
+		
+		
+		
+		/*
+		 * 
+		 * 
+		 * Generating Genome Index for 2nd pass
+		 * 
+		 * 
+		 * 
+		 */
+		
+		MakeEntry genomeIndexSecondPassEntry = new MakeEntry();
+
+		genomeIndexSecondPassEntry.setComment("Generate the genome for second pass alignment");
+		
+		
+		genomeIndexSecondPassEntry.addDependencies(pass1Dependencies);
+		genomeIndexSecondPassEntry.addDependency(removeGenomeFirstPassEntry);
+		
+		ST genomeIndexSecondPass = new ST("<star> --runMode genomeGenerate --genomeDir <genomeDir> --genomeFastaFiles <reference> --runThreadN <n> --sjdbGTFfile <gtf> --sjdbFileChrStartEnd <sjdbs> --sjdbOverhang <overhang>");
+		genomeIndexSecondPass.add("star", applicationOptions.getStar());
+		
+
+		//Make directory
+		String genomeOutDirPass2 = dirBase + "/" + "genomeDirPassTwo";
+		File outDirRefPass2 = new File(genomeOutDirPass2);
+		if(!outDirRefPass2.exists()) {
+			logger.info("Creating " + genomeOutDirPass2);
+			outDirRefPass2.mkdirs();
+		}
+		genomeIndexSecondPass.add("genomeDir", genomeOutDirPass2);
+		
+		genomeIndexSecondPass.add("reference", applicationOptions.getReferenceSequence());
+		
+		genomeIndexSecondPass.add("n", applicationOptions.getNumThreadsGenomeIndex());
+		
+		genomeIndexSecondPass.add("gtf", applicationOptions.getGtf());
+		
+		genomeIndexSecondPass.add("overhang", applicationOptions.getSjdbOverhang());
+		
+		genomeIndexSecondPass.add("sjdbs", StringUtils.collectionToDelimitedString(sjdbFiles, " "));
+		
+		genomeIndexSecondPassEntry.setTarget(dirBase + "/SECOND_PASS_GENOME_INDEX.OK");
+		
+		genomeIndexSecondPassEntry.addCommand(genomeIndexSecondPass.render());
+		
+		genomeIndexSecondPassEntry.addCommand("touch $@");
+		
+		// add to make file
+		make.addMakeEntry(genomeIndexSecondPassEntry);
+		
+		
+		/*
+		 * 
+		 * 
+		 * Load genome for second pass command
+		 * 
+		 * 
+		 * 
+		 */
+		MakeEntry loadGenomeSecondPassEntry = new MakeEntry();
+		
+		loadGenomeSecondPassEntry.setComment("Load the second pass genome into RAM");
+		loadGenomeSecondPassEntry.addDependency(genomeIndexSecondPassEntry);
+		loadGenomeSecondPassEntry.setTarget(baseDir + "/GENOME_LOADED_SECOND_PASS.OK");
+		
+		ST loadGenomeSecondPass = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndExit");
+		loadGenomeSecondPass.add("star", applicationOptions.getStar());
+		loadGenomeSecondPass.add("genomeDir", genomeOutDirPass2);
+		
+		
+		loadGenomeSecondPassEntry.addCommand(loadGenomeSecondPass.render());
+		loadGenomeSecondPassEntry.addCommand("touch $@");
+		
+		// add to make file
+		make.addMakeEntry(loadGenomeSecondPassEntry);
+		
+		
+		
 		/*
 		 * 
 		 * 
@@ -187,27 +295,25 @@ public class MakeFileWriter {
 		
 		for(Sample sample : samples) {
 			MakeEntry secondPassAlignEntry = new MakeEntry();
-			secondPassAlignEntry.setComment("Load the genome into RAM");
-			secondPassAlignEntry.addDependency(genomeIndex1stPassEntry);
-			secondPassAlignEntry.addDependency(loadGenomeEntry);
-			secondPassAlignEntry.addDependencies(pass1Dependencies);
+			secondPassAlignEntry.setComment("Run second pass alignment for sample " + sample.getSampleId());
+			secondPassAlignEntry.addDependency(genomeIndexSecondPassEntry);
+			secondPassAlignEntry.addDependency(loadGenomeSecondPassEntry);
 			
 			secondPassAlignEntry.setTarget(dirBase +  "/" + sample.getSampleId()  + ".SECOND_PASS.OK");
 			
 			String sampleDir = dirBase + "/" + sample.getSampleId() + "/";
 			
-			ST SecondPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --sjdbFileChrStartEnd <sjdbs> --outFileNamePrefix <outdir>");
+			ST SecondPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir>");
 			SecondPassAlign.add("star", applicationOptions.getStar());
-			SecondPassAlign.add("genomeDir", genomeOutDir);
+			SecondPassAlign.add("genomeDir", genomeOutDirPass2);
 			SecondPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), " "));
-			SecondPassAlign.add("sjdbs", StringUtils.collectionToDelimitedString(sjdbFiles, " "));
 			SecondPassAlign.add("uncompress", applicationOptions.getUncompressCommand());
 			SecondPassAlign.add("outdir", sampleDir);
 			
 			
 			
 			
-			secondPassAlignEntry.addCommand("mkdir -p" + sampleDir);
+			secondPassAlignEntry.addCommand("mkdir -p " + sampleDir);
 			secondPassAlignEntry.addCommand(SecondPassAlign.render());
 			secondPassAlignEntry.addCommand("touch $@");
 			
@@ -230,20 +336,19 @@ public class MakeFileWriter {
 		 */
 		MakeEntry removeGenomeEntry = new MakeEntry();
 		removeGenomeEntry.setComment("Remove the genome from RAM");
-		removeGenomeEntry.addDependency(genomeIndex1stPassEntry);
-		removeGenomeEntry.addDependency(loadGenomeEntry);
+		removeGenomeEntry.addDependency(genomeIndexSecondPassEntry);
+		removeGenomeEntry.addDependency(loadGenomeSecondPassEntry);
 		
-		removeGenomeEntry.addDependencies(pass1Dependencies);
 		removeGenomeEntry.addDependencies(pass2Dependencies);
 		
-		removeGenomeEntry.setTarget(baseDir + "/GENOME_REMOVED.OK");
+		removeGenomeEntry.setTarget(baseDir + "/GENOME_REMOVED_SECOND_PASS.OK");
 		
-		ST removeGenome = new ST("<star> --genomeDir <genomeDir> --genomeLoad Remove");
-		removeGenome.add("star", applicationOptions.getStar());
-		removeGenome.add("genomeDir", genomeOutDir);
+		ST removeGenomeSecondPass = new ST("<star> --genomeDir <genomeDir> --genomeLoad Remove");
+		removeGenomeSecondPass.add("star", applicationOptions.getStar());
+		removeGenomeSecondPass.add("genomeDir", genomeOutDirPass2);
 		
 		
-		removeGenomeEntry.addCommand(removeGenome.render());
+		removeGenomeEntry.addCommand(removeGenomeSecondPass.render());
 		removeGenomeEntry.addCommand("touch $@");
 		
 		// add to make file

@@ -9,6 +9,8 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -23,8 +25,9 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 	
 	
 	@Autowired
-	ApplicationOptionProcessor(LoggerService loggerService) {
+	ApplicationOptionProcessor(ApplicationArguments args, LoggerService loggerService) throws ParseException {
 		this.logger = loggerService.getLogger(this);
+		processInputs(args.getSourceArgs());
 	}
 	
 	@Override
@@ -92,7 +95,8 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 	public void printHelp(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp( "RNA-seq pipeline", options );
-		System.exit(0);
+		//System.exit(0);
 	}
+
 
 }

@@ -1,7 +1,11 @@
 package org.kidneyomics.rnaseq;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationHome;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -18,17 +22,25 @@ public class ApplicationOptions {
 	private int readLength = 100;
 	private String uncompressCommand = "zcat";
 	
+	
+	private String jarLocation;
+	
 	Logger logger;
 	
 	
 	@Autowired
-	ApplicationOptions(LoggerService loggerService) {
+	ApplicationOptions(LoggerService loggerService) throws UnsupportedEncodingException {
 		this.logger = loggerService.getLogger(this);
+		jarLocation =  new ApplicationHome(ApplicationOptions.class).getSource().getAbsolutePath();
 	}
 	
 	public enum Mode {
 		ALIGN,
 		ERROR
+	}
+	
+	public String getJarLocation() {
+		return this.jarLocation;
 	}
 	
 	public String getStar() {

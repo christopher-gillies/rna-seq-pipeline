@@ -2,7 +2,10 @@ package org.kidneyomics.rnaseq;
 
 
 
+
 import org.kidneyomics.rnaseq.ApplicationOptions.Mode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -14,21 +17,40 @@ public class RnaSeqPipelineApplication {
 
     public static void main(String[] args) throws Exception {
     	    	
-        ApplicationContext context = SpringApplication.run(RnaSeqPipelineApplication.class, args);
+    	
+        //ApplicationContext context = SpringApplication.run(RnaSeqPipelineApplication.class, args);
         
-        OptionProcessor op = context.getBean(ApplicationOptionProcessor.class);
-        op.processInputs(args);
+    	SpringApplication springApplication = new SpringApplication(new Object[] { RnaSeqPipelineApplication.class });
+    	springApplication.setLogStartupInfo(false);
+    	ApplicationContext context = springApplication.run(args);
+
+        
+
+    	Logger logger = LoggerFactory.getLogger(RnaSeqPipelineApplication.class);
+
+    	
         
         ApplicationOptions applicationOptions = context.getBean(ApplicationOptions.class);
-		Mode mode = applicationOptions.validateOptions();
 		
-		/*
-		 * Perform more logic
-		 */
+       
+        
+        
+        logger.info("Application location: " + applicationOptions.getJarLocation());
+        
+        Mode mode = applicationOptions.validateOptions();
 		
-		MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
+        switch(mode) {
+        
+        case ALIGN: {
+        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
+        	makeFileWriter.writeMakeFile(mode);
+        	break;
+        }
+        case ERROR: {
+        	
+        }
+        }
 		
-		makeFileWriter.writeMakeFile(mode);
 		
     }
     
