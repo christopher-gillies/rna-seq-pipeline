@@ -43,9 +43,10 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("outputDir",true,"the output directory");
 		options.addOption("starAligner",true,"the path to star aligner");
 		options.addOption("gtf",true,"the gtf file for annotations");
+		options.addOption("picard",true,"the jar file for picard");
 		options.addOption("readLength",true,"the read length");
 		options.addOption("numberOfThreadsForGenomeIndex",true,"the number of threads to use for genome indexing");
-		
+		options.addOption("numberOfThreadsForAlign",true,"the number of threads to use for aligning");
 		
 		logger.info(StringUtils.arrayToCommaDelimitedString(args));
 		
@@ -91,6 +92,15 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		if(cmd.hasOption("readLength")) {
 			applicationOptions.setReadLength(Integer.parseInt(cmd.getOptionValue("readLength")));
 		}
+		
+		if(cmd.hasOption("picard")) {
+			applicationOptions.setPicard(cmd.getOptionValue("picard"));
+		}
+		
+		if(cmd.hasOption("numberOfThreadsForAlign")) {
+			applicationOptions.setNumThreadsAlign(cmd.getOptionValue("numberOfThreadsForAlign"));
+		}
+		
 		
 		
 	}

@@ -80,6 +80,8 @@ public class TestMakeFileWriter {
 		
 		when(applicationOptionsMock.getSjdbOverhang()).thenReturn(40);
 		
+		when(applicationOptionsMock.getNumThreadsAlign()).thenReturn("2");
+		
 		LoggerService loggerService = new LoggerService();
 		
 		MakeFileWriter makeFileWriter = new MakeFileWriter(loggerService);

@@ -17,12 +17,12 @@ public class ApplicationOptions {
 	private String outputDirectory;
 	private String fastqFiles;
 	private String referenceSequence;
-	private String numThreadsGenomeIndex;
+	private String numThreadsGenomeIndex = "1";
 	private String gtf;
 	private int readLength = 100;
 	private String uncompressCommand = "zcat";
-	
-	
+	private String picard;
+	private String numThreadsAlign = "1";
 	private String jarLocation;
 	
 	Logger logger;
@@ -86,9 +86,11 @@ public class ApplicationOptions {
 	public void setGtf(String gtf) {
 		this.gtf = gtf;
 	}
+	
 	public Logger getLogger() {
 		return logger;
 	}
+	
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
@@ -113,10 +115,36 @@ public class ApplicationOptions {
 	public String getUncompressCommand() {
 		return uncompressCommand;
 	}
+	
 	public void setUncompressCommand(String uncompressCommand) {
 		this.uncompressCommand = uncompressCommand;
 	}
 	
+	
+	
+	
+	public String getPicard() {
+		return picard;
+	}
+
+	public void setPicard(String picard) {
+		this.picard = picard;
+	}
+	
+	
+
+	public String getNumThreadsAlign() {
+		return numThreadsAlign;
+	}
+
+	public void setNumThreadsAlign(String numThreadsAlign) {
+		this.numThreadsAlign = numThreadsAlign;
+	}
+
+	public void setJarLocation(String jarLocation) {
+		this.jarLocation = jarLocation;
+	}
+
 	public Mode validateOptions() {
 		Mode result = Mode.ERROR;
 		
@@ -150,11 +178,18 @@ public class ApplicationOptions {
 				System.exit(1);
 			}
 			
+			if(StringUtils.isEmpty(getPicard())) {
+				logger.error("please specify a picard tools jar file");
+				System.exit(1);
+			}
+			
 			
 			if(StringUtils.endsWithIgnoreCase(getGtf(), ".gz")) {
 				logger.error("please uncompress gtf file");
 				System.exit(1);
 			}
+			
+			
 			
 			
 			if(StringUtils.isEmpty(getNumThreadsGenomeIndex())) {
