@@ -3,7 +3,10 @@ package org.kidneyomics.rnaseq;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.kidneyomics.rnaseq.ApplicationOptions.Mode;
@@ -39,7 +42,8 @@ public class MakeFileWriter {
 	
 	private void writeAlignCommands() throws Exception {
 		
-		//Read samples
+		Map<String,SampleData> sampleMap = new HashMap<String,SampleData>();
+		
 		
 		//Create MakeFile
 		
@@ -142,6 +146,7 @@ public class MakeFileWriter {
 		Collection<String> sjdbFiles = new LinkedList<String>();
 		
 		for(Sample sample : samples) {
+
 			MakeEntry firstPassAlignEntry = new MakeEntry();
 			firstPassAlignEntry.setComment("Run first pass alignment for sample " + sample.getSampleId());
 			firstPassAlignEntry.addDependency(genomeIndexFirstPassEntry);
@@ -159,7 +164,10 @@ public class MakeFileWriter {
 			firstPassAlign.add("n", applicationOptions.getNumThreadsAlign());
 			
 			String sjdbFile = sampleDir + "/SJ.out.tab";
+			String samFile = sampleDir + "/Aligned.out.sam";
+			String finalLog = sampleDir + "/Log.final.out";
 			sjdbFiles.add(sjdbFile);
+			
 			
 			firstPassAlignEntry.addCommand("mkdir -p " + sampleDir);
 			firstPassAlignEntry.addCommand(firstPassAlign.render());
@@ -170,6 +178,20 @@ public class MakeFileWriter {
 			
 			//add to dependencies
 			pass1Dependencies.add(firstPassAlignEntry);
+			
+			
+			/*
+			 * Create sample entry in map
+			 */
+			SampleData sampleData = new SampleData();
+			sampleData.id = sample.getSampleId();
+			sampleData.pass1Dir = sampleDir;
+			sampleData.samPass1 = samFile;
+			sampleData.finalLogPass1 = finalLog;
+			sampleData.sjdb1 = sjdbFile;
+			
+			sampleMap.put(sampleData.id, sampleData);
+			
 		}
 		
 		
@@ -317,11 +339,25 @@ public class MakeFileWriter {
 			secondPassAlignEntry.addCommand(SecondPassAlign.render());
 			secondPassAlignEntry.addCommand("touch $@");
 			
+			String sjdbFile = sampleDir + "/SJ.out.tab";
+			String samFile = sampleDir + "/Aligned.out.sam";
+			String finalLog = sampleDir + "/Log.final.out";
 			// add to make file
 			make.addMakeEntry(secondPassAlignEntry);
 			
 			//add to dependencies
 			pass2Dependencies.add(secondPassAlignEntry);
+			
+			SampleData sampleData = sampleMap.get(sample.getSampleId());
+			if(sampleData == null) {
+				throw new NullPointerException(sample.getSampleId() + " is missing...");
+			} else {
+				sampleData.samPass2 = samFile;
+				sampleData.pass2Dir = sampleDir;
+				sampleData.sjdb2 = sjdbFile;
+				sampleData.finalLogPass2 = finalLog;
+				sampleData.polishDependency = secondPassAlignEntry;
+			}
 		}
 		
 		
@@ -359,6 +395,96 @@ public class MakeFileWriter {
 		/*
 		 * 
 		 * 
+		 *  AddOrReplaceReadGroups and MarkDuplicates
+		 *  "Polish Bam"
+		 * 
+		 */
+		
+		for(SampleData sampleData : sampleMap.values()) {
+			MakeEntry polishBamEntry = new MakeEntry();
+			sampleData.cleanUpDependency = polishBamEntry;
+			polishBamEntry.setComment("Add the readgroups to the bam and mark duplicates for " + sampleData.id);
+			polishBamEntry.setTarget(dirBase + "/SAMPLE_" + sampleData.id + "_BAM_POLISH.OK");
+			polishBamEntry.addDependency(sampleData.polishDependency);
+			
+			sampleData.sortedBam = sampleData.pass2Dir + "/sorted.bam";
+			
+			
+			ST addOrReplaceReadGroups = new ST("java -jar <picard> AddOrReplaceReadGroups I=<input> O=<output> SO=coordinate RGID=<rgid> RGLB=<library> RGPL=ILLUMINA RGPU=ILLUMINA RGSM=<sample>");
+			addOrReplaceReadGroups.add("picard", applicationOptions.getPicard())
+			.add("input", sampleData.samPass2)
+			.add("output", sampleData.sortedBam)
+			.add("rgid", sampleData.id)
+			.add("library", sampleData.id)
+			.add("sample", sampleData.id);
+			
+			polishBamEntry.addCommand(addOrReplaceReadGroups.render());
+			
+			sampleData.finalBam = sampleData.pass2Dir + "/final.bam";
+			sampleData.dupMetrics = sampleData.pass2Dir + "/duplicate.output.metrics";
+			ST markDuplicatesEntry = new ST("java -jar <picard> MarkDuplicates I=<input> O=<output>  CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT M=<metrics>");
+			markDuplicatesEntry.add("picard", applicationOptions.getPicard())
+			.add("input", sampleData.sortedBam)
+			.add("output", sampleData.finalBam)
+			.add("metrics", sampleData.dupMetrics);
+			
+			polishBamEntry.addCommand(markDuplicatesEntry.render());
+			
+			
+			polishBamEntry.addCommand("touch $@");
+			
+			make.addMakeEntry(polishBamEntry);
+		}
+		
+		
+		
+		
+		/*
+		 * 
+		 * 
+		 * Remove unncecessary files
+		 * 
+		 * 
+		 * 
+		 */
+		
+		for(SampleData sampleData : sampleMap.values()) {
+			MakeEntry cleanUpEntry = new MakeEntry();
+
+			cleanUpEntry.setComment("Remove unnessary files for " + sampleData.id);
+			cleanUpEntry.setTarget(dirBase + "/SAMPLE_" + sampleData.id + "_CLEAN_UP.OK");
+			cleanUpEntry.addDependency(sampleData.cleanUpDependency);
+			
+			cleanUpEntry.addCommand("rm " + sampleData.samPass1);
+			cleanUpEntry.addCommand("rm " + sampleData.samPass2);
+			cleanUpEntry.addCommand("rm " + sampleData.sortedBam);
+			cleanUpEntry.addCommand("touch $@");
+			
+			make.addMakeEntry(cleanUpEntry);
+		}
+		
+		
+		/*
+		 * 
+		 * 
+		 * Write output data
+		 * 
+		 * 
+		 * 
+		 */
+		
+		StringBuilder sb = new StringBuilder();
+		for(SampleData sampleData : sampleMap.values()) {
+			sb.append(sampleData.toLine());
+			sb.append("\n");
+		}
+		
+		FileUtils.write(new File(dirBase + "bam.list.txt"), sb.toString());
+		
+		
+		/*
+		 * 
+		 * 
 		 * Write makefile
 		 * 
 		 * 
@@ -368,6 +494,28 @@ public class MakeFileWriter {
 		logger.info("Writing Makefile");
 		
 		FileUtils.write(new File(baseDir + "/Makefile"), makefileText);
+	}
+	
+	
+	private class SampleData {
+		String id;
+		String pass1Dir;
+		String pass2Dir;
+		String finalLogPass1;
+		String finalLogPass2;
+		String samPass1;
+		String samPass2;
+		String sortedBam;
+		String finalBam;
+		String sjdb1;
+		String sjdb2;
+		String dupMetrics;
+		MakeEntry polishDependency;
+		MakeEntry cleanUpDependency;
+		
+		public String toLine() {
+			return StringUtils.arrayToDelimitedString(new String[] { id, finalBam, finalLogPass1, finalLogPass2, sjdb1, sjdb2, dupMetrics  }, "\t");
+		}
 	}
 	
 }
