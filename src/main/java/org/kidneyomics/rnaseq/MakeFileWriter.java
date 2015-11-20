@@ -404,7 +404,7 @@ public class MakeFileWriter {
 			MakeEntry polishBamEntry = new MakeEntry();
 			sampleData.cleanUpDependency = polishBamEntry;
 			polishBamEntry.setComment("Add the readgroups to the bam and mark duplicates for " + sampleData.id);
-			polishBamEntry.setTarget(dirBase + "/SAMPLE_" + sampleData.id + "_BAM_POLISH.OK");
+			polishBamEntry.setTarget(dirBase + "/" + sampleData.id + "_BAM_POLISH.OK");
 			polishBamEntry.addDependency(sampleData.polishDependency);
 			
 			sampleData.sortedBam = sampleData.pass2Dir + "/sorted.bam";
@@ -452,7 +452,7 @@ public class MakeFileWriter {
 			MakeEntry cleanUpEntry = new MakeEntry();
 
 			cleanUpEntry.setComment("Remove unnessary files for " + sampleData.id);
-			cleanUpEntry.setTarget(dirBase + "/SAMPLE_" + sampleData.id + "_CLEAN_UP.OK");
+			cleanUpEntry.setTarget(dirBase + "/" + sampleData.id + "_CLEAN_UP.OK");
 			cleanUpEntry.addDependency(sampleData.cleanUpDependency);
 			
 			cleanUpEntry.addCommand("rm " + sampleData.samPass1);
