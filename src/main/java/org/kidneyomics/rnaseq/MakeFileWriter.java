@@ -155,7 +155,7 @@ public class MakeFileWriter {
 			
 			String sampleDir = dirBase + "/" + sample.getSampleId() + "_1/";
 			
-			ST firstPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir> --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN <n>");
+			ST firstPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir> --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN <n> --outSAMmultNmax 0 --outSAMtype BAM");
 			firstPassAlign.add("star", applicationOptions.getStar());
 			firstPassAlign.add("genomeDir", genomeOutDir);
 			firstPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), " "));
@@ -164,7 +164,7 @@ public class MakeFileWriter {
 			firstPassAlign.add("n", applicationOptions.getNumThreadsAlign());
 			
 			String sjdbFile = sampleDir + "/SJ.out.tab";
-			String samFile = sampleDir + "/Aligned.out.sam";
+			String samFile = sampleDir + "/Aligned.out.bam";
 			String finalLog = sampleDir + "/Log.final.out";
 			sjdbFiles.add(sjdbFile);
 			
@@ -325,7 +325,7 @@ public class MakeFileWriter {
 			
 			String sampleDir = dirBase + "/" + sample.getSampleId() + "/";
 			
-			ST SecondPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir> --runThreadN <n>");
+			ST SecondPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir> --runThreadN <n> --outSAMmultNmax 0 --outSAMtype BAM");
 			SecondPassAlign.add("star", applicationOptions.getStar());
 			SecondPassAlign.add("genomeDir", genomeOutDirPass2);
 			SecondPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), " "));
@@ -340,7 +340,7 @@ public class MakeFileWriter {
 			secondPassAlignEntry.addCommand("touch $@");
 			
 			String sjdbFile = sampleDir + "/SJ.out.tab";
-			String samFile = sampleDir + "/Aligned.out.sam";
+			String samFile = sampleDir + "/Aligned.out.bam";
 			String finalLog = sampleDir + "/Log.final.out";
 			// add to make file
 			make.addMakeEntry(secondPassAlignEntry);

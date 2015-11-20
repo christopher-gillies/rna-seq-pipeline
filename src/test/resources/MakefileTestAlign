@@ -14,13 +14,13 @@ all:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	
 #Run first pass alignment for sample SAMPLE2
 /tmp/test/SAMPLE2.FIRST_PASS.OK:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	
 	mkdir -p /tmp/test/SAMPLE2_1/
-	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq3.fastq.gz /tmp/fastq4.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE2_1/ --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN 2
+	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq3.fastq.gz /tmp/fastq4.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE2_1/ --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN 2 --outSAMmultNmax 0 --outSAMtype BAM
 	touch $@
 
 #Run first pass alignment for sample SAMPLE1
 /tmp/test/SAMPLE1.FIRST_PASS.OK:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	
 	mkdir -p /tmp/test/SAMPLE1_1/
-	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq1.fastq.gz /tmp/fastq2.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE1_1/ --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN 2
+	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq1.fastq.gz /tmp/fastq2.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE1_1/ --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN 2 --outSAMmultNmax 0 --outSAMtype BAM
 	touch $@
 
 #Remove the genome from RAM
@@ -41,13 +41,13 @@ all:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	
 #Run second pass alignment for sample SAMPLE2
 /tmp/test/SAMPLE2.SECOND_PASS.OK:	/tmp/test/SECOND_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_SECOND_PASS.OK	
 	mkdir -p /tmp/test/SAMPLE2/
-	/tmp/star --genomeDir /tmp/test/genomeDirPassTwo --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq3.fastq.gz /tmp/fastq4.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE2/ --runThreadN 2
+	/tmp/star --genomeDir /tmp/test/genomeDirPassTwo --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq3.fastq.gz /tmp/fastq4.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE2/ --runThreadN 2 --outSAMmultNmax 0 --outSAMtype BAM
 	touch $@
 
 #Run second pass alignment for sample SAMPLE1
 /tmp/test/SAMPLE1.SECOND_PASS.OK:	/tmp/test/SECOND_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_SECOND_PASS.OK	
 	mkdir -p /tmp/test/SAMPLE1/
-	/tmp/star --genomeDir /tmp/test/genomeDirPassTwo --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq1.fastq.gz /tmp/fastq2.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE1/ --runThreadN 2
+	/tmp/star --genomeDir /tmp/test/genomeDirPassTwo --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq1.fastq.gz /tmp/fastq2.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE1/ --runThreadN 2 --outSAMmultNmax 0 --outSAMtype BAM
 	touch $@
 
 #Remove the genome from RAM
@@ -57,27 +57,27 @@ all:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	
 
 #Add the readgroups to the bam and mark duplicates for SAMPLE2
 /tmp/test/SAMPLE_SAMPLE2_BAM_POLISH.OK:	/tmp/test/SAMPLE2.SECOND_PASS.OK	
-	java -jar  AddOrReplaceReadGroups I=/tmp/test/SAMPLE2//Aligned.out.sam O=/tmp/test/SAMPLE2//sorted.bam SO=coordinate RGID=SAMPLE2 RGLB=SAMPLE2 RGPL=ILLUMINA RGPU=ILLUMINA RGSM=SAMPLE2
+	java -jar  AddOrReplaceReadGroups I=/tmp/test/SAMPLE2//Aligned.out.bam O=/tmp/test/SAMPLE2//sorted.bam SO=coordinate RGID=SAMPLE2 RGLB=SAMPLE2 RGPL=ILLUMINA RGPU=ILLUMINA RGSM=SAMPLE2
 	java -jar  MarkDuplicates I=/tmp/test/SAMPLE2//sorted.bam O=/tmp/test/SAMPLE2//final.bam  CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT M=/tmp/test/SAMPLE2//duplicate.output.metrics
 	touch $@
 
 #Add the readgroups to the bam and mark duplicates for SAMPLE1
 /tmp/test/SAMPLE_SAMPLE1_BAM_POLISH.OK:	/tmp/test/SAMPLE1.SECOND_PASS.OK	
-	java -jar  AddOrReplaceReadGroups I=/tmp/test/SAMPLE1//Aligned.out.sam O=/tmp/test/SAMPLE1//sorted.bam SO=coordinate RGID=SAMPLE1 RGLB=SAMPLE1 RGPL=ILLUMINA RGPU=ILLUMINA RGSM=SAMPLE1
+	java -jar  AddOrReplaceReadGroups I=/tmp/test/SAMPLE1//Aligned.out.bam O=/tmp/test/SAMPLE1//sorted.bam SO=coordinate RGID=SAMPLE1 RGLB=SAMPLE1 RGPL=ILLUMINA RGPU=ILLUMINA RGSM=SAMPLE1
 	java -jar  MarkDuplicates I=/tmp/test/SAMPLE1//sorted.bam O=/tmp/test/SAMPLE1//final.bam  CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT M=/tmp/test/SAMPLE1//duplicate.output.metrics
 	touch $@
 
 #Remove unnessary files for SAMPLE2
 /tmp/test/SAMPLE_SAMPLE2_CLEAN_UP.OK:	/tmp/test/SAMPLE_SAMPLE2_BAM_POLISH.OK	
-	rm /tmp/test/SAMPLE2_1//Aligned.out.sam
-	rm /tmp/test/SAMPLE2//Aligned.out.sam
+	rm /tmp/test/SAMPLE2_1//Aligned.out.bam
+	rm /tmp/test/SAMPLE2//Aligned.out.bam
 	rm /tmp/test/SAMPLE2//sorted.bam
 	touch $@
 
 #Remove unnessary files for SAMPLE1
 /tmp/test/SAMPLE_SAMPLE1_CLEAN_UP.OK:	/tmp/test/SAMPLE_SAMPLE1_BAM_POLISH.OK	
-	rm /tmp/test/SAMPLE1_1//Aligned.out.sam
-	rm /tmp/test/SAMPLE1//Aligned.out.sam
+	rm /tmp/test/SAMPLE1_1//Aligned.out.bam
+	rm /tmp/test/SAMPLE1//Aligned.out.bam
 	rm /tmp/test/SAMPLE1//sorted.bam
 	touch $@
 
