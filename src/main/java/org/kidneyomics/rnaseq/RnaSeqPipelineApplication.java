@@ -3,6 +3,8 @@ package org.kidneyomics.rnaseq;
 
 
 
+import java.io.File;
+
 import org.kidneyomics.rnaseq.ApplicationOptions.Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,13 @@ public class RnaSeqPipelineApplication {
         	makeFileWriter.writeMakeFile(mode);
         	break;
         }
+        case FIND_UNIQUE_MAPPED_READS:
+        	UniqueMappingFilter filter = context.getBean(UniqueMappingFilter.class);
+        	File in = new File(applicationOptions.getFileIn());
+        	File out = new File(applicationOptions.getFileOut());
+        	filter.filter(in,out);
+        	
+        	break;
         case ERROR: {
         	
         }

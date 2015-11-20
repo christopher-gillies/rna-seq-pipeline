@@ -24,6 +24,9 @@ public class ApplicationOptions {
 	private String picard;
 	private String numThreadsAlign = "1";
 	private String jarLocation;
+	private String fileIn;
+	private String fileOut;
+	private boolean findUniqueMappedReads = false;
 	
 	Logger logger;
 	
@@ -36,7 +39,8 @@ public class ApplicationOptions {
 	
 	public enum Mode {
 		ALIGN,
-		ERROR
+		ERROR,
+		FIND_UNIQUE_MAPPED_READS,
 	}
 	
 	public String getJarLocation() {
@@ -145,6 +149,34 @@ public class ApplicationOptions {
 		this.jarLocation = jarLocation;
 	}
 
+	
+	
+	public String getFileIn() {
+		return fileIn;
+	}
+
+	public void setFileIn(String fileIn) {
+		this.fileIn = fileIn;
+	}
+
+	public String getFileOut() {
+		return fileOut;
+	}
+
+	public void setFileOut(String fileOut) {
+		this.fileOut = fileOut;
+	}
+
+	
+	
+	public boolean isFindUniqueMappedReads() {
+		return findUniqueMappedReads;
+	}
+
+	public void setFindUniqueMappedReads(boolean findUniqueMappedReads) {
+		this.findUniqueMappedReads = findUniqueMappedReads;
+	}
+
 	public Mode validateOptions() {
 		Mode result = Mode.ERROR;
 		
@@ -200,6 +232,20 @@ public class ApplicationOptions {
 			
 			
 			result = Mode.ALIGN;
+			
+		} else if(findUniqueMappedReads) {
+			
+			if(StringUtils.isEmpty(getFileIn())) {
+				logger.error("please specify an input file");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileOut())) {
+				logger.error("please specify an output file");
+				System.exit(1);
+			}
+			
+			result = Mode.FIND_UNIQUE_MAPPED_READS;
 			
 		}
 		

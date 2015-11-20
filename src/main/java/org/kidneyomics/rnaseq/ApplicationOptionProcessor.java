@@ -48,6 +48,12 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("numberOfThreadsForGenomeIndex",true,"the number of threads to use for genome indexing");
 		options.addOption("numberOfThreadsForAlign",true,"the number of threads to use for aligning");
 		
+		
+		options.addOption("fileIn",true,"the input file for finding unique mapping reads");
+		options.addOption("fileOut",true,"the output file after finding unique mapping reads");
+		options.addOption("findUniqueMappedReads",false,"finds the reads that are uniquely mapped");
+		
+		
 		logger.info(StringUtils.arrayToCommaDelimitedString(args));
 		
 		
@@ -61,6 +67,12 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		if(cmd.hasOption("help")) {
 			printHelp(options);
+		}
+		
+		if(cmd.hasOption("findUniqueMappedReads")) {
+			applicationOptions.setFindUniqueMappedReads(true);
+		} else {
+			applicationOptions.setFindUniqueMappedReads(false);
 		}
 		
 		
@@ -101,6 +113,14 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 			applicationOptions.setNumThreadsAlign(cmd.getOptionValue("numberOfThreadsForAlign"));
 		}
 		
+		
+		if(cmd.hasOption("fileIn")) {
+			applicationOptions.setFileIn(cmd.getOptionValue("fileIn"));
+		}
+		
+		if(cmd.hasOption("fileOut")) {
+			applicationOptions.setFileOut(cmd.getOptionValue("fileOut"));
+		}
 		
 		
 	}
