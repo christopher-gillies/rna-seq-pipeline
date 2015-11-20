@@ -44,11 +44,13 @@ public class RnaSeqPipelineApplication {
         switch(mode) {
         
         case ALIGN: {
+        	logger.info("Creating makefile for alignment");
         	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
         	makeFileWriter.writeMakeFile(mode);
         	break;
         }
         case FIND_UNIQUE_MAPPED_READS:
+        	logger.info("Removed multimapped reads");
         	UniqueMappingFilter filter = context.getBean(UniqueMappingFilter.class);
         	File in = new File(applicationOptions.getFileIn());
         	File out = new File(applicationOptions.getFileOut());

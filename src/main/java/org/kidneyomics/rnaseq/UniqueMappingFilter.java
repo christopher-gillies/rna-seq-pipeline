@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import htsjdk.samtools.SAMFileWriter;
@@ -19,6 +20,7 @@ public class UniqueMappingFilter {
 
 	Logger logger;
 	
+	@Autowired
 	public UniqueMappingFilter(LoggerService loggerService) {
 		logger = loggerService.getLogger(this);
 	}
