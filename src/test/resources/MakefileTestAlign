@@ -14,13 +14,13 @@ all:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	
 #Run first pass alignment for sample SAMPLE2
 /tmp/test/SAMPLE2.FIRST_PASS.OK:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	
 	mkdir -p /tmp/test/SAMPLE2_1/
-	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq3.fastq.gz /tmp/fastq4.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE2_1/ --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN 2 --outSAMmultNmax 0 --outSAMtype BAM
+	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq3.fastq.gz /tmp/fastq4.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE2_1/ --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN 2 --outSAMmultNmax 0 --outSAMtype BAM Unsorted
 	touch $@
 
 #Run first pass alignment for sample SAMPLE1
 /tmp/test/SAMPLE1.FIRST_PASS.OK:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	
 	mkdir -p /tmp/test/SAMPLE1_1/
-	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq1.fastq.gz /tmp/fastq2.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE1_1/ --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN 2 --outSAMmultNmax 0 --outSAMtype BAM
+	/tmp/star --genomeDir /tmp/test/genomeDirPassOne --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq1.fastq.gz /tmp/fastq2.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE1_1/ --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN 2 --outSAMmultNmax 0 --outSAMtype BAM Unsorted
 	touch $@
 
 #Remove the genome from RAM
@@ -41,13 +41,13 @@ all:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	
 #Run second pass alignment for sample SAMPLE2
 /tmp/test/SAMPLE2.SECOND_PASS.OK:	/tmp/test/SECOND_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_SECOND_PASS.OK	
 	mkdir -p /tmp/test/SAMPLE2/
-	/tmp/star --genomeDir /tmp/test/genomeDirPassTwo --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq3.fastq.gz /tmp/fastq4.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE2/ --runThreadN 2 --outSAMmultNmax 0 --outSAMtype BAM
+	/tmp/star --genomeDir /tmp/test/genomeDirPassTwo --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq3.fastq.gz /tmp/fastq4.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE2/ --runThreadN 2 --outSAMmultNmax 0 --outSAMtype BAM Unsorted
 	touch $@
 
 #Run second pass alignment for sample SAMPLE1
 /tmp/test/SAMPLE1.SECOND_PASS.OK:	/tmp/test/SECOND_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_SECOND_PASS.OK	
 	mkdir -p /tmp/test/SAMPLE1/
-	/tmp/star --genomeDir /tmp/test/genomeDirPassTwo --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq1.fastq.gz /tmp/fastq2.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE1/ --runThreadN 2 --outSAMmultNmax 0 --outSAMtype BAM
+	/tmp/star --genomeDir /tmp/test/genomeDirPassTwo --genomeLoad LoadAndKeep --readFilesIn /tmp/fastq1.fastq.gz /tmp/fastq2.fastq.gz --readFilesCommand zcat --outFileNamePrefix /tmp/test/SAMPLE1/ --runThreadN 2 --outSAMmultNmax 0 --outSAMtype BAM Unsorted
 	touch $@
 
 #Remove the genome from RAM
