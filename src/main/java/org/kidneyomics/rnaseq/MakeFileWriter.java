@@ -403,16 +403,23 @@ public class MakeFileWriter {
 		for(SampleData sampleData : sampleMap.values()) {
 			MakeEntry polishBamEntry = new MakeEntry();
 			sampleData.cleanUpDependency = polishBamEntry;
-			polishBamEntry.setComment("Add the readgroups to the bam and mark duplicates for " + sampleData.id);
+			polishBamEntry.setComment("Filter out mulitmapped reads and add the readgroups to the bam and mark duplicates for " + sampleData.id);
 			polishBamEntry.setTarget(dirBase + "/" + sampleData.id + "_BAM_POLISH.OK");
 			polishBamEntry.addDependency(sampleData.polishDependency);
 			
 			sampleData.sortedBam = sampleData.pass2Dir + "/sorted.bam";
+			sampleData.uniqueBam = sampleData.pass2Dir + "/unique.bam";
 			
+			ST findUniqueReads = new ST("java -jar <application> --findUniqueMappedReads --fileIn <fileIn> --fileOut <fileOut>");
+			findUniqueReads.add("application", applicationOptions.getJarLocation())
+			.add("fileIn", sampleData.samPass2)
+			.add("fileOut", sampleData.uniqueBam);
+			
+			polishBamEntry.addCommand(findUniqueReads.render());
 			
 			ST addOrReplaceReadGroups = new ST("java -jar <picard> AddOrReplaceReadGroups I=<input> O=<output> SO=coordinate RGID=<rgid> RGLB=<library> RGPL=ILLUMINA RGPU=ILLUMINA RGSM=<sample>");
 			addOrReplaceReadGroups.add("picard", applicationOptions.getPicard())
-			.add("input", sampleData.samPass2)
+			.add("input", sampleData.uniqueBam)
 			.add("output", sampleData.sortedBam)
 			.add("rgid", sampleData.id)
 			.add("library", sampleData.id)
@@ -458,6 +465,7 @@ public class MakeFileWriter {
 			cleanUpEntry.addCommand("rm " + sampleData.samPass1);
 			cleanUpEntry.addCommand("rm " + sampleData.samPass2);
 			cleanUpEntry.addCommand("rm " + sampleData.sortedBam);
+			cleanUpEntry.addCommand("rm " + sampleData.uniqueBam);
 			cleanUpEntry.addCommand("touch $@");
 			
 			make.addMakeEntry(cleanUpEntry);
@@ -505,6 +513,7 @@ public class MakeFileWriter {
 		String finalLogPass2;
 		String samPass1;
 		String samPass2;
+		String uniqueBam;
 		String sortedBam;
 		String finalBam;
 		String sjdb1;

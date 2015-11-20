@@ -82,6 +82,8 @@ public class TestMakeFileWriter {
 		
 		when(applicationOptionsMock.getNumThreadsAlign()).thenReturn("2");
 		
+		when(applicationOptionsMock.getJarLocation()).thenReturn("/data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar");
+		
 		LoggerService loggerService = new LoggerService();
 		
 		MakeFileWriter makeFileWriter = new MakeFileWriter(loggerService);

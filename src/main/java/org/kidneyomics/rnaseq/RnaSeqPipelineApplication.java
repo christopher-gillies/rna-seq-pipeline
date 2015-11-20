@@ -50,7 +50,7 @@ public class RnaSeqPipelineApplication {
         	break;
         }
         case FIND_UNIQUE_MAPPED_READS:
-        	logger.info("Removed multimapped reads");
+        	logger.info("Removing multimapped reads");
         	UniqueMappingFilter filter = context.getBean(UniqueMappingFilter.class);
         	File in = new File(applicationOptions.getFileIn());
         	File out = new File(applicationOptions.getFileOut());

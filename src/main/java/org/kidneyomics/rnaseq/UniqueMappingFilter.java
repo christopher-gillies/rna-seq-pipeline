@@ -46,7 +46,7 @@ public class UniqueMappingFilter {
 	public void filterIterator(SAMRecordIterator iterator, SAMFileWriter writer) {
 		
 		int counter = 0;
-		int unqiueReads = 0;
+		int uniqueReads = 0;
 		while(iterator.hasNext()) {
 			counter++;
 			if(counter % 1000000 == 0) {
@@ -54,15 +54,15 @@ public class UniqueMappingFilter {
 			} 
 			SAMRecord record = iterator.next();
 			if(record.getMappingQuality() == 255) {
-				unqiueReads++;
-				if(unqiueReads % 1000000 == 0) {
-					logger.info("Scanned " + unqiueReads + " uniquely mapped records written");
+				uniqueReads++;
+				if(uniqueReads % 1000000 == 0) {
+					logger.info(uniqueReads + " uniquely mapped records written of " + counter + " scanned");
 				} 
 				writer.addAlignment(record);
 			}
 		}
 		
-		logger.info("Found " + unqiueReads + " uniquely mapped records");
+		logger.info("Found " + uniqueReads + " uniquely mapped records");
 		
 	}
 }
