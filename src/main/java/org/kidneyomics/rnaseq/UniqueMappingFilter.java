@@ -3,6 +3,7 @@ package org.kidneyomics.rnaseq;
 import java.io.File;
 import java.io.IOException;
 
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import htsjdk.samtools.SAMFileWriter;
@@ -16,6 +17,12 @@ import htsjdk.samtools.SamReaderFactory;
 @Component
 public class UniqueMappingFilter {
 
+	Logger logger;
+	
+	public UniqueMappingFilter(LoggerService loggerService) {
+		logger = loggerService.getLogger(this);
+	}
+	
 	public void filter(File in, File out) throws IOException {
 		SamReader reader = SamReaderFactory.makeDefault().open(in);
 		
@@ -36,12 +43,24 @@ public class UniqueMappingFilter {
 	
 	public void filterIterator(SAMRecordIterator iterator, SAMFileWriter writer) {
 		
+		int counter = 0;
+		int unqiueReads = 0;
 		while(iterator.hasNext()) {
+			counter++;
+			if(counter % 1000000 == 0) {
+				logger.info("Scanned " + counter + " records");
+			} 
 			SAMRecord record = iterator.next();
 			if(record.getMappingQuality() == 255) {
+				unqiueReads++;
+				if(unqiueReads % 1000000 == 0) {
+					logger.info("Scanned " + unqiueReads + " uniquely mapped records written");
+				} 
 				writer.addAlignment(record);
 			}
 		}
+		
+		logger.info("Found " + unqiueReads + " uniquely mapped records");
 		
 	}
 }
