@@ -11,13 +11,13 @@ import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMRecordIterator;
 import static org.mockito.Mockito.*;
 
-public class TestUniqueMappingFilter {
+public class UniqueMappingFilterTest {
 
 	@Test
 	public void test() {
 		
 		LoggerService loggerService = mock(LoggerService.class);
-		Logger logger = LoggerFactory.getLogger(TestUniqueMappingFilter.class);
+		Logger logger = LoggerFactory.getLogger(UniqueMappingFilterTest.class);
 		when(loggerService.getLogger(anyObject())).thenReturn(logger);
 		
 		UniqueMappingFilter filter = new UniqueMappingFilter(loggerService);

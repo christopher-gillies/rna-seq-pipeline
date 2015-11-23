@@ -1,0 +1,13 @@
+all:	FLUX_CAPACITOR_SAMPLE1.OK	FLUX_CAPACITOR_SAMPLE2.OK	
+	touch $@.OK
+
+#Command for flux capacitor for SAMPLE1
+FLUX_CAPACITOR_SAMPLE1.OK:	
+	/tmp/flux -i /tmp/tmp1.bam -a /tmp/genecode.gtf -m PAIRED -o /tmp/test2//SAMPLE1.gtf
+	touch $@
+
+#Command for flux capacitor for SAMPLE2
+FLUX_CAPACITOR_SAMPLE2.OK:	
+	/tmp/flux -i /tmp/tmp2.bam -a /tmp/genecode.gtf -m PAIRED -o /tmp/test2//SAMPLE2.gtf
+	touch $@
+

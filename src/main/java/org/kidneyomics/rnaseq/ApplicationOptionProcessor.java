@@ -39,6 +39,7 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		Options options = new Options();
 		options.addOption("help",false,"Print the help message");
 		options.addOption("fastqList",true,"List of fastq files");
+		options.addOption("bamList",true,"List of bam files");
 		options.addOption("referenceSequence",true,"the reference sequence");
 		options.addOption("outputDir",true,"the output directory");
 		options.addOption("starAligner",true,"the path to star aligner");
@@ -48,6 +49,7 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("numberOfThreadsForGenomeIndex",true,"the number of threads to use for genome indexing");
 		options.addOption("numberOfThreadsForAlign",true,"the number of threads to use for aligning");
 		
+		options.addOption("fluxCapacitor",true,"the path to the fluxcapacitor program");
 		
 		options.addOption("fileIn",true,"the input file for finding unique mapping reads");
 		options.addOption("fileOut",true,"the output file after finding unique mapping reads");
@@ -91,6 +93,10 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		if(cmd.hasOption("fastqList")) {
 			applicationOptions.setFastqFiles(cmd.getOptionValue("fastqList"));
+		}
+		
+		if(cmd.hasOption("bamList")) {
+			applicationOptions.setBamList(cmd.getOptionValue("bamList"));
 		}
 		
 		if(cmd.hasOption("gtf")) {

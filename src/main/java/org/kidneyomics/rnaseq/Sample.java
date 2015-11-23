@@ -90,6 +90,28 @@ public class Sample {
 		}
 		return samples.values();
 	}
+	
+	public static Collection<Sample> getBamFileList(File file) throws Exception {
+		//Assume one row per sample
+		Collection<Sample> results = new LinkedList<Sample>();
+		List<String> lines = FileUtils.readLines(file);
+		for(String line : lines) {
+			String[] cols = line.split("\t");
+			if(cols.length < 2) {
+				throw new Exception(line + "\n not formatted correctly");
+			}
+			
+			String sampleId = cols[0];
+			String bamfile = cols[1];
+			Sample s = new Sample(sampleId);
+			BAM bam = new BAM();
+			s.bamFiles.add(bam.setBamFile(bamfile));
+			
+			results.add(s);
+			
+		}
+		return results;
+	}
 
 	public String toString() {
 		//ST template = new ST("<sample.sampleId>: FASTQs:<\n><sample.fastqFiles:{fastq | <fastq.file1>}>");

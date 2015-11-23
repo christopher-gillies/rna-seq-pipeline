@@ -14,8 +14,10 @@ public class ApplicationOptions {
 
 
 	private String star;
+	private String fluxCapacitor;
 	private String outputDirectory;
 	private String fastqFiles;
+	private String bamList;
 	private String referenceSequence;
 	private String numThreadsGenomeIndex = "1";
 	private String gtf;
@@ -39,10 +41,21 @@ public class ApplicationOptions {
 	
 	public enum Mode {
 		ALIGN,
+		FLUX_CAPACITOR,
 		ERROR,
 		FIND_UNIQUE_MAPPED_READS,
 	}
 	
+	
+	
+	public String getBamList() {
+		return bamList;
+	}
+
+	public void setBamList(String bamList) {
+		this.bamList = bamList;
+	}
+
 	public String getJarLocation() {
 		return this.jarLocation;
 	}
@@ -127,6 +140,14 @@ public class ApplicationOptions {
 	
 	
 	
+	public String getFluxCapacitor() {
+		return fluxCapacitor;
+	}
+
+	public void setFluxCapacitor(String fluxCapacitor) {
+		this.fluxCapacitor = fluxCapacitor;
+	}
+
 	public String getPicard() {
 		return picard;
 	}
@@ -247,6 +268,24 @@ public class ApplicationOptions {
 			
 			result = Mode.FIND_UNIQUE_MAPPED_READS;
 			
+		} else if(!StringUtils.isEmpty(getFluxCapacitor())) {
+
+			if(StringUtils.isEmpty(getBamList())) {
+				logger.error("bam files cannot be empty when performing flux capacitor");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getGtf())) {
+				logger.error("please specify a gtf file");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getOutputDirectory())) {
+				logger.error("please specify an output");
+				System.exit(1);
+			}
+			
+			result = Mode.FLUX_CAPACITOR;
 		}
 		
 		return result;

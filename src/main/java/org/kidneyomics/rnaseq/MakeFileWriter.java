@@ -35,6 +35,11 @@ public class MakeFileWriter {
 			logger.info("Writing alignment commands");
 			writeAlignCommands();
 			break;
+		case FLUX_CAPACITOR:
+			logger.info("Writing flux capacitor commands");
+			writeFluxCapacitorCommands();
+			break;
+		case FIND_UNIQUE_MAPPED_READS:
 		case ERROR:
 			break;
 		}
@@ -504,6 +509,77 @@ public class MakeFileWriter {
 		FileUtils.write(new File(baseDir + "/Makefile"), makefileText);
 	}
 	
+	
+	private void writeFluxCapacitorCommands() throws Exception {
+		
+		String bamFile = applicationOptions.getBamList();
+		String outputDir = applicationOptions.getOutputDirectory();
+		String flux = applicationOptions.getFluxCapacitor();
+		String gtf = applicationOptions.getGtf();
+		Collection<Sample> samples = Sample.getBamFileList(new File(bamFile));
+		
+		
+		File outDirRef = new File(outputDir);
+		if(!outDirRef.exists()) {
+			logger.info("Creating " + outDirRef);
+			outDirRef.mkdirs();
+		}
+		
+		MakeFile make = new MakeFile();
+		
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for(Sample s : samples) {
+
+			String id = s.getSampleId();
+			BAM bam = s.getBamFiles().get(0);
+			String gtfOut = outputDir + "/" + id + ".gtf";
+			ST fluxTemplate = new ST("<flux> -i <bam> -a <gtf> -m PAIRED -o <out>");
+			fluxTemplate.add("flux", flux)
+			.add("bam", bam.getBamFile())
+			.add("gtf", gtf)
+			.add("out", gtfOut);
+			
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Command for flux capacitor for " + id);
+			entry.setTarget("FLUX_CAPACITOR_" + id + ".OK");
+			entry.addCommand(fluxTemplate.render());
+			entry.addCommand("touch $@");
+			
+			make.addMakeEntry(entry);
+			
+			//store sample id and gtf file
+			sb.append(id + "\t" + gtfOut + "\n");
+		}
+		
+		
+		
+		/*
+		 * 
+		 * 
+		 * Write output file
+		 * 
+		 * 
+		 */
+		FileUtils.write(new File(outputDir + "gtf.list.txt"), sb.toString());
+		
+		
+		/*
+		 * 
+		 * 
+		 * Write makefile
+		 * 
+		 * 
+		 */
+		String makefileText = make.toString();
+		
+		logger.info("Writing Makefile");
+		
+		FileUtils.write(new File(outputDir + "/Makefile"), makefileText);
+		
+	}
 	
 	private class SampleData {
 		String id;

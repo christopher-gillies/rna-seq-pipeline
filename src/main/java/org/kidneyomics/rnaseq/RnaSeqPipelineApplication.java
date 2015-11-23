@@ -57,6 +57,10 @@ public class RnaSeqPipelineApplication {
         	filter.filter(in,out);
         	
         	break;
+        case FLUX_CAPACITOR:
+        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
+        	makeFileWriter.writeMakeFile(mode);
+        	break;
         case ERROR: {
         	
         }
