@@ -38,6 +38,7 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 	public void processInputs(String[] args) throws ParseException {
 		Options options = new Options();
 		options.addOption("help",false,"Print the help message");
+		options.addOption("noSharedMemory",false,"Do not used shared memory if there is an os issue");
 		options.addOption("fastqList",true,"List of fastq files");
 		options.addOption("bamList",true,"List of bam files");
 		options.addOption("referenceSequence",true,"the reference sequence");
@@ -69,6 +70,12 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		if(cmd.hasOption("help")) {
 			printHelp(options);
+		}
+		
+		if(cmd.hasOption("noSharedMemory")) {
+			applicationOptions.setNoSharedMemory(true);
+		} else {
+			applicationOptions.setNoSharedMemory(false);
 		}
 		
 		if(cmd.hasOption("findUniqueMappedReads")) {

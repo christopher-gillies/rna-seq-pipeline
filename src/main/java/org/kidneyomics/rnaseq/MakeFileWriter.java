@@ -49,7 +49,7 @@ public class MakeFileWriter {
 		
 		Map<String,SampleData> sampleMap = new HashMap<String,SampleData>();
 		
-		
+		boolean useSharedMemory = !applicationOptions.isNoSharedMemory();
 		//Create MakeFile
 		
 		MakeFile make = new MakeFile();
@@ -124,8 +124,11 @@ public class MakeFileWriter {
 		loadGenome.add("star", applicationOptions.getStar());
 		loadGenome.add("genomeDir", genomeOutDir);
 		
+		//do not load the geneome if we are not using shared memory
+		if(useSharedMemory) {
+			loadGenomeFirstPassEntry.addCommand(loadGenome.render());
+		}
 		
-		loadGenomeFirstPassEntry.addCommand(loadGenome.render());
 		loadGenomeFirstPassEntry.addCommand("touch $@");
 		
 		// add to make file
@@ -160,7 +163,7 @@ public class MakeFileWriter {
 			
 			String sampleDir = dirBase + "/" + sample.getSampleId() + "_1/";
 			
-			ST firstPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir> --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN <n> --outSAMtype BAM Unsorted");
+			ST firstPassAlign = new ST("<star> --genomeDir <genomeDir> <genomeLoad> --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir> --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN <n> --outSAMtype BAM Unsorted");
 			firstPassAlign.add("star", applicationOptions.getStar());
 			firstPassAlign.add("genomeDir", genomeOutDir);
 			firstPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), " "));
@@ -168,6 +171,10 @@ public class MakeFileWriter {
 			firstPassAlign.add("outdir", sampleDir);
 			firstPassAlign.add("n", applicationOptions.getNumThreadsAlign());
 			
+			//Only include this if we are using shared memory
+			if(useSharedMemory) {
+				firstPassAlign.add("genomeLoad","--genomeLoad LoadAndKeep");
+			}
 			String sjdbFile = sampleDir + "/SJ.out.tab";
 			String samFile = sampleDir + "/Aligned.out.bam";
 			String finalLog = sampleDir + "/Log.final.out";
@@ -223,8 +230,10 @@ public class MakeFileWriter {
 		removeGenomeFirstPass.add("star", applicationOptions.getStar());
 		removeGenomeFirstPass.add("genomeDir", genomeOutDir);
 		
+		if(useSharedMemory) {
+			removeGenomeFirstPassEntry.addCommand(removeGenomeFirstPass.render());
+		}
 		
-		removeGenomeFirstPassEntry.addCommand(removeGenomeFirstPass.render());
 		removeGenomeFirstPassEntry.addCommand("touch $@");
 		
 		// add to make file
@@ -300,8 +309,10 @@ public class MakeFileWriter {
 		loadGenomeSecondPass.add("star", applicationOptions.getStar());
 		loadGenomeSecondPass.add("genomeDir", genomeOutDirPass2);
 		
+		if(useSharedMemory) {
+			loadGenomeSecondPassEntry.addCommand(loadGenomeSecondPass.render());
+		}
 		
-		loadGenomeSecondPassEntry.addCommand(loadGenomeSecondPass.render());
 		loadGenomeSecondPassEntry.addCommand("touch $@");
 		
 		// add to make file
@@ -330,14 +341,17 @@ public class MakeFileWriter {
 			
 			String sampleDir = dirBase + "/" + sample.getSampleId() + "/";
 			
-			ST SecondPassAlign = new ST("<star> --genomeDir <genomeDir> --genomeLoad LoadAndKeep --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir> --runThreadN <n> --outSAMtype BAM Unsorted");
+			ST SecondPassAlign = new ST("<star> --genomeDir <genomeDir> <genomeLoad> --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir> --runThreadN <n> --outSAMtype BAM Unsorted");
 			SecondPassAlign.add("star", applicationOptions.getStar());
 			SecondPassAlign.add("genomeDir", genomeOutDirPass2);
 			SecondPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), " "));
 			SecondPassAlign.add("uncompress", applicationOptions.getUncompressCommand());
 			SecondPassAlign.add("outdir", sampleDir);
 			SecondPassAlign.add("n", applicationOptions.getNumThreadsAlign());
-			
+			//Only include this if we are using shared memory
+			if(useSharedMemory) {
+				SecondPassAlign.add("genomeLoad","--genomeLoad LoadAndKeep");
+			}
 			
 			
 			secondPassAlignEntry.addCommand("mkdir -p " + sampleDir);
@@ -388,8 +402,9 @@ public class MakeFileWriter {
 		removeGenomeSecondPass.add("star", applicationOptions.getStar());
 		removeGenomeSecondPass.add("genomeDir", genomeOutDirPass2);
 		
-		
-		removeGenomeEntry.addCommand(removeGenomeSecondPass.render());
+		if(useSharedMemory) {
+			removeGenomeEntry.addCommand(removeGenomeSecondPass.render());
+		}
 		removeGenomeEntry.addCommand("touch $@");
 		
 		// add to make file

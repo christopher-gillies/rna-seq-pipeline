@@ -29,6 +29,7 @@ public class ApplicationOptions {
 	private String fileIn;
 	private String fileOut;
 	private boolean findUniqueMappedReads = false;
+	private boolean noSharedMemory = false;
 	
 	Logger logger;
 	
@@ -196,6 +197,16 @@ public class ApplicationOptions {
 
 	public void setFindUniqueMappedReads(boolean findUniqueMappedReads) {
 		this.findUniqueMappedReads = findUniqueMappedReads;
+	}
+	
+	
+
+	public boolean isNoSharedMemory() {
+		return noSharedMemory;
+	}
+
+	public void setNoSharedMemory(boolean noSharedMemory) {
+		this.noSharedMemory = noSharedMemory;
 	}
 
 	public Mode validateOptions() {
