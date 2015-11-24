@@ -174,6 +174,8 @@ public class MakeFileWriter {
 			//Only include this if we are using shared memory
 			if(useSharedMemory) {
 				firstPassAlign.add("genomeLoad","--genomeLoad LoadAndKeep");
+			} else {
+				firstPassAlign.add("genomeLoad","");
 			}
 			String sjdbFile = sampleDir + "/SJ.out.tab";
 			String samFile = sampleDir + "/Aligned.out.bam";
@@ -351,6 +353,8 @@ public class MakeFileWriter {
 			//Only include this if we are using shared memory
 			if(useSharedMemory) {
 				SecondPassAlign.add("genomeLoad","--genomeLoad LoadAndKeep");
+			} else {
+				SecondPassAlign.add("genomeLoad","");
 			}
 			
 			
