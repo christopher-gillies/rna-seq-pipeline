@@ -20,6 +20,7 @@ public class ApplicationOptions {
 	private String bamList;
 	private String referenceSequence;
 	private String numThreadsGenomeIndex = "1";
+	private String numThreadsFlux = "2";
 	private String gtf;
 	private int readLength = 100;
 	private String uncompressCommand = "zcat";
@@ -125,6 +126,14 @@ public class ApplicationOptions {
 	
 	
 	
+	public String getNumThreadsFlux() {
+		return numThreadsFlux;
+	}
+
+	public void setNumThreadsFlux(String numThreadsFlux) {
+		this.numThreadsFlux = numThreadsFlux;
+	}
+
 	public int getSjdbOverhang() {
 		return readLength - 1;
 	}

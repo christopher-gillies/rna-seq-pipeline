@@ -263,6 +263,8 @@ public class MakeFileWriterTest {
 			when(applicationOptionsMock.getOutputDirectory()).thenReturn("/tmp/test2/");
 			
 			
+			when(applicationOptionsMock.getNumThreadsFlux()).thenReturn("10");
+			
 			
 			
 			MakeFileWriter makeFileWriter = new MakeFileWriter(loggerService);

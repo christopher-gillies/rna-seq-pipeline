@@ -54,7 +54,7 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("readLength",true,"the read length");
 		options.addOption("numberOfThreadsForGenomeIndex",true,"the number of threads to use for genome indexing");
 		options.addOption("numberOfThreadsForAlign",true,"the number of threads to use for aligning");
-		
+		options.addOption("numberOfThreadsForFlux",true,"the number of threads to use for flux capacitor. Default is 2");
 		options.addOption("fluxCapacitor",true,"the path to the fluxcapacitor program");
 		
 		options.addOption("fluxQuantifyMode",true,"This paramter is used for flux capacitor. The default is PAIRED. Here are other options: AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED");
@@ -127,6 +127,10 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		if(cmd.hasOption("numberOfThreadsForGenomeIndex")) {
 			applicationOptions.setNumThreadsGenomeIndex(cmd.getOptionValue("numberOfThreadsForGenomeIndex"));
+		}
+		
+		if(cmd.hasOption("numberOfThreadsForFlux")) {
+			applicationOptions.setNumThreadsFlux(cmd.getOptionValue("numberOfThreadsForFlux"));
 		}
 		
 		if(cmd.hasOption("readLength")) {

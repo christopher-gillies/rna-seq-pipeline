@@ -575,8 +575,9 @@ public class MakeFileWriter {
 		
 		sortyEntry.addCommand(filterGTF.render());
 		
-		ST fluxSortTemplate = new ST("<flux> -t sortGTF --input <gtf> --output <out>");
+		ST fluxSortTemplate = new ST("<flux> --threads <threads> -t sortGTF --input <gtf> --output <out>");
 		fluxSortTemplate.add("flux", flux)
+		.add("threads", applicationOptions.getNumThreadsFlux())
 		.add("gtf", gtfFilter)
 		.add("out", gtf);
 		
@@ -590,8 +591,9 @@ public class MakeFileWriter {
 			String id = s.getSampleId();
 			BAM bam = s.getBamFiles().get(0);
 			String gtfOut = outputDir + "/" + id + ".gtf";
-			ST fluxTemplate = new ST("<flux> -i <bam> -a <gtf> -m <mode> -o <out> --count-elements SPLICE_JUNCTIONS,INTRONS");
+			ST fluxTemplate = new ST("<flux> -i <bam> -a <gtf> -m <mode> -o <out> --count-elements SPLICE_JUNCTIONS,INTRONS --threads <threads>");
 			fluxTemplate.add("flux", flux)
+			.add("threads", applicationOptions.getNumThreadsFlux())
 			.add("mode", applicationOptions.getFluxCapacitorQuantifyMode())
 			.add("bam", bam.getBamFile())
 			.add("gtf", gtf)
