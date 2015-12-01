@@ -31,7 +31,12 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		if(args == null) {
 			throw new NullPointerException("ApplicationArguments args is null");
 		}
-		processInputs(args.getSourceArgs());
+		try {
+			processInputs(args.getSourceArgs());
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			System.exit(1);
+		}
 	}
 	
 	@Override
@@ -87,6 +92,10 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		if(cmd.hasOption("starAligner")) {
 			applicationOptions.setStar(cmd.getOptionValue("starAligner"));
+		}
+		
+		if(cmd.hasOption("fluxCapacitor")) {
+			applicationOptions.setFluxCapacitor(cmd.getOptionValue("fluxCapacitor"));
 		}
 		
 		if(cmd.hasOption("referenceSequence")) {

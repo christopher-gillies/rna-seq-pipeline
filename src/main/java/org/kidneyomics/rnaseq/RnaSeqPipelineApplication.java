@@ -39,31 +39,36 @@ public class RnaSeqPipelineApplication {
         
         logger.info("Application location: " + applicationOptions.getJarLocation());
         
-        Mode mode = applicationOptions.validateOptions();
-		
-        switch(mode) {
         
-        case ALIGN: {
-        	logger.info("Creating makefile for alignment");
-        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
-        	makeFileWriter.writeMakeFile(mode);
-        	break;
-        }
-        case FIND_UNIQUE_MAPPED_READS:
-        	logger.info("Removing multimapped reads");
-        	UniqueMappingFilter filter = context.getBean(UniqueMappingFilter.class);
-        	File in = new File(applicationOptions.getFileIn());
-        	File out = new File(applicationOptions.getFileOut());
-        	filter.filter(in,out);
-        	
-        	break;
-        case FLUX_CAPACITOR:
-        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
-        	makeFileWriter.writeMakeFile(mode);
-        	break;
-        case ERROR: {
-        	
-        }
+        try {
+	        Mode mode = applicationOptions.validateOptions();
+			
+	        switch(mode) {
+	        
+	        case ALIGN: {
+	        	logger.info("Creating makefile for alignment");
+	        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
+	        	makeFileWriter.writeMakeFile(mode);
+	        	break;
+	        }
+	        case FIND_UNIQUE_MAPPED_READS:
+	        	logger.info("Removing multimapped reads");
+	        	UniqueMappingFilter filter = context.getBean(UniqueMappingFilter.class);
+	        	File in = new File(applicationOptions.getFileIn());
+	        	File out = new File(applicationOptions.getFileOut());
+	        	filter.filter(in,out);
+	        	
+	        	break;
+	        case FLUX_CAPACITOR:
+	        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
+	        	makeFileWriter.writeMakeFile(mode);
+	        	break;
+	        case ERROR: {
+	        	
+	        }
+	        }
+        } catch(Exception e) {
+        	logger.error(e.getMessage());
         }
 		
 		
