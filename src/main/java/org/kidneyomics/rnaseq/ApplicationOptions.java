@@ -31,6 +31,8 @@ public class ApplicationOptions {
 	private boolean findUniqueMappedReads = false;
 	private boolean noSharedMemory = false;
 	
+	private String fluxCapacitorQuantifyMode = "PAIRED"; //
+	
 	Logger logger;
 	
 	
@@ -49,6 +51,14 @@ public class ApplicationOptions {
 	
 	
 	
+	public String getFluxCapacitorQuantifyMode() {
+		return fluxCapacitorQuantifyMode;
+	}
+
+	public void setFluxCapacitorQuantifyMode(String fluxCapacitorQuantifyMode) {
+		this.fluxCapacitorQuantifyMode = fluxCapacitorQuantifyMode;
+	}
+
 	public String getBamList() {
 		return bamList;
 	}

@@ -8,7 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.compress.compressors.FileNameUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.kidneyomics.rnaseq.ApplicationOptions.Mode;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -534,7 +536,11 @@ public class MakeFileWriter {
 		String bamFile = applicationOptions.getBamList();
 		String outputDir = applicationOptions.getOutputDirectory();
 		String flux = applicationOptions.getFluxCapacitor();
-		String gtf = applicationOptions.getGtf();
+		String gtfIn = applicationOptions.getGtf();
+		
+		String gtfFilter = outputDir + "/gtf.filtered.gtf";
+		String gtf = outputDir + "/gtf.filtered.sorted.gtf";
+		
 		Collection<Sample> samples = Sample.getBamFileList(new File(bamFile));
 		
 		
@@ -547,7 +553,37 @@ public class MakeFileWriter {
 		MakeFile make = new MakeFile();
 		
 		
+		
 		StringBuilder sb = new StringBuilder();
+		
+		
+		//Add GTF sorting command and filt
+		
+		MakeEntry sortyEntry = new MakeEntry();
+		sortyEntry.setComment("Command for sorting and filtering the gtf annotation file");
+		sortyEntry.setTarget("FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK");
+		
+		String catalog = "cat";
+		if(FilenameUtils.getExtension(gtfIn).endsWith("gz")) {
+			catalog = applicationOptions.getUncompressCommand();
+		}
+		
+		ST filterGTF = new ST("<cat> <gtf> | perl -lane 'print if $F[2] =~ /(exon)|(transcript)/' > <out> ");
+		filterGTF.add("cat", catalog)
+		.add("gtf", gtfIn)
+		.add("out", gtfFilter);
+		
+		sortyEntry.addCommand(filterGTF.render());
+		
+		ST fluxSortTemplate = new ST("<flux> -t sortGTF --input <gtf> --output <out>");
+		fluxSortTemplate.add("flux", flux)
+		.add("gtf", gtfFilter)
+		.add("out", gtf);
+		
+		sortyEntry.addCommand(fluxSortTemplate.render());
+		sortyEntry.addCommand("touch $@");
+		
+		make.addMakeEntry(sortyEntry);
 		
 		for(Sample s : samples) {
 
@@ -566,6 +602,7 @@ public class MakeFileWriter {
 			entry.setTarget("FLUX_CAPACITOR_" + id + ".OK");
 			entry.addCommand(fluxTemplate.render());
 			entry.addCommand("touch $@");
+			entry.addDependency(sortyEntry);
 			
 			make.addMakeEntry(entry);
 			
