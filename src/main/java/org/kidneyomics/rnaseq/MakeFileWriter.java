@@ -575,7 +575,7 @@ public class MakeFileWriter {
 		
 		sortyEntry.addCommand(filterGTF.render());
 		
-		ST fluxSortTemplate = new ST("<flux> --threads <threads> -t sortGTF --input <gtf> --output <out>");
+		ST fluxSortTemplate = new ST("<flux> --threads <threads> -t sortGTF --input <gtf> --output <out> --force");
 		fluxSortTemplate.add("flux", flux)
 		.add("threads", applicationOptions.getNumThreadsFlux())
 		.add("gtf", gtfFilter)
@@ -591,19 +591,25 @@ public class MakeFileWriter {
 			String id = s.getSampleId();
 			BAM bam = s.getBamFiles().get(0);
 			String gtfOut = outputDir + "/" + id + ".gtf";
-			ST fluxTemplate = new ST("<flux> -i <bam> -a <gtf> -m <mode> -o <out> --count-elements SPLICE_JUNCTIONS,INTRONS --threads <threads>");
+			//--tmp-dir
+			String tmpDir = outputDir + "/" + id + "_tmp/";
+			
+			ST fluxTemplate = new ST("<flux> -i <bam> -a <gtf> -m <mode> -o <out> --count-elements SPLICE_JUNCTIONS,INTRONS --threads <threads> --force --tmp-dir <tmp_dir>");
 			fluxTemplate.add("flux", flux)
 			.add("threads", applicationOptions.getNumThreadsFlux())
 			.add("mode", applicationOptions.getFluxCapacitorQuantifyMode())
 			.add("bam", bam.getBamFile())
 			.add("gtf", gtf)
+			.add("tmp_dir", tmpDir)
 			.add("out", gtfOut);
 			
 			
 			MakeEntry entry = new MakeEntry();
 			entry.setComment("Command for flux capacitor for " + id);
 			entry.setTarget("FLUX_CAPACITOR_" + id + ".OK");
+			entry.addCommand("mkdir -p " + tmpDir);
 			entry.addCommand(fluxTemplate.render());
+			entry.addCommand("rm -r " + tmpDir);
 			entry.addCommand("touch $@");
 			entry.addDependency(sortyEntry);
 			

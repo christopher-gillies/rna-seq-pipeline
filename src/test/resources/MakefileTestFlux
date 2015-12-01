@@ -4,16 +4,20 @@ all:	FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK	FLUX_CAPACITOR_SAMPLE1.OK	FLUX_CAPACI
 #Command for sorting and filtering the gtf annotation file
 FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK:	
 	cat /tmp/genecode.gtf | perl -lane 'print if $$F[2] =~ /(exon)|(transcript)/' > /tmp/test2//gtf.filtered.gtf 
-	/tmp/flux --threads 10 -t sortGTF --input /tmp/test2//gtf.filtered.gtf --output /tmp/test2//gtf.filtered.sorted.gtf
+	/tmp/flux --threads 10 -t sortGTF --input /tmp/test2//gtf.filtered.gtf --output /tmp/test2//gtf.filtered.sorted.gtf --force
 	touch $@
 
 #Command for flux capacitor for SAMPLE1
 FLUX_CAPACITOR_SAMPLE1.OK:	FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK	
-	/tmp/flux -i /tmp/tmp1.bam -a /tmp/test2//gtf.filtered.sorted.gtf -m  -o /tmp/test2//SAMPLE1.gtf --count-elements SPLICE_JUNCTIONS,INTRONS --threads 10
+	mkdir -p /tmp/test2//SAMPLE1_tmp/
+	/tmp/flux -i /tmp/tmp1.bam -a /tmp/test2//gtf.filtered.sorted.gtf -m  -o /tmp/test2//SAMPLE1.gtf --count-elements SPLICE_JUNCTIONS,INTRONS --threads 10 --force --tmp-dir /tmp/test2//SAMPLE1_tmp/
+	rm -r /tmp/test2//SAMPLE1_tmp/
 	touch $@
 
 #Command for flux capacitor for SAMPLE2
 FLUX_CAPACITOR_SAMPLE2.OK:	FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK	
-	/tmp/flux -i /tmp/tmp2.bam -a /tmp/test2//gtf.filtered.sorted.gtf -m  -o /tmp/test2//SAMPLE2.gtf --count-elements SPLICE_JUNCTIONS,INTRONS --threads 10
+	mkdir -p /tmp/test2//SAMPLE2_tmp/
+	/tmp/flux -i /tmp/tmp2.bam -a /tmp/test2//gtf.filtered.sorted.gtf -m  -o /tmp/test2//SAMPLE2.gtf --count-elements SPLICE_JUNCTIONS,INTRONS --threads 10 --force --tmp-dir /tmp/test2//SAMPLE2_tmp/
+	rm -r /tmp/test2//SAMPLE2_tmp/
 	touch $@
 
