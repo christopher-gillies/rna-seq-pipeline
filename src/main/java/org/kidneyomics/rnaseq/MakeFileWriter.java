@@ -590,8 +590,9 @@ public class MakeFileWriter {
 			String id = s.getSampleId();
 			BAM bam = s.getBamFiles().get(0);
 			String gtfOut = outputDir + "/" + id + ".gtf";
-			ST fluxTemplate = new ST("<flux> -i <bam> -a <gtf> -m PAIRED -o <out>");
+			ST fluxTemplate = new ST("<flux> -i <bam> -a <gtf> -m <mode> -o <out> --count-elements SPLICE_JUNCTIONS,INTRONS");
 			fluxTemplate.add("flux", flux)
+			.add("mode", applicationOptions.getFluxCapacitorQuantifyMode())
 			.add("bam", bam.getBamFile())
 			.add("gtf", gtf)
 			.add("out", gtfOut);

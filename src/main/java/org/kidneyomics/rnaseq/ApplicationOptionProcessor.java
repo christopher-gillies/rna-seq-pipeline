@@ -57,6 +57,8 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		options.addOption("fluxCapacitor",true,"the path to the fluxcapacitor program");
 		
+		options.addOption("fluxQuantifyMode",true,"This paramter is used for flux capacitor. The default is PAIRED. Here are other options: AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED");
+		
 		options.addOption("fileIn",true,"the input file for finding unique mapping reads");
 		options.addOption("fileOut",true,"the output file after finding unique mapping reads");
 		options.addOption("findUniqueMappedReads",false,"finds the reads that are uniquely mapped");
@@ -92,6 +94,10 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		if(cmd.hasOption("starAligner")) {
 			applicationOptions.setStar(cmd.getOptionValue("starAligner"));
+		}
+		
+		if(cmd.hasOption("fluxQuantifyMode")) {
+			applicationOptions.setFluxCapacitorQuantifyMode(cmd.getOptionValue("fluxQuantifyMode"));
 		}
 		
 		if(cmd.hasOption("fluxCapacitor")) {

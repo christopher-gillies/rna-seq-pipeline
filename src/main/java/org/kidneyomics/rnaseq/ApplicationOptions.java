@@ -31,7 +31,7 @@ public class ApplicationOptions {
 	private boolean findUniqueMappedReads = false;
 	private boolean noSharedMemory = false;
 	
-	private String fluxCapacitorQuantifyMode = "PAIRED"; //
+	private String fluxCapacitorQuantifyMode = "PAIRED"; //--printParameters AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED
 	
 	Logger logger;
 	
@@ -304,6 +304,18 @@ public class ApplicationOptions {
 			if(StringUtils.isEmpty(getOutputDirectory())) {
 				logger.error("please specify an output");
 				System.exit(1);
+			}
+			
+			//AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED
+			switch(fluxCapacitorQuantifyMode) {
+			case "AUTO":
+			case "SINGLE":
+			case "PAIRED":
+			case "SINGLE_STRANDED":
+			case "PAIRED_STRANDED":
+				break;
+				default:
+					logger.error("Please specify one of AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED for fluxQuantifyMode");
 			}
 			
 			result = Mode.FLUX_CAPACITOR;

@@ -9,11 +9,11 @@ FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK:
 
 #Command for flux capacitor for SAMPLE1
 FLUX_CAPACITOR_SAMPLE1.OK:	FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK	
-	/tmp/flux -i /tmp/tmp1.bam -a /tmp/test2//gtf.filtered.sorted.gtf -m PAIRED -o /tmp/test2//SAMPLE1.gtf
+	/tmp/flux -i /tmp/tmp1.bam -a /tmp/test2//gtf.filtered.sorted.gtf -m  -o /tmp/test2//SAMPLE1.gtf --count-elements SPLICE_JUNCTIONS,INTRONS
 	touch $@
 
 #Command for flux capacitor for SAMPLE2
 FLUX_CAPACITOR_SAMPLE2.OK:	FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK	
-	/tmp/flux -i /tmp/tmp2.bam -a /tmp/test2//gtf.filtered.sorted.gtf -m PAIRED -o /tmp/test2//SAMPLE2.gtf
+	/tmp/flux -i /tmp/tmp2.bam -a /tmp/test2//gtf.filtered.sorted.gtf -m  -o /tmp/test2//SAMPLE2.gtf --count-elements SPLICE_JUNCTIONS,INTRONS
 	touch $@
 
