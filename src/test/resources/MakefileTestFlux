@@ -3,7 +3,7 @@ all:	FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK	FLUX_CAPACITOR_SAMPLE1.OK	FLUX_CAPACI
 
 #Command for sorting and filtering the gtf annotation file
 FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK:	
-	cat /tmp/genecode.gtf | perl -lane 'print if $F[2] =~ /(exon)|(transcript)/' > /tmp/test2//gtf.filtered.gtf 
+	cat /tmp/genecode.gtf | perl -lane 'print if $$F[2] =~ /(exon)|(transcript)/' > /tmp/test2//gtf.filtered.gtf 
 	/tmp/flux -t sortGTF --input /tmp/test2//gtf.filtered.gtf --output /tmp/test2//gtf.filtered.sorted.gtf
 	touch $@
 

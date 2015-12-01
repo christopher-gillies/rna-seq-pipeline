@@ -568,7 +568,7 @@ public class MakeFileWriter {
 			catalog = applicationOptions.getUncompressCommand();
 		}
 		
-		ST filterGTF = new ST("<cat> <gtf> | perl -lane 'print if $F[2] =~ /(exon)|(transcript)/' > <out> ");
+		ST filterGTF = new ST("<cat> <gtf> | perl -lane 'print if $$F[2] =~ /(exon)|(transcript)/' > <out> ");
 		filterGTF.add("cat", catalog)
 		.add("gtf", gtfIn)
 		.add("out", gtfFilter);
