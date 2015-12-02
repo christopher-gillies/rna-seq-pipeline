@@ -31,6 +31,7 @@ public class ApplicationOptions {
 	private String fileOut;
 	private boolean findUniqueMappedReads = false;
 	private boolean noSharedMemory = false;
+	private boolean outCounts = true;
 	
 	private String fluxCapacitorQuantifyMode = "PAIRED"; //--printParameters AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED
 	
@@ -219,6 +220,14 @@ public class ApplicationOptions {
 	}
 	
 	
+
+	public boolean isOutCounts() {
+		return outCounts;
+	}
+
+	public void setOutCounts(boolean outCounts) {
+		this.outCounts = outCounts;
+	}
 
 	public boolean isNoSharedMemory() {
 		return noSharedMemory;

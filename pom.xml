@@ -63,6 +63,13 @@
 			<version>1.141</version>
 		</dependency>
 		
+		<!-- biojava -->
+		<dependency>
+			<groupId>org.biojava</groupId>
+			<artifactId>biojava-genome</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+		
 		
 	</dependencies>
 	
