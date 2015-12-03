@@ -39,6 +39,34 @@ public class GTFReaderTest {
 		assertEquals(first.location().bioStrand(),'+');
 		
 		assertEquals(first.getAttribute("gene_name"),"DDX11L1");
+		assertEquals(first.getAttribute("transcript_id"),"ENSG00000223972.4");
+	}
+	
+	
+	@Test
+	public void test2() throws IOException {
+		
+		Resource r = new ClassPathResource("gencode.head.gz");
+		
+		GTFReader reader = GTFReader.getGTFByFileNoEnsemblVersion(r.getFile());
+		
+		List<Feature> list = reader.readAllLines();
+		
+		reader.close();
+		
+		logger.info(list.size() + "");
+		
+		assertEquals(list.size(),995);
+		
+		
+		Feature first = list.get(0);
+		
+		assertEquals(first.location().bioStart(),11869);
+		assertEquals(first.location().bioEnd(),14412);
+		assertEquals(first.location().bioStrand(),'+');
+		
+		assertEquals(first.getAttribute("gene_name"),"DDX11L1");
+		assertEquals(first.getAttribute("transcript_id"),"ENSG00000223972");
 	}
 
 }

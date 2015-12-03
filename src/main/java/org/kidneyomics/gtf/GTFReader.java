@@ -27,9 +27,10 @@ public class GTFReader implements Iterable<Feature>, Iterator<Feature>, Closeabl
 	private String currentLine = null;
 	private String nextLine = null;
 	private Logger logger;
+	private boolean noVersion = false;
 	
-	private GTFReader(BufferedReader buffered) throws IOException { 
-		
+	private GTFReader(BufferedReader buffered, boolean noEnsembleVersion) throws IOException { 
+		this.noVersion = noEnsembleVersion;
 		this.reader = buffered;
 		this.logger = LoggerFactory.getLogger(GTFReader.class);
 		//Skip header lines
@@ -37,9 +38,7 @@ public class GTFReader implements Iterable<Feature>, Iterator<Feature>, Closeabl
 	}
 	
 
-	public static GTFReader getGTFByFile(File f) throws IOException {
-		
-		
+	private static BufferedReader getBufferedReader(File f) throws IOException {
 		BufferedReader buffered;
 		if(f.getAbsolutePath().endsWith(".gz")) {
 			InputStream fileStream = new FileInputStream(f);
@@ -51,8 +50,25 @@ public class GTFReader implements Iterable<Feature>, Iterator<Feature>, Closeabl
 			Reader decoder = new InputStreamReader(fileStream);
 			buffered = new BufferedReader(decoder);
 		}
+		return buffered;
+	}
+	
+	public static GTFReader getGTFByFile(File f) throws IOException {
 		
-		GTFReader gtfReader = new GTFReader(buffered);
+		
+		BufferedReader buffered = getBufferedReader(f);
+		GTFReader gtfReader = new GTFReader(buffered,false);
+	
+		return gtfReader;
+	}
+	
+	
+	public static GTFReader getGTFByFileNoEnsemblVersion(File f) throws IOException {
+		
+		
+		BufferedReader buffered = getBufferedReader(f);
+		
+		GTFReader gtfReader = new GTFReader(buffered,true);
 	
 		return gtfReader;
 	}
@@ -91,7 +107,11 @@ public class GTFReader implements Iterable<Feature>, Iterator<Feature>, Closeabl
 		if(StringUtils.isEmpty(this.currentLine)) {
 			return null;
 		} else {
-			return GTFFeatureBuilder.createFromLine(currentLine);
+			if(this.noVersion) {
+				return GTFFeatureBuilder.createFromLine(currentLine,true);
+			} else {
+				return GTFFeatureBuilder.createFromLine(currentLine);
+			}
 		}
 	}
 

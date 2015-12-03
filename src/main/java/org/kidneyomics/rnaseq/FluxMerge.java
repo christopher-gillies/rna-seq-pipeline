@@ -1,10 +1,15 @@
 package org.kidneyomics.rnaseq;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,10 +35,13 @@ public class FluxMerge {
 	
 	Logger logger;
 	
+	SampleGTFReader sampleGtfReader;
+	
 	@Autowired
-	FluxMerge(LoggerService loggerService, ApplicationOptions applicationOptions) {
+	FluxMerge(LoggerService loggerService, ApplicationOptions applicationOptions, SampleGTFReader sampleGtfReader) {
 		this.logger = loggerService.getLogger(this);
 		this.applicationOptions = applicationOptions;
+		this.sampleGtfReader = sampleGtfReader;
 	}
 	
 	
@@ -44,17 +52,19 @@ public class FluxMerge {
 		boolean outCounts = applicationOptions.isOutCounts();
 		
 		
+		Collection<TranscriptQuantification> listOfTranscriptQuantifications = getTranscriptQuantifications(gtfList, annotation, outCounts);
+		
+		writeTranscriptMatrix(listOfTranscriptQuantifications,outmatrix);
+		
+	}
+	
+	protected List<TranscriptQuantification> getTranscriptQuantifications(String gtfList, String annotation, boolean outCounts) throws Exception {
+		
 		/*
 		 * Read sample information
 		 */
-		List<String> sampleLines = FileUtils.readLines(new File(gtfList));
-		List<String> sampleIds = new ArrayList<String>(sampleLines.size());
-		List<SampleGTF> sampleGtfs = new ArrayList<SampleGTF>(sampleLines.size());
-		for(String line : sampleLines) {
-			SampleGTF sample = new SampleGTF(line);
-			sampleGtfs.add(sample);
-			sampleIds.add(sample.getSampleId());
-		}
+		List<SampleGTF> sampleGtfs = sampleGtfReader.readFile(new File(gtfList));
+		List<String> sampleIds = sampleGtfReader.getIds(sampleGtfs);
 		
 		
 		
@@ -62,13 +72,13 @@ public class FluxMerge {
 		 * Read gencode transcripts
 		 */
 		HashMap<String,TranscriptQuantification> transcripts = new HashMap<String,TranscriptQuantification>();
-		GTFReader reader = GTFReader.getGTFByFile(new File(annotation));
+		GTFReader reader = GTFReader.getGTFByFileNoEnsemblVersion(new File(annotation));
 		for(Feature feature : reader) {
 			/*
 			 * If it is a transcript..
 			 */
 			if(feature.type().equals("transcript")) {
-				String transcriptId = VersionTrimmer.trim(feature.getAttribute("transcript_id"));
+				String transcriptId = feature.getAttribute("transcript_id");
 				
 				transcripts.put(transcriptId, new TranscriptQuantification(feature,sampleIds));
 			}
@@ -80,40 +90,50 @@ public class FluxMerge {
 		 */
 		
 		for(SampleGTF sample : sampleGtfs) {
-			GTFReader readerForSample = GTFReader.getGTFByFile(sample.getFile());
+			GTFReader readerForSample = GTFReader.getGTFByFileNoEnsemblVersion(sample.getFile());
 			for(Feature feature : readerForSample) {
-				String transcriptId = feature.getAttribute("transcript_id");
-				if(transcripts.containsKey(transcriptId)) {
-					TranscriptQuantification tq = transcripts.get(transcriptId);
-					if(outCounts) {
-						tq.putSampleCount(sample.getSampleId(), feature);
+				if(feature.type().equals("transcript")) {
+					String transcriptId = feature.getAttribute("transcript_id");
+					if(transcripts.containsKey(transcriptId)) {
+						TranscriptQuantification tq = transcripts.get(transcriptId);
+						if(outCounts) {
+							tq.putSampleCount(sample.getSampleId(), feature);
+						} else {
+							tq.putSampleRPKM(sample.getSampleId(), feature);
+						}
 					} else {
-						tq.putSampleRPKM(sample.getSampleId(), feature);
+						throw new Exception("Invalid transcript id " + transcriptId);
 					}
-				} else {
-					throw new Exception("Invalid transcript id " + transcriptId);
 				}
 			}
 			readerForSample.close();
 		}
 		
 		/*
-		 * write results
+		 * return results
 		 */
-		StringBuilder sb = new StringBuilder();
 		Collection<TranscriptQuantification> listOfTranscriptQuantifications = transcripts.values();
+		List<TranscriptQuantification> list = new ArrayList<TranscriptQuantification>(listOfTranscriptQuantifications);
+		logger.info("Sorting results...");
+		Collections.sort(list);
+		return list;
+	}
+	
+	protected void writeTranscriptMatrix(Collection<TranscriptQuantification> listOfTranscriptQuantifications, String outmatrix) throws IOException {
+		Path p = Paths.get(outmatrix);
+		BufferedWriter bf = Files.newBufferedWriter(p,Charset.defaultCharset());
 		
-		/*
-		 * Perform sort ...
-		 */
-		
+		int index = 0;
 		for(TranscriptQuantification tq : listOfTranscriptQuantifications) {
-			tq.toString(sb);
+			if(index == 0) {
+				bf.append(tq.printHeader());
+				bf.append("\n");
+			}
+			index++;
+			tq.appendTo(bf);
+			bf.append("\n");
 		}
 		
-		FileUtils.write(new File(outmatrix), sb.toString());
-		
-		
-		
+		bf.close();
 	}
 }

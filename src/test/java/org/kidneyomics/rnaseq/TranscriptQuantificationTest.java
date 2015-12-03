@@ -41,5 +41,24 @@ public class TranscriptQuantificationTest {
 		logger.info(result);
 		
 	}
+	
+	
+	@Test
+	public void testCompareTo() {
+		Feature f1 = new Feature("chr1", "a", "transcript", Location.fromBio(100, 200, '+'), 0.0, 0, "gene_id \"ENSG00000187583.6\"; transcript_id \"ENST00000379407.3\"; gene_type \"protein_coding\"; gene_status \"KNOWN\"; gene_name \"PLEKHN1\"; transcript_type \"protein_coding\";");
+		Feature f2 = new Feature("chr1", "a", "transcript", Location.fromBio(101, 200, '+'), 0.0, 0, "gene_id \"ENSG00000187583.6\"; transcript_id \"ENST00000379407.3\"; gene_type \"protein_coding\"; gene_status \"KNOWN\"; gene_name \"PLEKHN1\"; transcript_type \"protein_coding\";");
+	
+		List<String> samples = new LinkedList<String>();
+		
+		samples.add("sample1");
+		samples.add("sample2");
+		
+		TranscriptQuantification t1 = new TranscriptQuantification(f1, samples);
+		TranscriptQuantification t2 = new TranscriptQuantification(f2, samples);
+		
+		assertTrue(t1.compareTo(t1) == 0);
+		assertTrue(t1.compareTo(t2) == -1);
+		assertTrue(t2.compareTo(t1) == 1);
+	}
 
 }

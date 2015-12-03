@@ -1,13 +1,17 @@
 package org.kidneyomics.rnaseq;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.biojava.nbio.genome.parsers.gff.Feature;
+import org.biojava.nbio.genome.parsers.gff.Location;
+import org.kidneyomics.gtf.FeatureComparator;
+import org.kidneyomics.util.Chr2Int;
 import org.springframework.util.StringUtils;
 
-public class TranscriptQuantification {
+public class TranscriptQuantification implements Comparable<TranscriptQuantification> {
 
 	/*
 	 * _______
@@ -35,6 +39,8 @@ public class TranscriptQuantification {
 	private Feature feature;
 	private Map<String,Double> expressionMap;
 	private List<String> sampleIds;
+	
+	private static FeatureComparator comparator = new FeatureComparator();
 	
 	public TranscriptQuantification(Feature feature, List<String> sampleIds) {
 		this.feature = feature;
@@ -108,7 +114,11 @@ public class TranscriptQuantification {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		toString(sb);
+		try {
+			appendTo(sb);
+		} catch(Exception e) {
+			
+		}
 		return sb.toString();
 	}
 	
@@ -149,41 +159,47 @@ public class TranscriptQuantification {
 		return sb.toString();
 	}
 	
-	public void toString(StringBuilder sb) {
+	public void appendTo(Appendable appendable) throws IOException {
 		
-		sb.append(getTranscriptId());
-		sb.append("\t");
-		sb.append(getGeneId());
-		sb.append("\t");
-		sb.append(getGeneName());
-		sb.append("\t");
-		sb.append(getGeneType());
-		sb.append("\t");
-		sb.append(getTranscriptType());
-		sb.append("\t");
-		sb.append(getChr());
-		sb.append("\t");
-		sb.append(getStart());
-		sb.append("\t");
-		sb.append(getEnd());
-		sb.append("\t");
-		sb.append(getLength());
-		sb.append("\t");
-		sb.append(getStrand());
-		sb.append("\t");
+		appendable.append(getTranscriptId());
+		appendable.append("\t");
+		appendable.append(getGeneId());
+		appendable.append("\t");
+		appendable.append(getGeneName());
+		appendable.append("\t");
+		appendable.append(getGeneType());
+		appendable.append("\t");
+		appendable.append(getTranscriptType());
+		appendable.append("\t");
+		appendable.append(getChr());
+		appendable.append("\t");
+		appendable.append(Integer.toString(getStart()));
+		appendable.append("\t");
+		appendable.append(Integer.toString(getEnd()));
+		appendable.append("\t");
+		appendable.append(Integer.toString(getLength()));
+		appendable.append("\t");
+		appendable.append(getStrand());
+		appendable.append("\t");
 		
 		
 		int index = 0;
 		int last = sampleIds.size() - 1;
 		
 		for(String id : sampleIds) {
-			sb.append(getSampleExpression(id));
+			appendable.append(Double.toString(getSampleExpression(id)));
 			if(index != last) {
-				sb.append("\t");
+				appendable.append("\t");
 			}
 			index++;
 		}
 		
+	}
+
+
+	@Override
+	public int compareTo(TranscriptQuantification o) {
+		return comparator.compare(this.feature, o.feature);
 	}
 	
 	
