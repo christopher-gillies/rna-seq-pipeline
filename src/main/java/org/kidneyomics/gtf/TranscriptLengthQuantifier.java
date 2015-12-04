@@ -54,7 +54,21 @@ public class TranscriptLengthQuantifier {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param transcriptId
+	 * @return the length of the transcript in terms the base pairs in all its exons. returns -1 if the transcript is not found. returns -2 if transcript has an invalid structure
+	 */
 	public int length(String transcriptId) {
+		
+		if(!transcriptMap.containsKey(transcriptId)) {
+			return -1;
+		}
+		
+		if(!validate(transcriptId)) {
+			return -2;
+		}
+		
 		List<Feature> features = transcriptMap.get(transcriptId);
 		int length = 0;
 		for(Feature f : features) {

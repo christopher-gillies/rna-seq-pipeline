@@ -26,10 +26,9 @@ import org.springframework.util.StringUtils;
 public class FluxMergeTest {
 
 	Logger logger = LoggerFactory.getLogger(FluxMergeTest.class);
-	@Test
-	public void testReads() throws Exception {
-		
-		Resource r = new ClassPathResource("gencode.head.gz");
+	LoggerService loggerService = new LoggerService();
+	
+	public List<Feature> setup(Resource r, File tmpDir, File tmpSample1, File tmpSample2, File infile , String countType) throws IOException {
 		
 		GTFReader reader = GTFReader.getGTFByFile(r.getFile());
 		
@@ -52,7 +51,7 @@ public class FluxMergeTest {
 			
 			Map<String,String> counts = new HashMap<String,String>();
 			
-			counts.put("reads", Integer.toString(evenCount));
+			counts.put(countType, Integer.toString(evenCount));
 			Feature newFeature = GTFFeatureBuilder.addAttributesToFeature(feature, counts);
 			
 			sample1.add(newFeature);
@@ -70,7 +69,7 @@ public class FluxMergeTest {
 			
 			Map<String,String> counts = new HashMap<String,String>();
 			
-			counts.put("reads", Integer.toString(oddCount));
+			counts.put(countType, Integer.toString(oddCount));
 			Feature newFeature = GTFFeatureBuilder.addAttributesToFeature(feature, counts);
 			
 			sample2.add(newFeature);
@@ -78,10 +77,7 @@ public class FluxMergeTest {
 		}
 		
 		
-		File tmpDir = FileUtils.getTempDirectory();
-		File tmpSample1 = new File(tmpDir.getAbsolutePath() + "/test.tmpSample1.gtf");
-		File tmpSample2 = new File(tmpDir.getAbsolutePath() + "/test.tmpSample2.gtf");
-		
+
 		
 		GTFWriter writer1 = GTFWriter.getGTFWriterForFile(tmpSample1);
 		writer1.write(sample1);
@@ -108,7 +104,6 @@ public class FluxMergeTest {
 		 * Create Dependencies 
 		 */
 		
-		File infile = new File(tmpDir.getAbsolutePath() + "/" + "test.samplelist.txt");
 		StringBuilder sb = new StringBuilder();
 		sb.append("sample1\t");
 		sb.append(tmpSample1.getAbsolutePath());
@@ -118,15 +113,26 @@ public class FluxMergeTest {
 		sb.append("\n");
 		FileUtils.write(infile, sb.toString());
 		
-		LoggerService loggerService = new LoggerService();
-		ApplicationOptions appOpts = new ApplicationOptions(loggerService);
+		return transcripts;
 		
+	}
+	
+	@Test
+	public void testReads() throws Exception {
+		
+		Resource r = new ClassPathResource("gencode.head.gz");
+		
+		File tmpDir = FileUtils.getTempDirectory();
+		File tmpSample1 = new File(tmpDir.getAbsolutePath() + "/test.tmpSample1.gtf");
+		File tmpSample2 = new File(tmpDir.getAbsolutePath() + "/test.tmpSample2.gtf");
+		File infile = new File(tmpDir.getAbsolutePath() + "/" + "test.samplelist.txt");
 		File outfile = new File(tmpDir.getAbsolutePath() + "/" + "test.matrix");
 		File annotationFile = new File(tmpDir.getAbsolutePath() + "/" + "anno.gtf.gz");
-		
 		FileUtils.copyFile(r.getFile(), annotationFile);
 		
+		List<Feature> transcripts = setup(r, tmpDir, tmpSample1, tmpSample2, infile, "reads");
 		
+		ApplicationOptions appOpts = new ApplicationOptions(loggerService);
 		appOpts.setFileIn(infile.getAbsolutePath());
 		appOpts.setFileOut(outfile.getAbsolutePath());
 		appOpts.setGtf(annotationFile.getAbsolutePath());
@@ -135,7 +141,7 @@ public class FluxMergeTest {
 		//FluxMerge
 		
 		FluxMerge fluxMerge = new FluxMerge(loggerService, appOpts, new SampleGTFReader());
-		List<TranscriptQuantification> tqs = fluxMerge.getTranscriptQuantifications(appOpts.getFileIn(), appOpts.getGtf(), appOpts.isOutCounts());
+		List<TranscriptQuantification> tqs = fluxMerge.getTranscriptQuantifications(appOpts.getFileIn(), appOpts.getGtf(), appOpts.isOutCounts()).getTranscriptQuantifications();
 		
 		assertEquals(transcripts.size(),tqs.size());
 		
@@ -155,9 +161,9 @@ public class FluxMergeTest {
 		
 		assertTrue(outMatrixTextLines.size() == tqs.size()  + 1);
 		
-		assertEquals("transcript_id	gene_id	gene_name	gene_type	transcript_type	chr	start	end	length	strand	sample1	sample2",outMatrixTextLines.get(0));
+		assertEquals("transcript_id	gene_id	gene_name	gene_type	transcript_type	chr	transcription_start_site	start	end	length	strand	sample1	sample2",outMatrixTextLines.get(0));
 		
-		assertEquals("ENST00000456328	ENSG00000223972	DDX11L1	pseudogene	processed_transcript	chr1	11869	14409	2541	+	0.0	1.0",outMatrixTextLines.get(1));
+		assertEquals("ENST00000456328	ENSG00000223972	DDX11L1	pseudogene	processed_transcript	chr1	11869	11869	14409	1657	+	0.0	1.0",outMatrixTextLines.get(1));
 		
 		logger.info("\n" + StringUtils.collectionToDelimitedString(outMatrixTextLines, "\n"));
 		/*
@@ -192,5 +198,91 @@ public class FluxMergeTest {
 		
 		
 	}
-
+	
+	
+	@Test
+	public void testRPKM() throws Exception {
+		
+		Resource r = new ClassPathResource("gencode.head.gz");
+		
+		File tmpDir = FileUtils.getTempDirectory();
+		File tmpSample1 = new File(tmpDir.getAbsolutePath() + "/test.tmpSample1.gtf");
+		File tmpSample2 = new File(tmpDir.getAbsolutePath() + "/test.tmpSample2.gtf");
+		File infile = new File(tmpDir.getAbsolutePath() + "/" + "test.samplelist.txt");
+		File outfile = new File(tmpDir.getAbsolutePath() + "/" + "test.matrix");
+		File annotationFile = new File(tmpDir.getAbsolutePath() + "/" + "anno.gtf.gz");
+		FileUtils.copyFile(r.getFile(), annotationFile);
+		
+		//set RPKM feature
+		List<Feature> transcripts = setup(r, tmpDir, tmpSample1, tmpSample2, infile, "RPKM");
+		
+		ApplicationOptions appOpts = new ApplicationOptions(loggerService);
+		appOpts.setFileIn(infile.getAbsolutePath());
+		appOpts.setFileOut(outfile.getAbsolutePath());
+		appOpts.setGtf(annotationFile.getAbsolutePath());
+		
+		//use RPKM
+		appOpts.setOutCounts(false);
+		
+		//FluxMerge
+		
+		FluxMerge fluxMerge = new FluxMerge(loggerService, appOpts, new SampleGTFReader());
+		List<TranscriptQuantification> tqs = fluxMerge.getTranscriptQuantifications(appOpts.getFileIn(), appOpts.getGtf(), appOpts.isOutCounts()).getTranscriptQuantifications();
+		
+		assertEquals(transcripts.size(),tqs.size());
+		
+		for(TranscriptQuantification tq : tqs) {
+			double sample1Exp = tq.getSampleExpression("sample1");
+			double sample2Exp = tq.getSampleExpression("sample2");
+			
+			assertTrue(sample1Exp % 2 == 0);
+			assertTrue(sample2Exp % 2 == 1);
+		}
+		
+		assertTrue(tqs.get(0).getFeature().location().bioStart() == 11869);
+		
+		
+		fluxMerge.writeTranscriptMatrix(tqs, outfile.getAbsolutePath());
+		List<String> outMatrixTextLines = FileUtils.readLines(outfile);
+		
+		assertTrue(outMatrixTextLines.size() == tqs.size()  + 1);
+		
+		assertEquals("transcript_id	gene_id	gene_name	gene_type	transcript_type	chr	transcription_start_site	start	end	length	strand	sample1	sample2",outMatrixTextLines.get(0));
+		
+		assertEquals("ENST00000456328	ENSG00000223972	DDX11L1	pseudogene	processed_transcript	chr1	11869	11869	14409	1657	+	0.0	1.0",outMatrixTextLines.get(1));
+		
+		logger.info("\n" + StringUtils.collectionToDelimitedString(outMatrixTextLines, "\n"));
+		/*
+		 * Delete temporary files
+		 */
+			
+		
+		if(infile.exists()) {
+			infile.delete();
+		}
+		
+		if(outfile.exists()) {
+			outfile.delete();
+		}
+	
+		if(annotationFile.exists()) {
+			annotationFile.delete();
+		}
+		
+		if(tmpSample1.exists()) {
+			tmpSample1.delete();
+		}
+		
+		if(tmpSample2.exists()) {
+			tmpSample2.delete();
+		}
+		
+		if(tmpDir.exists()) {
+			tmpDir.delete();
+		}
+		
+		
+		
+	}
+	
 }

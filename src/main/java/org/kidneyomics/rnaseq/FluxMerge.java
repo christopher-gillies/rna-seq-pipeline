@@ -11,9 +11,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.kidneyomics.gtf.GTFReader;
+import org.kidneyomics.gtf.GeneLengthQuantifier;
+import org.kidneyomics.gtf.TranscriptLengthQuantifier;
 import org.kidneyomics.gtf.VersionTrimmer;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,13 +56,59 @@ public class FluxMerge {
 		boolean outCounts = applicationOptions.isOutCounts();
 		
 		
-		Collection<TranscriptQuantification> listOfTranscriptQuantifications = getTranscriptQuantifications(gtfList, annotation, outCounts);
+		Collection<TranscriptQuantification> listOfTranscriptQuantifications = getTranscriptQuantifications(gtfList, annotation, outCounts).getTranscriptQuantifications();
 		
 		writeTranscriptMatrix(listOfTranscriptQuantifications,outmatrix);
 		
 	}
 	
-	protected List<TranscriptQuantification> getTranscriptQuantifications(String gtfList, String annotation, boolean outCounts) throws Exception {
+	protected List<GeneQuantification> getGeneQuantifications(TranscriptQuantificationResult transcriptQuantificationResult) {
+		
+		List<TranscriptQuantification> listOfTranscriptQuantifications = transcriptQuantificationResult.getTranscriptQuantifications();
+		List<GeneQuantification> list = new ArrayList<GeneQuantification>(transcriptQuantificationResult.getTranscriptQuantifications().size());
+		HashMap<String,List<TranscriptQuantification>> quantificationsByGene = new HashMap<String,List<TranscriptQuantification>>();
+		GeneLengthQuantifier glq = transcriptQuantificationResult.getGeneLengthQuantifier();
+		/*
+		 * Organize transcripts by geneid
+		 */
+		for(TranscriptQuantification tq : listOfTranscriptQuantifications) {
+			String geneId = tq.getGeneId();
+			if(quantificationsByGene.containsKey(geneId)) {
+				quantificationsByGene.get(geneId).add(tq);
+			} else {
+				LinkedList<TranscriptQuantification> listForGene = new LinkedList<TranscriptQuantification>();
+				listForGene.add(tq);
+				quantificationsByGene.put(geneId, listForGene);
+			}
+		}
+		
+		/*
+		 * Create gene quantifications from list of transcripts for each gene
+		 */
+		for(Map.Entry<String, List<TranscriptQuantification>> entry : quantificationsByGene.entrySet()) {
+			List<TranscriptQuantification> listForGene = entry.getValue();
+			String geneId = entry.getKey();
+			GeneQuantification gq = new GeneQuantification(listForGene);
+			/*
+			 * Calculate length
+			 */
+			int length = glq.length(geneId);
+			gq.setLength(length);
+			
+			/*
+			 * add to list
+			 */
+			list.add(gq);
+		}
+		
+		/*
+		 * Sort
+		 */
+		Collections.sort(list);
+		return list;
+	}
+	
+	protected TranscriptQuantificationResult getTranscriptQuantifications(String gtfList, String annotation, boolean outCounts) throws Exception {
 		
 		/*
 		 * Read sample information
@@ -66,7 +116,8 @@ public class FluxMerge {
 		List<SampleGTF> sampleGtfs = sampleGtfReader.readFile(new File(gtfList));
 		List<String> sampleIds = sampleGtfReader.getIds(sampleGtfs);
 		
-		
+		TranscriptLengthQuantifier transcriptLengthQuantifier = TranscriptLengthQuantifier.getTranscriptLengthQuantifier("exon");
+		GeneLengthQuantifier geneLengthQuantifier = GeneLengthQuantifier.getGeneLengthQuantifier("exon");
 		
 		/*
 		 * Read gencode transcripts
@@ -81,6 +132,9 @@ public class FluxMerge {
 				String transcriptId = feature.getAttribute("transcript_id");
 				
 				transcripts.put(transcriptId, new TranscriptQuantification(feature,sampleIds));
+			} else if(feature.type().equals("exon")) {
+				transcriptLengthQuantifier.addExon(feature);
+				geneLengthQuantifier.addExon(feature);
 			}
 		}
 		reader.close();
@@ -109,14 +163,32 @@ public class FluxMerge {
 			readerForSample.close();
 		}
 		
+
+		/*
+		 * Get collection
+		 */
+		Collection<TranscriptQuantification> listOfTranscriptQuantifications = transcripts.values();
+		
+		/*
+		 * Update transcript lengths to be the sum of the base pairs in a transcript
+		 */
+		for(TranscriptQuantification tq : listOfTranscriptQuantifications) {
+			String id = tq.getTranscriptId();
+			int lengthOfTranscript = transcriptLengthQuantifier.length(id);
+			tq.setLength(lengthOfTranscript);
+		}
+				
+		/*
+		 * sort
+		 */
+		logger.info("Sorting results...");
+		List<TranscriptQuantification> list = new ArrayList<TranscriptQuantification>(listOfTranscriptQuantifications);
+		Collections.sort(list);
+		
 		/*
 		 * return results
 		 */
-		Collection<TranscriptQuantification> listOfTranscriptQuantifications = transcripts.values();
-		List<TranscriptQuantification> list = new ArrayList<TranscriptQuantification>(listOfTranscriptQuantifications);
-		logger.info("Sorting results...");
-		Collections.sort(list);
-		return list;
+		return new TranscriptQuantificationResult(list,transcriptLengthQuantifier,geneLengthQuantifier);
 	}
 	
 	protected void writeTranscriptMatrix(Collection<TranscriptQuantification> listOfTranscriptQuantifications, String outmatrix) throws IOException {
@@ -135,5 +207,45 @@ public class FluxMerge {
 		}
 		
 		bf.close();
+	}
+	
+	protected class TranscriptQuantificationResult {
+		List<TranscriptQuantification> transcriptQuantifications;
+		TranscriptLengthQuantifier transcriptLengthQuantifier;
+		GeneLengthQuantifier geneLengthQuantifier;
+		
+		protected TranscriptQuantificationResult(List<TranscriptQuantification> transcriptQuantifications,
+				TranscriptLengthQuantifier transcriptLengthQuantifier,
+				GeneLengthQuantifier geneLengthQuantifier) {
+			this.transcriptLengthQuantifier = transcriptLengthQuantifier;
+			this.transcriptQuantifications = transcriptQuantifications;
+			this.geneLengthQuantifier = geneLengthQuantifier;
+		}
+
+		public List<TranscriptQuantification> getTranscriptQuantifications() {
+			return transcriptQuantifications;
+		}
+
+		public void setTranscriptQuantifications(List<TranscriptQuantification> transcriptQuantifications) {
+			this.transcriptQuantifications = transcriptQuantifications;
+		}
+
+		public TranscriptLengthQuantifier getTranscriptLengthQuantifier() {
+			return transcriptLengthQuantifier;
+		}
+
+		public void setTranscriptLengthQuantifier(TranscriptLengthQuantifier transcriptLengthQuantifier) {
+			this.transcriptLengthQuantifier = transcriptLengthQuantifier;
+		}
+
+		public GeneLengthQuantifier getGeneLengthQuantifier() {
+			return geneLengthQuantifier;
+		}
+
+		public void setGeneLengthQuantifier(GeneLengthQuantifier geneLengthQuantifier) {
+			this.geneLengthQuantifier = geneLengthQuantifier;
+		}
+		
+		
 	}
 }

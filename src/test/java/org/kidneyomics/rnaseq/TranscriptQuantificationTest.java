@@ -30,15 +30,18 @@ public class TranscriptQuantificationTest {
 		t.putSampleExpression("sample2", 50);
 		
 		String headerResult = t.printHeader();
-		String headerExp = "transcript_id	gene_id	gene_name	gene_type	transcript_type	chr	start	end	length	strand	sample1	sample2";
+		String headerExp = "transcript_id	gene_id	gene_name	gene_type	transcript_type	chr	transcription_start_site	start	end	length	strand	sample1	sample2";
 		assertEquals(headerExp,headerResult);
 		
 		String result = t.toString();
-		String expResult = "ENST00000379407.3	ENSG00000187583.6	PLEKHN1	protein_coding	protein_coding	chr1	100	200	101	+	25.0	50.0";
+		String expResult = "ENST00000379407.3	ENSG00000187583.6	PLEKHN1	protein_coding	protein_coding	chr1	100	100	200	-1	+	25.0	50.0";
+		
+		logger.info(result);
+		logger.info(expResult);
+		
 		assertEquals(expResult,result);
 		
-		logger.info(headerResult);
-		logger.info(result);
+
 		
 	}
 	

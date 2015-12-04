@@ -8,6 +8,8 @@ import org.kidneyomics.util.Chr2Int;
 
 public class FeatureComparator implements Comparator<Feature> {
 
+	private static LocationComparator comparator = new LocationComparator();
+	
 	@Override
 	public int compare(Feature o1, Feature o2) {
 		String myChr = o1.seqname();
@@ -19,7 +21,7 @@ public class FeatureComparator implements Comparator<Feature> {
 			Location me = o1.location();
 			Location you = o2.location();
 			
-			return Integer.compare(me.bioStart(), you.bioStart());
+			return comparator.compare(me, you);
 		} else {
 			return Integer.compare(Chr2Int.convert(myChr), Chr2Int.convert(yourChr));
 		}

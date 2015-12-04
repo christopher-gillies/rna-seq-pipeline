@@ -11,7 +11,7 @@ import org.kidneyomics.gtf.FeatureComparator;
 import org.kidneyomics.util.Chr2Int;
 import org.springframework.util.StringUtils;
 
-public class TranscriptQuantification implements Comparable<TranscriptQuantification> {
+public class TranscriptQuantification implements Comparable<TranscriptQuantification>, Quantification {
 
 	/*
 	 * _______
@@ -24,8 +24,10 @@ public class TranscriptQuantification implements Comparable<TranscriptQuantifica
 	 * gene_type
 	 * transcript_type
 	 * chr
+	 * transcription_start_site
 	 * start
 	 * end
+	 * length
 	 * strand
 	 * sample1
 	 * sample2
@@ -39,7 +41,8 @@ public class TranscriptQuantification implements Comparable<TranscriptQuantifica
 	private Feature feature;
 	private Map<String,Double> expressionMap;
 	private List<String> sampleIds;
-	
+	private int length = -1;
+	private QuantificationType quantificationType = QuantificationType.TRANSCRIPT;
 	private static FeatureComparator comparator = new FeatureComparator();
 	
 	public TranscriptQuantification(Feature feature, List<String> sampleIds) {
@@ -77,6 +80,15 @@ public class TranscriptQuantification implements Comparable<TranscriptQuantifica
 		return this.feature.seqname();
 	}
 	
+	public int getTranscriptionStartSite() {
+		if(this.getStrand() == '+') {
+			return this.feature.location().bioStart();
+		} else {
+			return this.feature.location().bioEnd();
+		}
+		
+	}
+	
 	public int getStart() {
 		return this.feature.location().bioStart();
 	}
@@ -86,7 +98,11 @@ public class TranscriptQuantification implements Comparable<TranscriptQuantifica
 	}
 	
 	public int getLength() {
-		return this.feature.location().length();
+		return this.length;
+	}
+	
+	public void setLength(int length) {
+		this.length = length;
 	}
 	
 	public char getStrand() {
@@ -95,7 +111,7 @@ public class TranscriptQuantification implements Comparable<TranscriptQuantifica
 
 
 
-	public Double getSampleExpression(String sample) {
+	public double getSampleExpression(String sample) {
 		return this.expressionMap.get(sample);
 	}
 	
@@ -142,6 +158,9 @@ public class TranscriptQuantification implements Comparable<TranscriptQuantifica
 		sb.append("chr");
 		sb.append("\t");
 		
+		sb.append("transcription_start_site");
+		sb.append("\t");
+		
 		sb.append("start");
 		sb.append("\t");
 		
@@ -173,6 +192,8 @@ public class TranscriptQuantification implements Comparable<TranscriptQuantifica
 		appendable.append("\t");
 		appendable.append(getChr());
 		appendable.append("\t");
+		appendable.append(Integer.toString(getTranscriptionStartSite()));
+		appendable.append("\t");
 		appendable.append(Integer.toString(getStart()));
 		appendable.append("\t");
 		appendable.append(Integer.toString(getEnd()));
@@ -202,5 +223,13 @@ public class TranscriptQuantification implements Comparable<TranscriptQuantifica
 		return comparator.compare(this.feature, o.feature);
 	}
 	
-	
+	public List<String> getSampleIds() {
+		return this.sampleIds;
+	}
+
+
+	@Override
+	public QuantificationType getQuantificationType() {
+		return this.quantificationType;
+	}
 }
