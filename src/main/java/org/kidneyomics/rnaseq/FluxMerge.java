@@ -75,9 +75,11 @@ public class FluxMerge {
 		List<GeneQuantification> list = new ArrayList<GeneQuantification>(transcriptQuantificationResult.getTranscriptQuantifications().size());
 		HashMap<String,List<TranscriptQuantification>> quantificationsByGene = new HashMap<String,List<TranscriptQuantification>>();
 		GeneLengthQuantifier glq = transcriptQuantificationResult.getGeneLengthQuantifier();
+		
 		/*
 		 * Organize transcripts by geneid
 		 */
+		logger.info("Finding transcripts for each gene");
 		for(TranscriptQuantification tq : listOfTranscriptQuantifications) {
 			String geneId = tq.getGeneId();
 			if(quantificationsByGene.containsKey(geneId)) {
@@ -92,6 +94,7 @@ public class FluxMerge {
 		/*
 		 * Create gene quantifications from list of transcripts for each gene
 		 */
+		logger.info("Calculating gene level quantification");
 		for(Map.Entry<String, List<TranscriptQuantification>> entry : quantificationsByGene.entrySet()) {
 			List<TranscriptQuantification> listForGene = entry.getValue();
 			String geneId = entry.getKey();
@@ -111,6 +114,7 @@ public class FluxMerge {
 		/*
 		 * Sort
 		 */
+		logger.info("Sorting results");
 		Collections.sort(list);
 		return list;
 	}
@@ -129,6 +133,7 @@ public class FluxMerge {
 		/*
 		 * Read gencode transcripts
 		 */
+		logger.info("Reading annotation from specified gtf file");
 		HashMap<String,TranscriptQuantification> transcripts = new HashMap<String,TranscriptQuantification>();
 		GTFReader reader = GTFReader.getGTFByFileNoEnsemblVersion(new File(annotation));
 		for(Feature feature : reader) {
@@ -145,12 +150,13 @@ public class FluxMerge {
 			}
 		}
 		reader.close();
-		
+		logger.info("Finished reading annotation");
 		/*
 		 * Read samples
 		 */
 		
 		for(SampleGTF sample : sampleGtfs) {
+			logger.info("Reading gtf file for sample " + sample.getSampleId());
 			GTFReader readerForSample = GTFReader.getGTFByFileNoEnsemblVersion(sample.getFile());
 			for(Feature feature : readerForSample) {
 				if(feature.type().equals("transcript")) {
@@ -169,6 +175,7 @@ public class FluxMerge {
 			}
 			readerForSample.close();
 		}
+		logger.info("Finished reading transcript expression");
 		
 
 		/*
@@ -179,6 +186,7 @@ public class FluxMerge {
 		/*
 		 * Update transcript lengths to be the sum of the base pairs in a transcript
 		 */
+		logger.info("Calculating transcript lengths");
 		for(TranscriptQuantification tq : listOfTranscriptQuantifications) {
 			String id = tq.getTranscriptId();
 			int lengthOfTranscript = transcriptLengthQuantifier.length(id);
@@ -199,6 +207,7 @@ public class FluxMerge {
 	}
 	
 	protected void writeQuantificationMatrix(Collection<? extends Quantification> listOfQuantifications, String outmatrix) throws IOException {
+		logger.info("Writing expression matrix");
 		Path p = Paths.get(outmatrix);
 		BufferedWriter bf = Files.newBufferedWriter(p,Charset.defaultCharset());
 		

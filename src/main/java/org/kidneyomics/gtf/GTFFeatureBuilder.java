@@ -59,6 +59,11 @@ public class GTFFeatureBuilder {
 			attributes = VersionTrimmer.trim(attributes);
 		}
 		
+		/*
+		 * Remove ensembl ids with containing multiple identifies
+		 */
+		attributes = MultiIdTrimmer.trim(attributes);
+		
 		return new Feature(seqname, source, type, location, score, frame, attributes);
 	}
 	

@@ -60,15 +60,18 @@ public class RnaSeqPipelineApplication {
 	        	
 	        	break;
 	        case FLUX_CAPACITOR:
+	        	logger.info("Creating makefile for transcript deconvolution");
 	        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
 	        	makeFileWriter.writeMakeFile(mode);
 	        	break;
 	        case GENE_EXPRESSION_MATRIX: {
+	        	logger.info("Creating gene expression matrix");
 	        	FluxMerge fluxMerge = context.getBean(FluxMerge.class);
 	        	fluxMerge.writeGeneMatrix();
 	        	break;
 	        }
 	        case TRANSCRIPT_EXPRESSION_MATRIX: {
+	        	logger.info("Creating transcript expression matrix");
 	        	FluxMerge fluxMerge = context.getBean(FluxMerge.class);
 	        	fluxMerge.writeTranscriptMatrix();
 	        	break;
