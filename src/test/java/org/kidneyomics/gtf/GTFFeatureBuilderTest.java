@@ -112,4 +112,13 @@ public class GTFFeatureBuilderTest {
 		assertEquals("1000",feature2.getAttribute("reads"));
 		assertEquals("2000",feature2.getAttribute("RPKM"));
 	}
+	
+	@Test
+	public void test5() {
+		String input = "1	lincRNA	transcript	763079	788146	.	+	.	transcript_id \"ENST00000416570_ENST00000448975\"; locus_id \"1:762988-794826W\"; gene_id \"ENSG00000228794\"; reads 0.000000; length 612; RPKM 0.000000";
+		Feature feature = GTFFeatureBuilder.createFromLine(input,true);
+		String transcriptid = feature.getAttribute("transcript_id");
+		assertEquals("ENST00000416570",transcriptid);
+				
+	}
 }
