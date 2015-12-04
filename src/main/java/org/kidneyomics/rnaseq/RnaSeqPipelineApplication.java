@@ -63,6 +63,17 @@ public class RnaSeqPipelineApplication {
 	        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
 	        	makeFileWriter.writeMakeFile(mode);
 	        	break;
+	        case GENE_EXPRESSION_MATRIX: {
+	        	FluxMerge fluxMerge = context.getBean(FluxMerge.class);
+	        	fluxMerge.writeGeneMatrix();
+	        	break;
+	        }
+	        case TRANSCRIPT_EXPRESSION_MATRIX: {
+	        	FluxMerge fluxMerge = context.getBean(FluxMerge.class);
+	        	fluxMerge.writeTranscriptMatrix();
+	        	break;
+	        }
+	        case TRANSCRIPT_RATIO_MATRIX:
 	        case ERROR: {
 	        	
 	        }

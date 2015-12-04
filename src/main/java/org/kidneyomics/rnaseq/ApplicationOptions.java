@@ -32,6 +32,8 @@ public class ApplicationOptions {
 	private boolean findUniqueMappedReads = false;
 	private boolean noSharedMemory = false;
 	private boolean outCounts = true;
+	private boolean outGeneExpression;
+	private boolean outTranscriptExpression;
 	
 	private String fluxCapacitorQuantifyMode = "PAIRED"; //--printParameters AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED
 	
@@ -49,6 +51,10 @@ public class ApplicationOptions {
 		FLUX_CAPACITOR,
 		ERROR,
 		FIND_UNIQUE_MAPPED_READS,
+		TRANSCRIPT_EXPRESSION_MATRIX,
+		GENE_EXPRESSION_MATRIX,
+		TRANSCRIPT_RATIO_MATRIX
+		
 	}
 	
 	
@@ -221,6 +227,22 @@ public class ApplicationOptions {
 	
 	
 
+	public boolean isOutGeneExpression() {
+		return outGeneExpression;
+	}
+
+	public void setOutGeneExpression(boolean outGeneExpression) {
+		this.outGeneExpression = outGeneExpression;
+	}
+
+	public boolean isOutTranscriptExpression() {
+		return outTranscriptExpression;
+	}
+
+	public void setOutTranscriptExpression(boolean outTranscriptExpression) {
+		this.outTranscriptExpression = outTranscriptExpression;
+	}
+
 	public boolean isOutCounts() {
 		return outCounts;
 	}
@@ -337,6 +359,40 @@ public class ApplicationOptions {
 			}
 			
 			result = Mode.FLUX_CAPACITOR;
+		} else if(outTranscriptExpression) {
+			if(StringUtils.isEmpty(getGtf())) {
+				logger.error("please specify a gtf file");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileIn())) {
+				logger.error("please specify an input file");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileOut())) {
+				logger.error("please specify an output file");
+				System.exit(1);
+			}
+			
+			result = Mode.TRANSCRIPT_EXPRESSION_MATRIX;
+		} else if(outGeneExpression) {
+			if(StringUtils.isEmpty(getGtf())) {
+				logger.error("please specify a gtf file");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileIn())) {
+				logger.error("please specify an input file");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileOut())) {
+				logger.error("please specify an output file");
+				System.exit(1);
+			}
+			
+			result = Mode.GENE_EXPRESSION_MATRIX;
 		}
 		
 		return result;

@@ -63,6 +63,9 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("fileOut",true,"the output file after finding unique mapping reads");
 		options.addOption("findUniqueMappedReads",false,"finds the reads that are uniquely mapped");
 		
+		options.addOption("outRPKM",false,"output the RPKM");
+		options.addOption("outGeneExpressionMatrix",false,"output a gene expression matrix from flux capacitor gtf list");
+		options.addOption("outTranscriptExpressionMatrix",false,"output a transcript expression matrix from flux capacitor gtf list");
 		
 		logger.info(StringUtils.arrayToCommaDelimitedString(args));
 		
@@ -77,6 +80,22 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		if(cmd.hasOption("help")) {
 			printHelp(options);
+		}
+		
+		if(cmd.hasOption("outRPKM")) {
+			applicationOptions.setOutCounts(false);
+		}
+		
+		if(cmd.hasOption("outGeneExpressionMatrix")) {
+			applicationOptions.setOutGeneExpression(true);
+		} else {
+			applicationOptions.setOutGeneExpression(false);
+		}
+		
+		if(cmd.hasOption("outTranscriptExpressionMatrix")) {
+			applicationOptions.setOutTranscriptExpression(true);
+		} else {
+			applicationOptions.setOutTranscriptExpression(false);
 		}
 		
 		if(cmd.hasOption("noSharedMemory")) {

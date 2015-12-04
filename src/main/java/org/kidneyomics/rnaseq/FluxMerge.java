@@ -54,12 +54,19 @@ public class FluxMerge {
 		String annotation = applicationOptions.getGtf();
 		String outmatrix = applicationOptions.getFileOut();
 		boolean outCounts = applicationOptions.isOutCounts();
-		
-		
 		Collection<TranscriptQuantification> listOfTranscriptQuantifications = getTranscriptQuantifications(gtfList, annotation, outCounts).getTranscriptQuantifications();
+		writeQuantificationMatrix(listOfTranscriptQuantifications,outmatrix);
 		
-		writeTranscriptMatrix(listOfTranscriptQuantifications,outmatrix);
-		
+	}
+	
+	public void writeGeneMatrix() throws Exception {
+		String gtfList = applicationOptions.getFileIn();
+		String annotation = applicationOptions.getGtf();
+		String outmatrix = applicationOptions.getFileOut();
+		boolean outCounts = applicationOptions.isOutCounts();
+		TranscriptQuantificationResult transcriptQuantificationResult = getTranscriptQuantifications(gtfList, annotation, outCounts);
+		List<GeneQuantification> listOfGeneQuantifications = getGeneQuantifications(transcriptQuantificationResult);
+		writeQuantificationMatrix(listOfGeneQuantifications,outmatrix);	
 	}
 	
 	protected List<GeneQuantification> getGeneQuantifications(TranscriptQuantificationResult transcriptQuantificationResult) {
@@ -191,12 +198,12 @@ public class FluxMerge {
 		return new TranscriptQuantificationResult(list,transcriptLengthQuantifier,geneLengthQuantifier);
 	}
 	
-	protected void writeTranscriptMatrix(Collection<TranscriptQuantification> listOfTranscriptQuantifications, String outmatrix) throws IOException {
+	protected void writeQuantificationMatrix(Collection<? extends Quantification> listOfQuantifications, String outmatrix) throws IOException {
 		Path p = Paths.get(outmatrix);
 		BufferedWriter bf = Files.newBufferedWriter(p,Charset.defaultCharset());
 		
 		int index = 0;
-		for(TranscriptQuantification tq : listOfTranscriptQuantifications) {
+		for(Quantification tq : listOfQuantifications) {
 			if(index == 0) {
 				bf.append(tq.printHeader());
 				bf.append("\n");
