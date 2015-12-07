@@ -2,7 +2,7 @@ package org.kidneyomics.rnaseq;
 
 import java.io.File;
 
-public class SampleGTF {
+public class SampleGTF implements Comparable<SampleGTF> {
 
 	private String sampleId;
 	private File file;
@@ -26,6 +26,12 @@ public class SampleGTF {
 
 	public File getFile() {
 		return file;
+	}
+
+
+	@Override
+	public int compareTo(SampleGTF o) {
+		return this.getSampleId().compareTo(o.getSampleId());
 	}
 	
 	

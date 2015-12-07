@@ -45,10 +45,25 @@ public class TranscriptQuantification implements Comparable<TranscriptQuantifica
 	private QuantificationType quantificationType = QuantificationType.TRANSCRIPT;
 	private static FeatureComparator comparator = new FeatureComparator();
 	
+	private FORMAT format = FORMAT.GENCODE;
+	
+	enum FORMAT {
+		ENSEMBL,
+		GENCODE
+	}
+	
+	
 	public TranscriptQuantification(Feature feature, List<String> sampleIds) {
 		this.feature = feature;
 		this.sampleIds = sampleIds;
 		this.expressionMap = new HashMap<String,Double>(sampleIds.size());
+		
+		if(this.feature.hasAttribute("gene_biotype")) {
+			this.format = FORMAT.ENSEMBL;
+		} else {
+			this.format = FORMAT.GENCODE;
+		}
+		
 	}
 
 
@@ -69,11 +84,20 @@ public class TranscriptQuantification implements Comparable<TranscriptQuantifica
 	}
 	
 	public String getGeneType() {
-		return this.feature.getAttribute("gene_type");
+		if(this.format == FORMAT.GENCODE) {
+			return this.feature.getAttribute("gene_type");
+		} else {
+			return this.feature.getAttribute("gene_biotype");
+		}
 	}
 	
 	public String getTranscriptType() {
-		return this.feature.getAttribute("transcript_type");
+		if(this.format == FORMAT.GENCODE) {
+			return this.feature.getAttribute("transcript_type");
+		} else {
+			return this.feature.getAttribute("gene_biotype");
+		}
+		
 	}
 	
 	public String getChr() {
@@ -218,6 +242,10 @@ public class TranscriptQuantification implements Comparable<TranscriptQuantifica
 	}
 
 
+	FORMAT getFORMAT() {
+		return this.format;
+	}
+	
 	@Override
 	public int compareTo(TranscriptQuantification o) {
 		return comparator.compare(this.feature, o.feature);
