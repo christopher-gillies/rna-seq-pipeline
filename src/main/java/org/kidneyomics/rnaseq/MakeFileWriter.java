@@ -3,6 +3,7 @@ package org.kidneyomics.rnaseq;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -541,8 +542,8 @@ public class MakeFileWriter {
 		String gtfFilter = outputDir + "/gtf.filtered.gtf";
 		String gtf = outputDir + "/gtf.filtered.sorted.gtf";
 		
-		Collection<Sample> samples = Sample.getBamFileList(new File(bamFile));
-		
+		List<Sample> samples = Sample.getBamFileList(new File(bamFile));
+		Collections.sort(samples);
 		
 		File outDirRef = new File(outputDir);
 		if(!outDirRef.exists()) {

@@ -114,7 +114,7 @@ public class FluxMerge {
 		/*
 		 * Sort
 		 */
-		logger.info("Sorting results");
+		logger.info("Sorting results..");
 		Collections.sort(list);
 		return list;
 	}

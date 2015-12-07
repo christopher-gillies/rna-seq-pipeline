@@ -16,14 +16,16 @@ public class FeatureComparator implements Comparator<Feature> {
 		String yourChr = o2.seqname();
 		
 		
-		if(myChr.equals(yourChr)) {
+		int chrCmp = Integer.compare(Chr2Int.convert(myChr), Chr2Int.convert(yourChr));
+		
+		if(chrCmp == 0) {
 
 			Location me = o1.location();
 			Location you = o2.location();
 			
 			return comparator.compare(me, you);
 		} else {
-			return Integer.compare(Chr2Int.convert(myChr), Chr2Int.convert(yourChr));
+			return chrCmp;
 		}
 	}
 

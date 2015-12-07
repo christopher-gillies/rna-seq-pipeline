@@ -11,7 +11,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.stringtemplate.v4.ST;
 
-public class Sample {
+public class Sample implements Comparable<Sample> {
 	private String sampleId;
 	private Collection<FASTQ> fastqFiles;
 	private List<BAM> bamFiles;
@@ -91,9 +91,9 @@ public class Sample {
 		return samples.values();
 	}
 	
-	public static Collection<Sample> getBamFileList(File file) throws Exception {
+	public static List<Sample> getBamFileList(File file) throws Exception {
 		//Assume one row per sample
-		Collection<Sample> results = new LinkedList<Sample>();
+		List<Sample> results = new LinkedList<Sample>();
 		List<String> lines = FileUtils.readLines(file);
 		for(String line : lines) {
 			String[] cols = line.split("\t");
@@ -119,4 +119,12 @@ public class Sample {
 		template.add("sample", this);
 		return template.render();
 	}
+
+
+	@Override
+	public int compareTo(Sample o) {
+		return this.getSampleId().compareTo(o.getSampleId());
+	}
+	
+	
 }
