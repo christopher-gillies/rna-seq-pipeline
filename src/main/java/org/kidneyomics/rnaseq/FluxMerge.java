@@ -69,7 +69,7 @@ public class FluxMerge {
 		writeQuantificationMatrix(listOfGeneQuantifications,outmatrix);	
 	}
 	
-	protected List<GeneQuantification> getGeneQuantifications(TranscriptQuantificationResult transcriptQuantificationResult) {
+	List<GeneQuantification> getGeneQuantifications(TranscriptQuantificationResult transcriptQuantificationResult) {
 		
 		List<TranscriptQuantification> listOfTranscriptQuantifications = transcriptQuantificationResult.getTranscriptQuantifications();
 		List<GeneQuantification> list = new ArrayList<GeneQuantification>(transcriptQuantificationResult.getTranscriptQuantifications().size());
@@ -119,7 +119,7 @@ public class FluxMerge {
 		return list;
 	}
 	
-	protected TranscriptQuantificationResult getTranscriptQuantifications(String gtfList, String annotation, boolean outCounts) throws Exception {
+	TranscriptQuantificationResult getTranscriptQuantifications(String gtfList, String annotation, boolean outCounts) throws Exception {
 		
 		/*
 		 * Read sample information
@@ -206,7 +206,7 @@ public class FluxMerge {
 		return new TranscriptQuantificationResult(list,transcriptLengthQuantifier,geneLengthQuantifier);
 	}
 	
-	protected void writeQuantificationMatrix(Collection<? extends Quantification> listOfQuantifications, String outmatrix) throws IOException {
+	void writeQuantificationMatrix(Collection<? extends Quantification> listOfQuantifications, String outmatrix) throws IOException {
 		logger.info("Writing expression matrix");
 		Path p = Paths.get(outmatrix);
 		BufferedWriter bf = Files.newBufferedWriter(p,Charset.defaultCharset());
@@ -225,7 +225,7 @@ public class FluxMerge {
 		bf.close();
 	}
 	
-	protected class TranscriptQuantificationResult {
+	class TranscriptQuantificationResult {
 		List<TranscriptQuantification> transcriptQuantifications;
 		TranscriptLengthQuantifier transcriptLengthQuantifier;
 		GeneLengthQuantifier geneLengthQuantifier;

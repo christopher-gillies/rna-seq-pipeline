@@ -136,7 +136,13 @@ public class TranscriptQuantification implements Comparable<TranscriptQuantifica
 
 
 	public double getSampleExpression(String sample) {
-		return this.expressionMap.get(sample);
+		
+		Double result = this.expressionMap.get(sample);
+		if(result == null) {
+			return 0.0;
+		} else {
+			return result;
+		}
 	}
 	
 	public void putSampleExpression(String sample, double expression) {
