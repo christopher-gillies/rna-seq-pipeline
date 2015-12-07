@@ -587,6 +587,7 @@ public class MakeFileWriter {
 		
 		make.addMakeEntry(sortyEntry);
 		
+		List<MakeEntry> sampleGtfCommands = new LinkedList<MakeEntry>();
 		for(Sample s : samples) {
 
 			String id = s.getSampleId();
@@ -614,10 +615,131 @@ public class MakeFileWriter {
 			entry.addCommand("touch $@");
 			entry.addDependency(sortyEntry);
 			
+			
+
+			sampleGtfCommands.add(entry);
 			make.addMakeEntry(entry);
 			
 			//store sample id and gtf file
 			sb.append(id + "\t" + gtfOut + "\n");
+		}
+		
+		String gtfList = outputDir + "gtf.list.txt";
+		
+		
+		/*
+		 * 
+		 * 
+		 * Summarization commands
+		 * 
+		 * 
+		 */
+		{
+			ST expressionTemplate = new ST("java -jar <pipeline> --outTranscriptExpressionMatrix --gtf <gtf> --fileIn <sampleGtfs> --fileOut <out>");
+			expressionTemplate
+			.add("pipeline",applicationOptions.getJarLocation())
+			.add("gtf",applicationOptions.getGtf())
+			.add("sampleGtfs", gtfList)
+			.add("out",outputDir + "/transcript.count.expression.txt");
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Summarize transcript count expression");
+			entry.setTarget("TRANSCRIPT_COUNT_SUMMARY.OK");
+			entry.addCommand(expressionTemplate.render());
+			entry.addCommand("touch $@");
+			entry.addDependencies(sampleGtfCommands);
+			
+			make.addMakeEntry(entry);
+		}
+		
+		{
+			ST expressionTemplate = new ST("java -jar <pipeline> --outTranscriptExpressionMatrix --gtf <gtf> --fileIn <sampleGtfs> --fileOut <out> --outRPKM");
+			expressionTemplate
+			.add("pipeline",applicationOptions.getJarLocation())
+			.add("gtf",applicationOptions.getGtf())
+			.add("sampleGtfs", gtfList)
+			.add("out",outputDir + "/transcript.rpkm.expression.txt");
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Summarize transcript rpkm expression");
+			entry.setTarget("TRANSCRIPT_RPKM_SUMMARY.OK");
+			entry.addCommand(expressionTemplate.render());
+			entry.addCommand("touch $@");
+			entry.addDependencies(sampleGtfCommands);
+			
+			make.addMakeEntry(entry);
+		}
+		
+		{
+			ST expressionTemplate = new ST("java -jar <pipeline> --outTranscriptRatioMatrix --gtf <gtf> --fileIn <sampleGtfs> --fileOut <out>");
+			expressionTemplate
+			.add("pipeline",applicationOptions.getJarLocation())
+			.add("gtf",applicationOptions.getGtf())
+			.add("sampleGtfs", gtfList)
+			.add("out",outputDir + "/transcript.ratios.from.count.expression.txt");
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Summarize transcript ratios from count expression");
+			entry.setTarget("TRANSCRIPT_RATIO_FROM_COUNTS_SUMMARY.OK");
+			entry.addCommand(expressionTemplate.render());
+			entry.addCommand("touch $@");
+			entry.addDependencies(sampleGtfCommands);
+			
+			make.addMakeEntry(entry);
+		}
+		
+		{
+			ST expressionTemplate = new ST("java -jar <pipeline> --outTranscriptRatioMatrix --gtf <gtf> --fileIn <sampleGtfs> --fileOut <out> --outRPKM");
+			expressionTemplate
+			.add("pipeline",applicationOptions.getJarLocation())
+			.add("gtf",applicationOptions.getGtf())
+			.add("sampleGtfs", gtfList)
+			.add("out",outputDir + "/transcript.ratios.from.rpkm.expression.txt");
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Summarize transcript ratios from rpkm expression");
+			entry.setTarget("TRANSCRIPT_RATIO_FROM_RPKM_SUMMARY.OK");
+			entry.addCommand(expressionTemplate.render());
+			entry.addCommand("touch $@");
+			entry.addDependencies(sampleGtfCommands);
+			
+			make.addMakeEntry(entry);
+		}
+		
+		{
+			ST expressionTemplate = new ST("java -jar <pipeline> --outGeneExpressionMatrix --gtf <gtf> --fileIn <sampleGtfs> --fileOut <out>");
+			expressionTemplate
+			.add("pipeline",applicationOptions.getJarLocation())
+			.add("gtf",applicationOptions.getGtf())
+			.add("sampleGtfs", gtfList)
+			.add("out",outputDir + "/gene.count.expression.txt");
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Summarize gene count expression");
+			entry.setTarget("GENE_COUNT_SUMMARY.OK");
+			entry.addCommand(expressionTemplate.render());
+			entry.addCommand("touch $@");
+			entry.addDependencies(sampleGtfCommands);
+			
+			make.addMakeEntry(entry);
+		}
+		
+		{
+			ST expressionTemplate = new ST("java -jar <pipeline> --outGeneExpressionMatrix --gtf <gtf> --fileIn <sampleGtfs> --fileOut <out> --outRPKM");
+			expressionTemplate
+			.add("pipeline",applicationOptions.getJarLocation())
+			.add("gtf",applicationOptions.getGtf())
+			.add("sampleGtfs", gtfList)
+			.add("out",outputDir + "/gene.rpkm.expression.txt");
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Summarize gene rpkm expression");
+			entry.setTarget("GENE_RPKM_SUMMARY.OK");
+			entry.addCommand(expressionTemplate.render());
+			entry.addCommand("touch $@");
+			entry.addDependencies(sampleGtfCommands);
+			
+			make.addMakeEntry(entry);
 		}
 		
 		
@@ -629,7 +751,7 @@ public class MakeFileWriter {
 		 * 
 		 * 
 		 */
-		FileUtils.write(new File(outputDir + "gtf.list.txt"), sb.toString());
+		FileUtils.write(new File(gtfList), sb.toString());
 		
 		
 		/*

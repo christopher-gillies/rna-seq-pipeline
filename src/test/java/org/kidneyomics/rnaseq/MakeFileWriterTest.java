@@ -262,6 +262,7 @@ public class MakeFileWriterTest {
 			
 			when(applicationOptionsMock.getOutputDirectory()).thenReturn("/tmp/test2/");
 			
+			when(applicationOptionsMock.getJarLocation()).thenReturn("/data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar");
 			
 			when(applicationOptionsMock.getNumThreadsFlux()).thenReturn("10");
 			

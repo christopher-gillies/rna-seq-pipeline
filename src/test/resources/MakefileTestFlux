@@ -1,4 +1,4 @@
-all:	FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK	FLUX_CAPACITOR_SAMPLE1.OK	FLUX_CAPACITOR_SAMPLE2.OK	
+all:	FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK	FLUX_CAPACITOR_SAMPLE1.OK	FLUX_CAPACITOR_SAMPLE2.OK	TRANSCRIPT_COUNT_SUMMARY.OK	TRANSCRIPT_RPKM_SUMMARY.OK	TRANSCRIPT_RATIO_FROM_COUNTS_SUMMARY.OK	TRANSCRIPT_RATIO_FROM_RPKM_SUMMARY.OK	GENE_COUNT_SUMMARY.OK	GENE_RPKM_SUMMARY.OK	
 	touch $@.OK
 
 #Command for sorting and filtering the gtf annotation file
@@ -19,5 +19,35 @@ FLUX_CAPACITOR_SAMPLE2.OK:	FLUX_CAPACITOR_GTF_FILTERED_SORTED.OK
 	mkdir -p /tmp/test2//SAMPLE2_tmp/
 	/tmp/flux -i /tmp/tmp2.bam -a /tmp/test2//gtf.filtered.sorted.gtf -m  -o /tmp/test2//SAMPLE2.gtf --count-elements SPLICE_JUNCTIONS,INTRONS --threads 10 --force --tmp-dir /tmp/test2//SAMPLE2_tmp/
 	rm -r /tmp/test2//SAMPLE2_tmp/
+	touch $@
+
+#Summarize transcript count expression
+TRANSCRIPT_COUNT_SUMMARY.OK:	FLUX_CAPACITOR_SAMPLE1.OK	FLUX_CAPACITOR_SAMPLE2.OK	
+	java -jar /data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar --outTranscriptExpressionMatrix --gtf /tmp/genecode.gtf --fileIn /tmp/test2/gtf.list.txt --fileOut /tmp/test2//transcript.count.expression.txt
+	touch $@
+
+#Summarize transcript rpkm expression
+TRANSCRIPT_RPKM_SUMMARY.OK:	FLUX_CAPACITOR_SAMPLE1.OK	FLUX_CAPACITOR_SAMPLE2.OK	
+	java -jar /data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar --outTranscriptExpressionMatrix --gtf /tmp/genecode.gtf --fileIn /tmp/test2/gtf.list.txt --fileOut /tmp/test2//transcript.rpkm.expression.txt --outRPKM
+	touch $@
+
+#Summarize transcript ratios from count expression
+TRANSCRIPT_RATIO_FROM_COUNTS_SUMMARY.OK:	FLUX_CAPACITOR_SAMPLE1.OK	FLUX_CAPACITOR_SAMPLE2.OK	
+	java -jar /data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar --outTranscriptRatioMatrix --gtf /tmp/genecode.gtf --fileIn /tmp/test2/gtf.list.txt --fileOut /tmp/test2//transcript.ratios.from.count.expression.txt
+	touch $@
+
+#Summarize transcript ratios from rpkm expression
+TRANSCRIPT_RATIO_FROM_RPKM_SUMMARY.OK:	FLUX_CAPACITOR_SAMPLE1.OK	FLUX_CAPACITOR_SAMPLE2.OK	
+	java -jar /data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar --outTranscriptRatioMatrix --gtf /tmp/genecode.gtf --fileIn /tmp/test2/gtf.list.txt --fileOut /tmp/test2//transcript.ratios.from.rpkm.expression.txt --outRPKM
+	touch $@
+
+#Summarize gene count expression
+GENE_COUNT_SUMMARY.OK:	FLUX_CAPACITOR_SAMPLE1.OK	FLUX_CAPACITOR_SAMPLE2.OK	
+	java -jar /data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar --outGeneExpressionMatrix --gtf /tmp/genecode.gtf --fileIn /tmp/test2/gtf.list.txt --fileOut /tmp/test2//gene.count.expression.txt
+	touch $@
+
+#Summarize gene rpkm expression
+GENE_RPKM_SUMMARY.OK:	FLUX_CAPACITOR_SAMPLE1.OK	FLUX_CAPACITOR_SAMPLE2.OK	
+	java -jar /data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar --outGeneExpressionMatrix --gtf /tmp/genecode.gtf --fileIn /tmp/test2/gtf.list.txt --fileOut /tmp/test2//gene.rpkm.expression.txt --outRPKM
 	touch $@
 
