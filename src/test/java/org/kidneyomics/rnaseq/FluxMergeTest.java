@@ -18,6 +18,7 @@ import org.kidneyomics.gtf.GTFFeatureBuilder;
 import org.kidneyomics.gtf.GTFFeatureRenderer;
 import org.kidneyomics.gtf.GTFReader;
 import org.kidneyomics.gtf.GTFWriter;
+import org.kidneyomics.rnaseq.FluxMerge.TranscriptRatioResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -381,5 +382,186 @@ public class FluxMergeTest {
 		}
 		
 	}
+	
+	
+	@Test
+	public void testTranscriptRatioRPKM() throws Exception {
+		//TODO
+		/*
+		 * 
+		 *	transcript_id	gene_id	gene_name	gene_type	transcript_type	chr	transcription_start_site	start	end	length	strand	sample1	sample2
+		 *	ENST00000456328	ENSG00000223972	DDX11L1	pseudogene	processed_transcript	chr1	11869	11869	14409	1657	+	0.0	1.0
+		 *	ENST00000515242	ENSG00000223972	DDX11L1	pseudogene	transcribed_unprocessed_pseudogene	chr1	11872	11872	14412	1653	+	2.0	3.0
+		 *	ENST00000518655	ENSG00000223972	DDX11L1	pseudogene	transcribed_unprocessed_pseudogene	chr1	11874	11874	14409	1483	+	4.0	5.0
+		 *	ENST00000450305	ENSG00000223972	DDX11L1	pseudogene	transcribed_unprocessed_pseudogene	chr1	12010	12010	13670	632	+	6.0	7.0
+		 *
+		 *
+		 */
+		
+		Resource r = new ClassPathResource("gencode.head.gz");
+		
+		File tmpDir = FileUtils.getTempDirectory();
+		File tmpSample1 = new File(tmpDir.getAbsolutePath() + "/test.tmpSample1.gtf");
+		File tmpSample2 = new File(tmpDir.getAbsolutePath() + "/test.tmpSample2.gtf");
+		File infile = new File(tmpDir.getAbsolutePath() + "/" + "test.samplelist.txt");
+		File outfile = new File(tmpDir.getAbsolutePath() + "/" + "test.matrix");
+		File annotationFile = new File(tmpDir.getAbsolutePath() + "/" + "anno.gtf.gz");
+		FileUtils.copyFile(r.getFile(), annotationFile);
+		
+		//set RPKM feature
+		List<Feature> transcripts = setup(r, tmpDir, tmpSample1, tmpSample2, infile, "RPKM");
+		
+		HashSet<String> geneIds = new HashSet<String>();
+		
+		for(Feature f : transcripts) {
+			String geneId = f.getAttribute("gene_id");
+			geneIds.add(geneId);
+		}
+		
+		ApplicationOptions appOpts = new ApplicationOptions(loggerService);
+		appOpts.setFileIn(infile.getAbsolutePath());
+		appOpts.setFileOut(outfile.getAbsolutePath());
+		appOpts.setGtf(annotationFile.getAbsolutePath());
+		
+		//use RPKM
+		appOpts.setOutCounts(false);
+		
+		//FluxMerge
+		
+		FluxMerge fluxMerge = new FluxMerge(loggerService, appOpts, new SampleGTFReader());
+		fluxMerge.writeTranscriptRatioMatrix();
+		List<String> outMatrixTextLines = FileUtils.readLines(outfile);
+		
+		assertEquals(transcripts.size() + 1,outMatrixTextLines.size());
+		
+		logger.info("\n" + outMatrixTextLines.get(0));
+		logger.info("\n" + outMatrixTextLines.get(1));
+		logger.info("\n" + outMatrixTextLines.get(2));
+		
+		assertEquals("transcript_id	gene_id	gene_name	gene_type	transcript_type	chr	transcription_start_site	start	end	length	strand	sample1	sample2",outMatrixTextLines.get(0));
+		
+		assertEquals("ENST00000456328	ENSG00000223972	DDX11L1	pseudogene	processed_transcript	chr1	11869	11869	14409	1657	+	0.0\t" + (1.0 / (1.0 + 3.0 + 5.0 + 7.0)),outMatrixTextLines.get(1));
+		
+		assertEquals("ENST00000515242	ENSG00000223972	DDX11L1	pseudogene	transcribed_unprocessed_pseudogene	chr1	11872	11872	14412	1653	+\t" + (2.0 / (2.0 + 4.0 + 6.0)) + "\t" + (3.0 / (1.0 + 3.0 + 5.0 + 7.0)),outMatrixTextLines.get(2));
+		
+		
+		/*
+		 * Delete temporary files
+		 */
+			
+		
+		if(infile.exists()) {
+			infile.delete();
+		}
+		
+		if(outfile.exists()) {
+			outfile.delete();
+		}
+	
+		if(annotationFile.exists()) {
+			annotationFile.delete();
+		}
+		
+		if(tmpSample1.exists()) {
+			tmpSample1.delete();
+		}
+		
+		if(tmpSample2.exists()) {
+			tmpSample2.delete();
+		}
+		
+		if(tmpDir.exists()) {
+			tmpDir.delete();
+		}
+		
+	}
+	
+	
+	
+	@Test
+	public void testTranscriptRatioRPKM2() throws Exception {
+		//TODO
+		/*
+		 * 
+		 *	transcript_id	gene_id	gene_name	gene_type	transcript_type	chr	transcription_start_site	start	end	length	strand	sample1	sample2
+		 *	ENST00000456328	ENSG00000223972	DDX11L1	pseudogene	processed_transcript	chr1	11869	11869	14409	1657	+	0.0	1.0
+		 *	ENST00000515242	ENSG00000223972	DDX11L1	pseudogene	transcribed_unprocessed_pseudogene	chr1	11872	11872	14412	1653	+	2.0	3.0
+		 *	ENST00000518655	ENSG00000223972	DDX11L1	pseudogene	transcribed_unprocessed_pseudogene	chr1	11874	11874	14409	1483	+	4.0	5.0
+		 *	ENST00000450305	ENSG00000223972	DDX11L1	pseudogene	transcribed_unprocessed_pseudogene	chr1	12010	12010	13670	632	+	6.0	7.0
+		 *
+		 *
+		 */
+		
+		Resource r = new ClassPathResource("gencode.head.gz");
+		
+		File tmpDir = FileUtils.getTempDirectory();
+		File tmpSample1 = new File(tmpDir.getAbsolutePath() + "/test.tmpSample1.gtf");
+		File tmpSample2 = new File(tmpDir.getAbsolutePath() + "/test.tmpSample2.gtf");
+		File infile = new File(tmpDir.getAbsolutePath() + "/" + "test.samplelist.txt");
+		//File outfile = new File(tmpDir.getAbsolutePath() + "/" + "test.matrix");
+		File annotationFile = new File(tmpDir.getAbsolutePath() + "/" + "anno.gtf.gz");
+		FileUtils.copyFile(r.getFile(), annotationFile);
+		
+		//set RPKM feature
+		List<Feature> transcripts = setup(r, tmpDir, tmpSample1, tmpSample2, infile, "RPKM");
+		
+		HashSet<String> geneIds = new HashSet<String>();
+		
+		for(Feature f : transcripts) {
+			String geneId = f.getAttribute("gene_id");
+			geneIds.add(geneId);
+		}
+		
+		ApplicationOptions appOpts = new ApplicationOptions(loggerService);
+		appOpts.setFileIn(infile.getAbsolutePath());
+		//appOpts.setFileOut(outfile.getAbsolutePath());
+		appOpts.setGtf(annotationFile.getAbsolutePath());
+		
+		//use RPKM
+		appOpts.setOutCounts(false);
+		
+		//FluxMerge
+		FluxMerge fluxMerge = new FluxMerge(loggerService, appOpts, new SampleGTFReader());
+		TranscriptRatioResult trr = fluxMerge.getTranscriptRatios();
+		trr.transcriptQuantificationResult.transcriptQuantifications = trr.transcriptRatios;
+		List<GeneQuantification> gqs = fluxMerge.getGeneQuantifications(trr.transcriptQuantificationResult);
+		
+		for(GeneQuantification gq : gqs) {
+			for(String id : trr.transcriptQuantificationResult.sampleIds) {
+				logger.info("SAMPLE: "+ id + "GENE: " + gq.getGeneId() +  " EXPRESSION: " + gq.getSampleExpression(id));
+				assertEquals(1.0,gq.getSampleExpression(id),0.001);
+			}
+		}
+		
+		
+		/*
+		 * Delete temporary files
+		 */
+			
+		
+		if(infile.exists()) {
+			infile.delete();
+		}
+		
+
+	
+		if(annotationFile.exists()) {
+			annotationFile.delete();
+		}
+		
+		if(tmpSample1.exists()) {
+			tmpSample1.delete();
+		}
+		
+		if(tmpSample2.exists()) {
+			tmpSample2.delete();
+		}
+		
+		if(tmpDir.exists()) {
+			tmpDir.delete();
+		}
+		
+	}
+	
 	
 }

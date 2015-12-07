@@ -316,4 +316,9 @@ public class GeneQuantification implements Comparable<GeneQuantification>, Quant
 		return this.quantificationType;
 	}
 	
+	List<TranscriptQuantification> getTranscriptQuantifications() {
+		return this.transcriptQuantifications;
+	}
+	
+	
 }

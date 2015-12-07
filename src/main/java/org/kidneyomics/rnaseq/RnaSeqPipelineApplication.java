@@ -57,7 +57,6 @@ public class RnaSeqPipelineApplication {
 	        	File in = new File(applicationOptions.getFileIn());
 	        	File out = new File(applicationOptions.getFileOut());
 	        	filter.filter(in,out);
-	        	
 	        	break;
 	        case FLUX_CAPACITOR:
 	        	logger.info("Creating makefile for transcript deconvolution");
@@ -77,6 +76,10 @@ public class RnaSeqPipelineApplication {
 	        	break;
 	        }
 	        case TRANSCRIPT_RATIO_MATRIX:
+	        	logger.info("Creating transcript ratio matrix");
+	        	FluxMerge fluxMerge = context.getBean(FluxMerge.class);
+	        	fluxMerge.writeTranscriptRatioMatrix();
+	        	break;
 	        case ERROR: {
 	        	
 	        }

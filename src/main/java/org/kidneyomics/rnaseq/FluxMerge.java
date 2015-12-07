@@ -69,6 +69,26 @@ public class FluxMerge {
 		writeQuantificationMatrix(listOfGeneQuantifications,outmatrix);	
 	}
 	
+	public void writeTranscriptRatioMatrix() throws Exception {
+		String outmatrix = applicationOptions.getFileOut();
+		List<TranscriptQuantification> tqs = getTranscriptRatios().transcriptRatios;
+		writeQuantificationMatrix(tqs,outmatrix);	
+	}
+	
+	TranscriptRatioResult getTranscriptRatios() throws Exception {
+		String gtfList = applicationOptions.getFileIn();
+		String annotation = applicationOptions.getGtf();
+		boolean outCounts = applicationOptions.isOutCounts();
+		TranscriptQuantificationResult transcriptQuantificationResult = getTranscriptQuantifications(gtfList, annotation, outCounts);
+		List<GeneQuantification> listOfGeneQuantifications = getGeneQuantifications(transcriptQuantificationResult);
+		
+		TranscriptRatioQuantifier trq = new TranscriptRatioQuantifier(listOfGeneQuantifications, transcriptQuantificationResult.sampleIds);
+		List<TranscriptQuantification> tqs = trq.updateTranscriptRatios();
+		
+		TranscriptRatioResult trr = new TranscriptRatioResult(transcriptQuantificationResult, tqs);
+		return trr;
+	}
+	
 	List<GeneQuantification> getGeneQuantifications(TranscriptQuantificationResult transcriptQuantificationResult) {
 		
 		List<TranscriptQuantification> listOfTranscriptQuantifications = transcriptQuantificationResult.getTranscriptQuantifications();
@@ -125,7 +145,9 @@ public class FluxMerge {
 		 * Read sample information
 		 */
 		List<SampleGTF> sampleGtfs = sampleGtfReader.readFile(new File(gtfList));
+		Collections.sort(sampleGtfs);
 		List<String> sampleIds = sampleGtfReader.getIds(sampleGtfs);
+		Collections.sort(sampleIds);
 		
 		TranscriptLengthQuantifier transcriptLengthQuantifier = TranscriptLengthQuantifier.getTranscriptLengthQuantifier("exon");
 		GeneLengthQuantifier geneLengthQuantifier = GeneLengthQuantifier.getGeneLengthQuantifier("exon");
@@ -203,7 +225,7 @@ public class FluxMerge {
 		/*
 		 * return results
 		 */
-		return new TranscriptQuantificationResult(list,transcriptLengthQuantifier,geneLengthQuantifier);
+		return new TranscriptQuantificationResult(list,transcriptLengthQuantifier,geneLengthQuantifier,sampleIds);
 	}
 	
 	void writeQuantificationMatrix(Collection<? extends Quantification> listOfQuantifications, String outmatrix) throws IOException {
@@ -229,39 +251,51 @@ public class FluxMerge {
 		List<TranscriptQuantification> transcriptQuantifications;
 		TranscriptLengthQuantifier transcriptLengthQuantifier;
 		GeneLengthQuantifier geneLengthQuantifier;
+		List<String> sampleIds;
 		
-		protected TranscriptQuantificationResult(List<TranscriptQuantification> transcriptQuantifications,
+		TranscriptQuantificationResult(List<TranscriptQuantification> transcriptQuantifications,
 				TranscriptLengthQuantifier transcriptLengthQuantifier,
-				GeneLengthQuantifier geneLengthQuantifier) {
+				GeneLengthQuantifier geneLengthQuantifier, List<String> sampleIds) {
 			this.transcriptLengthQuantifier = transcriptLengthQuantifier;
 			this.transcriptQuantifications = transcriptQuantifications;
 			this.geneLengthQuantifier = geneLengthQuantifier;
+			this.sampleIds = sampleIds;
 		}
 
-		public List<TranscriptQuantification> getTranscriptQuantifications() {
+		List<TranscriptQuantification> getTranscriptQuantifications() {
 			return transcriptQuantifications;
 		}
 
-		public void setTranscriptQuantifications(List<TranscriptQuantification> transcriptQuantifications) {
+		void setTranscriptQuantifications(List<TranscriptQuantification> transcriptQuantifications) {
 			this.transcriptQuantifications = transcriptQuantifications;
 		}
 
-		public TranscriptLengthQuantifier getTranscriptLengthQuantifier() {
+		TranscriptLengthQuantifier getTranscriptLengthQuantifier() {
 			return transcriptLengthQuantifier;
 		}
 
-		public void setTranscriptLengthQuantifier(TranscriptLengthQuantifier transcriptLengthQuantifier) {
+		void setTranscriptLengthQuantifier(TranscriptLengthQuantifier transcriptLengthQuantifier) {
 			this.transcriptLengthQuantifier = transcriptLengthQuantifier;
 		}
 
-		public GeneLengthQuantifier getGeneLengthQuantifier() {
+		GeneLengthQuantifier getGeneLengthQuantifier() {
 			return geneLengthQuantifier;
 		}
 
-		public void setGeneLengthQuantifier(GeneLengthQuantifier geneLengthQuantifier) {
+		void setGeneLengthQuantifier(GeneLengthQuantifier geneLengthQuantifier) {
 			this.geneLengthQuantifier = geneLengthQuantifier;
 		}
 		
 		
+	}
+	
+	class TranscriptRatioResult {
+		TranscriptQuantificationResult transcriptQuantificationResult;
+		List<TranscriptQuantification> transcriptRatios;
+		
+		TranscriptRatioResult(TranscriptQuantificationResult transcriptQuantificationResult,List<TranscriptQuantification> transcriptRatios) {
+			this.transcriptQuantificationResult = transcriptQuantificationResult;
+			this.transcriptRatios = transcriptRatios;
+		}
 	}
 }

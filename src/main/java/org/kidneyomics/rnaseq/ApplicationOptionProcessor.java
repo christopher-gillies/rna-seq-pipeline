@@ -66,6 +66,7 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("outRPKM",false,"output the RPKM");
 		options.addOption("outGeneExpressionMatrix",false,"output a gene expression matrix from flux capacitor gtf list");
 		options.addOption("outTranscriptExpressionMatrix",false,"output a transcript expression matrix from flux capacitor gtf list");
+		options.addOption("outTranscriptRatioMatrix",false,"output a transcript ratio expression matrix from flux results. For each sample you will have the transcript expression / total expression across the gene the transcript comes from");
 		
 		logger.info(StringUtils.arrayToCommaDelimitedString(args));
 		
@@ -96,6 +97,12 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 			applicationOptions.setOutTranscriptExpression(true);
 		} else {
 			applicationOptions.setOutTranscriptExpression(false);
+		}
+		
+		if(cmd.hasOption("outTranscriptRatioMatrix")) {
+			applicationOptions.setOutTranscriptRatioMatrix(true);
+		} else {
+			applicationOptions.setOutTranscriptRatioMatrix(false);
 		}
 		
 		if(cmd.hasOption("noSharedMemory")) {

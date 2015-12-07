@@ -32,8 +32,9 @@ public class ApplicationOptions {
 	private boolean findUniqueMappedReads = false;
 	private boolean noSharedMemory = false;
 	private boolean outCounts = true;
-	private boolean outGeneExpression;
-	private boolean outTranscriptExpression;
+	private boolean outGeneExpression = false;
+	private boolean outTranscriptExpression = false;
+	private boolean outTranscriptRatioMatrix = false;
 	
 	private String fluxCapacitorQuantifyMode = "PAIRED"; //--printParameters AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED
 	
@@ -259,6 +260,16 @@ public class ApplicationOptions {
 		this.noSharedMemory = noSharedMemory;
 	}
 
+	
+	
+	public boolean isOutTranscriptRatioMatrix() {
+		return outTranscriptRatioMatrix;
+	}
+
+	public void setOutTranscriptRatioMatrix(boolean outTranscriptRatioMatrix) {
+		this.outTranscriptRatioMatrix = outTranscriptRatioMatrix;
+	}
+
 	public Mode validateOptions() {
 		Mode result = Mode.ERROR;
 		
@@ -393,6 +404,23 @@ public class ApplicationOptions {
 			}
 			
 			result = Mode.GENE_EXPRESSION_MATRIX;
+		} else if(outTranscriptRatioMatrix) {
+			if(StringUtils.isEmpty(getGtf())) {
+				logger.error("please specify a gtf file");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileIn())) {
+				logger.error("please specify an input file");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileOut())) {
+				logger.error("please specify an output file");
+				System.exit(1);
+			}
+			
+			result = Mode.TRANSCRIPT_RATIO_MATRIX;
 		}
 		
 		return result;
