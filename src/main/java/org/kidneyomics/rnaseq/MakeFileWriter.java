@@ -44,7 +44,8 @@ public class MakeFileWriter {
 			break;
 		case FIND_UNIQUE_MAPPED_READS:
 		case ERROR:
-			break;
+			default:
+				
 		}
 	}
 	

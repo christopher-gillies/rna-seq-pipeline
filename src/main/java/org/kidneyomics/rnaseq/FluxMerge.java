@@ -76,6 +76,7 @@ public class FluxMerge {
 	}
 	
 	TranscriptRatioResult getTranscriptRatios() throws Exception {
+		logger.info("Getting transcript ratios");
 		String gtfList = applicationOptions.getFileIn();
 		String annotation = applicationOptions.getGtf();
 		boolean outCounts = applicationOptions.isOutCounts();
