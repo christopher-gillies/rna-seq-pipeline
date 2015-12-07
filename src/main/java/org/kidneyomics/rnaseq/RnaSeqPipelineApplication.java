@@ -83,6 +83,7 @@ public class RnaSeqPipelineApplication {
 	        }
         } catch(Exception e) {
         	logger.error(e.getMessage());
+        	throw e;
         }
 		
 		
