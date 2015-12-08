@@ -44,5 +44,25 @@ public class BiojavaFeatureTest {
 		assertEquals(intersection.bioEnd(),150);
 		assertEquals(intersection.length(), 150 - 100 + 1);
 	}
+	
+	
+	@Test
+	public void test3() {
+		
+		logger.info("BiojavaFeatureTest#test3");
+		Location l1 = Location.fromBio(100, 200, '+');
+		Location l2 = Location.fromBio(1, 99, '+');
+		
+		Location intersection = l1.intersection(l2);
+		
+		logger.info(intersection.length() + "");
+		//assertNull(intersection);
+		
+		Location union = l1.union(l2);
+		
+		logger.info(union.bioStart() + "");
+		logger.info(union.bioEnd() + "");
+		logger.info(union.length() + "");
+	}
 
 }

@@ -5,6 +5,8 @@ import java.util.Comparator;
 import org.biojava.nbio.genome.parsers.gff.Feature;
 import org.biojava.nbio.genome.parsers.gff.Location;
 import org.kidneyomics.util.Chr2Int;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FeatureComparator implements Comparator<Feature> {
 

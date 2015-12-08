@@ -69,7 +69,7 @@ public class FeatureMerger {
 			}
 			
 			Location intersection = currentLocation.intersection(nextLocation);
-			if(intersection != null) {
+			if(intersection != null && intersection.length() > 0) {
 				Location union = currentLocation.union(nextLocation);
 				current = new Feature( current.seqname(),current.source(),current.type(),union,current.score(),current.frame(),current.attributes());
 			} else {
