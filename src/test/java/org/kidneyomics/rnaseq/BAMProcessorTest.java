@@ -367,19 +367,21 @@ public class BAMProcessorTest {
 			record.setReadName("D7DHSVN1:225:D2HR7ACXX:4:1107:16208:777");
 			record.setReadString(StringUtils.repeat("A", 39));
 			record.setBaseQualityString(StringUtils.repeat("H", 39));
-			record.setAlignmentStart(100 + 77);
+			//record.setAlignmentStart(100 + 77);
 			record.setMateAlignmentStart(100 + 77 + 200);
-			record.setCigarString("39M");
-			record.setReferenceName("1");
-			record.setReferenceIndex(0);
+			//record.setCigarString("39M");
+			//record.setReferenceName("1");
+			//record.setReferenceIndex(0);
 			record.setMateReferenceName("1");
 			record.setMateReferenceIndex(0);
+			
+			
 			record.setReadPairedFlag(true);
 			record.setProperPairFlag(false);
-			record.setReadUnmappedFlag(false);
-			record.setMateUnmappedFlag(false);
-			record.setReadNegativeStrandFlag(false);
-			record.setMateNegativeStrandFlag(true);
+			record.setReadUnmappedFlag(true);
+			//record.setMateUnmappedFlag(false);
+			//record.setReadNegativeStrandFlag(false);
+			//record.setMateNegativeStrandFlag(true);
 			record.setFirstOfPairFlag(true);
 			//logger.info(record.toString());
 			//logger.info("Start: " + record.getStart());
@@ -393,18 +395,18 @@ public class BAMProcessorTest {
 			record.setReadString(StringUtils.repeat("A", 39));
 			record.setBaseQualityString(StringUtils.repeat("H", 39));
 			record.setAlignmentStart(100 + 77 + 200);
-			record.setMateAlignmentStart(100 + 77);
+			//record.setMateAlignmentStart(100 + 77);
 			record.setCigarString("39M");
 			record.setReferenceName("1");
 			record.setReferenceIndex(0);
-			record.setMateReferenceName("1");
-			record.setMateReferenceIndex(0);
+			//record.setMateReferenceName("1");
+			//record.setMateReferenceIndex(0);
 			record.setProperPairFlag(false);
-			record.setReadPairedFlag(false);
-			record.setReadUnmappedFlag(true);
-			record.setMateUnmappedFlag(false);
+			record.setReadPairedFlag(true);
+			//record.setReadUnmappedFlag(true);
+			record.setMateUnmappedFlag(true);
 			record.setReadNegativeStrandFlag(true);
-			record.setMateNegativeStrandFlag(false);
+			//record.setMateNegativeStrandFlag(false);
 			record.setSecondOfPairFlag(true);
 			//logger.info(record.toString());
 			//logger.info("Start: " + record.getStart());
@@ -445,7 +447,7 @@ public class BAMProcessorTest {
 				}
 			}
 			
-			assertEquals(50,count);
+			assertEquals(51,count);
 		}
 	}
 }

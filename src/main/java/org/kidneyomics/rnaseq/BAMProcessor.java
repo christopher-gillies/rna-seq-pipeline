@@ -28,6 +28,11 @@ public class BAMProcessor implements AutoCloseable {
 		return new BAMProcessor(in);
 	}
 	
+	/**
+	 * This is needed when bam is sorted in coordinate order instead of query order
+	 * @return the next pair of mapped reads, if only one read is mapped then return that one read
+	 * return null if no mapped reads are left.
+	 */
 	public SAMRecordPair getNextReadPair() {
 		SAMRecord mate1;
 		//Get first mapped read
@@ -103,6 +108,9 @@ public class BAMProcessor implements AutoCloseable {
 		
 	}
 	
+	/*
+	 * Maybe relax this to only ensure that the names match?
+	 */
 	public boolean areMates(SAMRecord mate1, SAMRecord mate2) {
 		if(mate1.getMateAlignmentStart() == mate2.getAlignmentStart()
 				&& mate2.getMateAlignmentStart() == mate1.getAlignmentStart() 

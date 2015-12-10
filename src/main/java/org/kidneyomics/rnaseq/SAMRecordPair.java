@@ -25,6 +25,9 @@ public class SAMRecordPair {
 		this.mate2 = mate2;
 	}
 	
+	public boolean bothPairsAligned() {
+		return mate1 != null && mate2 != null;
+	}
 	
 	
 }

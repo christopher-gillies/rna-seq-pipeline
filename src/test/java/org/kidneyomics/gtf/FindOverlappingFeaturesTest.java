@@ -37,9 +37,11 @@ public class FindOverlappingFeaturesTest {
 		
 		Feature target = new Feature("chr1", "", "", Location.fromBio(400, 1000, '+'), -1.0, -1, "");
 		
-		int longest = FindOverlappingFeatures.findLongest(features);
+		FindOverlappingFeatures findOverlappingFeatures = new FindOverlappingFeatures();
+		
+		int longest = findOverlappingFeatures.findLongest(features);
 		Arrays.sort(features, new FeatureComparator());
-		List<Feature> overlap = FindOverlappingFeatures.findOverlappingFeatures(longest, features, target);
+		List<Feature> overlap = findOverlappingFeatures.findOverlappingFeatures(longest, features, target);
 
 		logger.info("Overlapping features with " + GTFFeatureRenderer.render(target));
 		for(Feature f : overlap) {
@@ -73,9 +75,11 @@ public class FindOverlappingFeaturesTest {
 		
 		Feature target = new Feature("chr1", "", "", Location.fromBio(350, 1001, '+'), -1.0, -1, "");
 		
-		int longest = FindOverlappingFeatures.findLongest(features);
+		FindOverlappingFeatures findOverlappingFeatures = new FindOverlappingFeatures();
+		
+		int longest = findOverlappingFeatures.findLongest(features);
 		Arrays.sort(features, new FeatureComparator());
-		List<Feature> overlap = FindOverlappingFeatures.findOverlappingFeatures(longest, features, target);
+		List<Feature> overlap = findOverlappingFeatures.findOverlappingFeatures(longest, features, target);
 
 		logger.info("Overlapping features with " + GTFFeatureRenderer.render(target));
 		for(Feature f : overlap) {
@@ -110,9 +114,11 @@ public class FindOverlappingFeaturesTest {
 		
 		Feature target = new Feature("chr1", "", "", Location.fromBio(925, 1001, '+'), -1.0, -1, "");
 		
-		int longest = FindOverlappingFeatures.findLongest(features);
+		FindOverlappingFeatures findOverlappingFeatures = new FindOverlappingFeatures();
+		
+		int longest = findOverlappingFeatures.findLongest(features);
 		Arrays.sort(features, new FeatureComparator());
-		List<Feature> overlap = FindOverlappingFeatures.findOverlappingFeatures(longest, features, target);
+		List<Feature> overlap = findOverlappingFeatures.findOverlappingFeatures(longest, features, target);
 
 		logger.info("Overlapping features with " + GTFFeatureRenderer.render(target));
 		for(Feature f : overlap) {

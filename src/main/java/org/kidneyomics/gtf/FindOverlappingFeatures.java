@@ -16,9 +16,9 @@ public class FindOverlappingFeatures {
 	 * @param target
 	 * @return
 	 */
-	private static FeatureIntersectionComparator comparator = new FeatureIntersectionComparator();
-	private static FeatureComparator sortComparator = new FeatureComparator();
-	public static List<Feature> findOverlappingFeatures(int longest, Feature[] sortedFeatures, Feature target) {
+	private FeatureIntersectionComparator comparator = new FeatureIntersectionComparator();
+	private FeatureComparator sortComparator = new FeatureComparator();
+	public List<Feature> findOverlappingFeatures(int longest, Feature[] sortedFeatures, Feature target) {
 		List<Feature> results = new LinkedList<Feature>();
 		
 		
@@ -75,7 +75,7 @@ public class FindOverlappingFeatures {
 	 * @param features
 	 * @return the length of the longest feature
 	 */
-	public static int findLongest(Feature[] features) {
+	public int findLongest(Feature[] features) {
 		int longest = 0;
 		for(Feature f : features) {
 			int length = f.location().length();

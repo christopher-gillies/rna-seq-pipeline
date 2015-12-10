@@ -21,7 +21,7 @@ import org.springframework.util.StringUtils;
 
 import htsjdk.samtools.util.CloseableIterator;
 
-public class GTFReader implements Iterable<Feature>, Iterator<Feature>, CloseableIterator<Feature> {
+public class GTFReader implements Iterable<Feature>, Iterator<Feature>, CloseableIterator<Feature>, AutoCloseable {
 
 	private BufferedReader reader;
 	private String currentLine = null;
