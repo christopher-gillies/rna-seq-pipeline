@@ -64,5 +64,29 @@ public class BiojavaFeatureTest {
 		logger.info(union.bioEnd() + "");
 		logger.info(union.length() + "");
 	}
+	
+	@Test
+	public void test4() {
+		
+		logger.info("BiojavaFeatureTest#test4");
+		Location l1 = Location.fromBio(100, 200, '+');
+		Location l2 = Location.fromBio(1, 99, '+');
+		
+		assertFalse(l1.overlaps(l2));
+		assertTrue(l1.isAfter(l2));
+		assertTrue(l2.isBefore(l1));
+	}
+	
+	@Test
+	public void test5() {
+		
+		logger.info("BiojavaFeatureTest#test5");
+		Location l1 = Location.fromBio(100, 200, '+');
+		Location l2 = Location.fromBio(1, 100, '+');
+		
+		assertTrue(l1.overlaps(l2));
+		assertFalse(l2.isBefore(l1));
+		assertFalse(l1.isAfter(l2));
+	}
 
 }

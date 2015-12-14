@@ -2,17 +2,21 @@ package org.kidneyomics.gtf;
 
 import org.biojava.nbio.genome.parsers.gff.Feature;
 
-public class FeatureCount {
+public class FeatureCount implements Comparable<FeatureCount> {
 	
 	private Feature feature;
 	private double count = 0.0;
 	private String id = null;
+	private static FeatureComparator comparator = new FeatureComparator();
 	
 	public FeatureCount(Feature feature) {
 		if(feature == null) {
 			throw new IllegalArgumentException("feature cannot be null");
 		}
+		
 		this.feature = feature;
+		
+		this.feature.getAttributes().put("id", this.getId());
 	}
 	
 	public Feature getFeature() {
@@ -59,6 +63,11 @@ public class FeatureCount {
 		sb.append("_");
 		sb.append(end);
 		return sb.toString();
+	}
+
+	@Override
+	public int compareTo(FeatureCount o) {
+		return comparator.compare(this.feature, o.feature);
 	}
 	
 	

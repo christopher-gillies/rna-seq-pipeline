@@ -17,7 +17,7 @@ public class BAMProcessor implements AutoCloseable {
 	private SamReader reader;
 	private SAMRecordIterator iterator;
 	private Queue<SAMRecord> queue;
-	
+	private boolean onlyUseProperlyPairedReads = true;
 	private BAMProcessor(File in) {
 		reader = SamReaderFactory.makeDefault().open(in);
 		iterator = reader.iterator();
@@ -36,7 +36,11 @@ public class BAMProcessor implements AutoCloseable {
 	public SAMRecordPair getNextReadPair() {
 		SAMRecord mate1;
 		//Get first mapped read
-		while( (mate1 = getFirstMate()) != null && mate1.getReadUnmappedFlag() == true); 
+		if(onlyUseProperlyPairedReads) {
+			while( (mate1 = getFirstMate()) != null && mate1.getReadUnmappedFlag() == true && mate1.getProperPairFlag() == false); 
+		} else {
+			while( (mate1 = getFirstMate()) != null && mate1.getReadUnmappedFlag() == true); 
+		}
 		if(mate1 == null) {
 			return null;
 		}

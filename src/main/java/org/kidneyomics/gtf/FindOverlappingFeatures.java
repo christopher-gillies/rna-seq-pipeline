@@ -14,59 +14,48 @@ public class FindOverlappingFeatures {
 	 * @param longest
 	 * @param sortedFeatures these should be sorted with FeatureComparator
 	 * @param target
-	 * @return
+	 * @return the overlapping elements sorted
 	 */
 	private FeatureIntersectionComparator comparator = new FeatureIntersectionComparator();
-	private FeatureComparator sortComparator = new FeatureComparator();
-	public List<Feature> findOverlappingFeatures(int longest, Feature[] sortedFeatures, Feature target) {
-		List<Feature> results = new LinkedList<Feature>();
+	public List<Feature> findOverlappingFeatures(Feature[] sortedFeatures, Feature target) {
 		
+		assert(sortedFeatures != null);
+		assert(GTFFeatureUtil.isSorted(sortedFeatures));
+		assert(GTFFeatureUtil.hasNoOverlapIgnoreStrand(sortedFeatures));
 		
+		List<Feature> result = new LinkedList<>();
+		if(target == null) {
+			return result;
+		}
 		
 		int index = Arrays.binarySearch(sortedFeatures, target, comparator);
-		
-		if(index  >= 0) {
-			results.add(sortedFeatures[index]);
+		if(index >= 0) {
 			
-			//Scan to right for additional overlapping features
-			// features are sorted by their start coordinates, so search for the first feature that doesn't overlap the target. Once that is found, there cannot be any more
+			result.add(sortedFeatures[index]);
 			
-			int tmpIndex = index + 1;
-			while(tmpIndex < sortedFeatures.length) {
-				int cmp = comparator.compare(target, sortedFeatures[tmpIndex]);
-				if(cmp == 0) {
-					results.add(sortedFeatures[tmpIndex]);
+			//Check overlap at intervals greater than the current
+			for(int i = index + 1; i < sortedFeatures.length; i++) {
+				if(GTFFeatureUtil.overlapIgnoreStrand(target, sortedFeatures[i])) {
+					result.add(sortedFeatures[i]);
 				} else {
 					break;
 				}
-				tmpIndex++;
 			}
 			
-			//Scan to the left, adding intersecting features until the distance of the starting position of the current feature to the feature stored at index is greater than the "longest" feature
-			//so if then we know there cannot be any other feature overlapping the target
-			//suppose f1 overlaps target and f1s start position is longer than "longest" before the target start position. 
-			//Then f1 would have to be the longest feature, because it would be longer than the longest feature
-			tmpIndex = index - 1;
-			Feature current = sortedFeatures[tmpIndex];
-			while(tmpIndex >= 0 && (current.location().bioStart() - current.location().bioStart()) <= longest) {
-				int cmp = comparator.compare(target, sortedFeatures[tmpIndex]);
-				if(cmp == 0) {
-					results.add(sortedFeatures[tmpIndex]);
-				}
-				
-				tmpIndex--;
-				if(tmpIndex >= 0) {
-					current = sortedFeatures[tmpIndex];
+			//Check overlap at intervals less than the current
+			for(int i = index - 1; i > 0; i--) {
+				if(GTFFeatureUtil.overlapIgnoreStrand(target, sortedFeatures[i])) {
+					result.add(sortedFeatures[i]);
+				} else {
+					break;
 				}
 			}
 			
+			GTFFeatureUtil.sortFeatures(result);
+			return result;
+		} else {
+			return result;
 		}
-		
-		if(results.size() > 1) {
-			Collections.sort(results,sortComparator);
-		}
-		
-		return results;
 	}
 	
 	

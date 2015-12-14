@@ -28,7 +28,8 @@ public class GTFReader implements Iterable<Feature>, Iterator<Feature>, Closeabl
 	private String nextLine = null;
 	private Logger logger;
 	private boolean noVersion = false;
-	
+	private List<GTFFeatureFilter> filters = new LinkedList<GTFFeatureFilter>();
+	private long numFilteredOut = 0;
 	private GTFReader(BufferedReader buffered, boolean noEnsembleVersion) throws IOException { 
 		this.noVersion = noEnsembleVersion;
 		this.reader = buffered;
@@ -107,10 +108,28 @@ public class GTFReader implements Iterable<Feature>, Iterator<Feature>, Closeabl
 		if(StringUtils.isEmpty(this.currentLine)) {
 			return null;
 		} else {
+			Feature current = null;
 			if(this.noVersion) {
-				return GTFFeatureBuilder.createFromLine(currentLine,true);
+				current = GTFFeatureBuilder.createFromLine(currentLine,true);
 			} else {
-				return GTFFeatureBuilder.createFromLine(currentLine);
+				current = GTFFeatureBuilder.createFromLine(currentLine);
+			}
+			boolean keep = true;
+			//GTFFeatureFilter culprit = null;
+			for(GTFFeatureFilter filter : filters) {
+				boolean filterRes = filter.filter(current);
+				keep = keep && filterRes;
+				//if(!filterRes) {
+				//	culprit = filter;
+				//}
+			}
+			
+			if(keep) {
+				return current;
+			} else {
+				numFilteredOut++;
+				//logger.info(culprit.getClass().getName() + " CAUSED SKIPPING OF:" + GTFFeatureRenderer.render(current));
+				return next();
 			}
 		}
 	}
@@ -120,6 +139,7 @@ public class GTFReader implements Iterable<Feature>, Iterator<Feature>, Closeabl
 		// TODO Auto-generated method stub
 		
 	}
+	
 
 	@Override
 	public void close() {
@@ -141,5 +161,13 @@ public class GTFReader implements Iterable<Feature>, Iterator<Feature>, Closeabl
 		return list;
 		
 	}
+	
+	public GTFReader addFilter(GTFFeatureFilter filter) {
+		this.filters.add(filter);
+		return this;
+	}
 
+	public long getNumberFilteredOut() {
+		return this.numFilteredOut;
+	}
 }

@@ -15,6 +15,8 @@ public interface FeatureCounter {
 	
 	FeatureCount getCounts(String featureId);
 	
+	List<FeatureCount> getCounts();
+	
 	void count(SAMRecordPair samRecordPair);
 	
 	long getAmbiguousReadCount();
