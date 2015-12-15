@@ -464,11 +464,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 		}
 		
 		if(!this.validState()) {
-			logger.info("Total counts reads: " + this.getTotalCount());
-			logger.info("Total counts mappedReadCount: " + this.getMappedReadCount());
-			logger.info("Total counts unmappedReadCount: " + this.getUnmappedReadCount());
-			logger.info("Total counts ambiguous read count: " + this.getAmbiguousReadCount());
-			logger.info("Partially unmapped reads: " + this.getNumberOfPartiallyUnmappedReads());
+			logInfo();
 			throw new IllegalStateException("Counts do not add up correctly. Last read: " + samRecordPair.getMate1().getReadName() + " " + samRecordPair.getMate1().getReferenceName() + ":" + samRecordPair.getMate1().getAlignmentStart());
 		}
 		
@@ -509,6 +505,15 @@ public class GTExFeatureCounter implements FeatureCounter {
 	@Override
 	public boolean validState() {
 		return Math.abs( this.totalCount - (this.mappedCount + this.unmappedCount + this.ambiguousCount)) < 0.01; 
+	}
+
+	@Override
+	public void logInfo() {
+		logger.info("Total counts reads: " + this.getTotalCount());
+		logger.info("Total mapped read count: " + this.getMappedReadCount());
+		logger.info("Total unmapped read count: " + this.getUnmappedReadCount());
+		logger.info("Total ambiguous read count: " + this.getAmbiguousReadCount());
+		logger.info("Partially unmapped reads: " + this.getNumberOfPartiallyUnmappedReads());
 	}
 	
 	

@@ -30,4 +30,6 @@ public interface FeatureCounter {
 	long getNumberOfPartiallyUnmappedReads();
 	
 	boolean validState();
+	
+	void logInfo();
 }

@@ -49,19 +49,30 @@ public class ExonQuantifier {
 		
 		//Process BAM
 		File fin = new File(fileIn);
+		int pairsCounted = 0;
 		try(BAMProcessor processor = BAMProcessor.getBAMProcessor(fin)) {
 			
 			SAMRecordPair pair = null;
 			while( ( pair = processor.getNextReadPair()) != null) {
 				gTExFeatureCounter.count(pair);
+				pairsCounted++;
+				if(pairsCounted % 10000 == 0) {
+					logger.info("Read pairs counted: " + pairsCounted);
+					gTExFeatureCounter.logInfo();
+				}
+				
 			}
 		}
+		
+		logger.info("Finished processing reads");
+		gTExFeatureCounter.logInfo();
 		
 		double numberOfReads = gTExFeatureCounter.getTotalCount();
 		List<FeatureCount> counts = gTExFeatureCounter.getCounts();
 		List<Feature> newFeatures = new LinkedList<>();
 		
 		//Update features
+		logger.info("Updating exons to include read counts and RPKM");
 		for(FeatureCount fc : counts) {
 			Feature f = fc.getFeature();
 			
@@ -76,7 +87,7 @@ public class ExonQuantifier {
 		
 		//Get Gene Counts
 		
-		
+		logger.info("Writing GTF file: " + fileOut);
 		try(GTFWriter writer = GTFWriter.getGTFWriterForFile(new File(fileOut))) {
 			writer.write(newFeatures);
 		}
