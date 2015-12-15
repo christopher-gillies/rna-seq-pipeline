@@ -17,8 +17,10 @@ import org.kidneyomics.gtf.ExonFilter;
 import org.kidneyomics.gtf.FeatureComparator;
 import org.kidneyomics.gtf.FeatureCount;
 import org.kidneyomics.gtf.FeatureMerger;
+import org.kidneyomics.gtf.FeaturePair;
 import org.kidneyomics.gtf.FindOverlappingExonsBetweenGenes;
 import org.kidneyomics.gtf.FindOverlappingFeatures;
+import org.kidneyomics.gtf.FindOverlappingGenePairs;
 import org.kidneyomics.gtf.GTFFeatureRenderer;
 import org.kidneyomics.gtf.GTFFeatureUtil;
 import org.kidneyomics.gtf.GTFReader;
@@ -98,15 +100,20 @@ public class GTExFeatureCounter implements FeatureCounter {
 		}
 		
 		
-		logger.info("Reading gtf...");
+		logger.info("Reading annotation gtf...");
 		//Read GTF
 		//Store all exons for each gene
 		int totalFeatures = 0;
+		int linesRead = 0;
 		try(GTFReader reader = GTFReader.getGTFByFileNoEnsemblVersion(gtf)) {
 			reader.addFilter(new GeneOrExonFilter()).addFilter(new RemoveRetainedIntronFilter());
 			
 						
 			for(Feature feature : reader) {
+				linesRead++;
+				if(linesRead % 10000 == 0) {
+					logger.info("Last read feature: " + GTFFeatureRenderer.render(feature));
+				}
 				if(feature.type().equals("gene")) {
 					geneInfo.put(feature.getAttribute("gene_id"), feature);
 				} else if(feature.type().equals("exon")) {
@@ -152,21 +159,24 @@ public class GTExFeatureCounter implements FeatureCounter {
 		 */
 		logger.info("Finding overlapping exons between genes");
 		HashSet<Feature> geneOverlapToRemove = new HashSet<>();
-		for(int i = 0; i < geneKeys.size() - 1; i++) {
-			for(int j = i + 1; j < geneKeys.size(); j++) {
-				String key1 = geneKeys.get(i);
-				String key2 = geneKeys.get(j);
-				
-				if(GTFFeatureUtil.overlapIgnoreStrand(geneInfo.get(key1), geneInfo.get(key2))) {
-					List<Feature> gene1 = geneFeatures.get(key1);
-					List<Feature> gene2 = geneFeatures.get(key2);
-					List<Feature> overlappingExons = findOverlappingExonsBetweenGenes.findOverlappingExons(gene1,gene2);
-					if(overlappingExons.size() > 0) {
-						geneOverlapToRemove.addAll(overlappingExons);
-					}
+		FindOverlappingGenePairs findOverlappingGenePairs = new FindOverlappingGenePairs(geneInfo.values());
+		List<FeaturePair> overlappingGenes = findOverlappingGenePairs.getOverlappingGenes();
+		for(FeaturePair pair : overlappingGenes) {
+			logger.info("First of pair: " + pair.getFirst().getAttribute("gene_id"));
+			logger.info("Second of pair: " + pair.getSecond().getAttribute("gene_id"));
+			List<Feature> gene1 = geneFeatures.get(pair.getFirst().getAttribute("gene_id"));
+			List<Feature> gene2 = geneFeatures.get(pair.getSecond().getAttribute("gene_id"));
+			//Some genes may have only retained introns...
+			if(gene1 != null && gene1.size() > 0 && gene2 != null && gene2.size() > 0) {
+				List<Feature> overlappingExons = findOverlappingExonsBetweenGenes.findOverlappingExons(gene1,gene2);
+				if(overlappingExons.size() > 0) {
+					geneOverlapToRemove.addAll(overlappingExons);
 				}
 			}
 		}
+			
+			
+		
 		
 		logger.info("Storing removed exons");
 		featuresRemovedForAnalysis = geneOverlapToRemove;
@@ -342,8 +352,8 @@ public class GTExFeatureCounter implements FeatureCounter {
 			fc.addToCount(count / (double) totalMappedBases);
 		}
 		double result = ((double) totalMappedBases - mapped)   /  (double) totalMappedBases;
-		if(result < 0) {
-			throw new IllegalStateException("There was an issue counting reads...");
+		if(result < -0.0001) {
+			throw new IllegalStateException("There was an issue counting reads...\nresult=" + result + "\ntotalMappedBases=" + totalMappedBases + "\nmapped=" + mapped);
 		}
 		return result;
 	}
