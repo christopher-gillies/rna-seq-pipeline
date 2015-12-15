@@ -23,7 +23,7 @@ public class BAMProcessor implements AutoCloseable {
 	private boolean onlyUseProperlyPairedReads = true;
 	private long readCount = 0;
 	private Logger logger = LoggerFactory.getLogger(BAMProcessor.class);
-	private int logSkipSize = 10000;
+	private int logSkipSize = 100000;
 	
 	public BAMProcessor withLogSkipSize(int logSkipSize) {
 		this.logSkipSize = logSkipSize;

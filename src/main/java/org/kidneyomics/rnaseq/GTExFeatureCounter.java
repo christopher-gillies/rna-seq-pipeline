@@ -417,8 +417,8 @@ public class GTExFeatureCounter implements FeatureCounter {
 			
 			
 			//logger.info("Ambiguous count: " + ambiguousCount);
-			logger.info("Read name: " + samRecordPair.getMate1().getReadName());
-			logger.info("Coordinates: " + samRecordPair.getMate1().getReferenceName() + ":" + samRecordPair.getMate1().getAlignmentStart() + "-" + samRecordPair.getMate1().getAlignmentEnd());
+			//logger.info("Read name: " + samRecordPair.getMate1().getReadName());
+			//logger.info("Coordinates: " + samRecordPair.getMate1().getReferenceName() + ":" + samRecordPair.getMate1().getAlignmentStart() + "-" + samRecordPair.getMate1().getAlignmentEnd());
 			if(mapToMultipleGenes(union.keySet())) {
 				ambiguousCount += 1;
 			} else if(isUnmappedMate1 && isUnmappedMate2) {
