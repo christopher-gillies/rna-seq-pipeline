@@ -11,7 +11,7 @@ import java.util.Collection;
 
 import org.biojava.nbio.genome.parsers.gff.Feature;
 
-public class GTFWriter implements Closeable {
+public class GTFWriter implements AutoCloseable {
 	
 	BufferedWriter bf;
 	

@@ -27,11 +27,13 @@ import org.kidneyomics.gtf.RemoveRetainedIntronFilter;
 import org.kidneyomics.gtf.SAMRecordToFeatureConverter;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import htsjdk.samtools.SAMRecord;
 
-@Component
+@Scope("prototype")
+@Component("gTExFeatureCounter")
 public class GTExFeatureCounter implements FeatureCounter {
 
 	/*
@@ -62,11 +64,11 @@ public class GTExFeatureCounter implements FeatureCounter {
 	
 	private SAMRecordToFeatureConverter converter = new SAMRecordToFeatureConverter();
 	
-	private long unmappedCount = 0;
-	private long ambiguousCount = 0;
-	private long mappedCount = 0;
-	private long totalCount = 0;
-	
+	private double unmappedCount = 0.0;
+	private double ambiguousCount = 0.0;
+	private double mappedCount = 0.0;
+	private double totalCount = 0.0;
+	private long partiallyUnmappedReads = 0;
 	
 	private FindOverlappingFeatures findOverlappingFeatures;
 	
@@ -177,7 +179,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 		logger.info("Removing overlapping exons per gene");
 		for(String geneKey : geneKeys) {
 			List<Feature> features = geneFeatures.get(geneKey);
-			logger.info("GENE " + geneKey + " has " + features.size());
+			//logger.info("GENE " + geneKey + " has " + features.size());
 			Iterator<Feature> iter = features.iterator();
 			while(iter.hasNext()) {
 				Feature f = iter.next();
@@ -186,7 +188,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 					countRemovedFeatures++;
 				}
 			}
-			logger.info("GENE " + geneKey + " has " + features.size() + " after removing overlapping exons");
+			//logger.info("GENE " + geneKey + " has " + features.size() + " after removing overlapping exons");
 		}
 		logger.info("Total overlapping features actually removed: " + countRemovedFeatures);
 		
@@ -268,17 +270,21 @@ public class GTExFeatureCounter implements FeatureCounter {
 	
 	
 
-	Map<Feature,Integer> getMappedRegionsForMate(SAMRecord mate, Feature[] features) {
+	static Map<Feature,Integer> getMappedRegionsForMate(SAMRecord mate, Feature[] features, SAMRecordToFeatureConverter converter, FindOverlappingFeatures findOverlappingFeatures) {
 		List<Feature> featuresForRecord = converter.convert(mate);
 		HashMap<Feature,Integer> featuresForMate = new HashMap<>();
 		//boolean isAmbiguous = false;
 		for(Feature target : featuresForRecord) {
+			//logger.info(GTFFeatureRenderer.render(target));
 			//we can assume the result is non overlapping
 			List<Feature> mappedFeatures = findOverlappingFeatures.findOverlappingFeatures( features, target);
+			//logger.info("Number of mapped features: " + mappedFeatures.size());
 			assert(GTFFeatureUtil.hasNoOverlapIgnoreStrand(mappedFeatures));
 			for(Feature mapped : mappedFeatures) {
+				//logger.info(GTFFeatureRenderer.render(mapped));
 				if(target.location().plus().overlaps(mapped.location().plus())) {
 					int overlap = target.location().plus().intersection(mapped.location().plus()).length();
+					//logger.info("overlap: " + overlap);
 					if(featuresForMate.containsKey(mapped)) {
 						int currentVal = featuresForMate.get(mapped);
 						featuresForMate.put(mapped, overlap + currentVal);
@@ -294,7 +300,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 	}
 	
 	
-	boolean mapToMultipleGenes(Set<Feature> features) {
+	static boolean mapToMultipleGenes(Set<Feature> features) {
 		HashSet<String> geneIds = new HashSet<>();
 		for(Feature feature : features) {
 			String geneId = feature.getAttribute("gene_id");
@@ -303,26 +309,27 @@ public class GTExFeatureCounter implements FeatureCounter {
 		return geneIds.size() > 1;
 	}
 	
-	static void addToFeatures(Map<Feature,Integer> features, Map<String,FeatureCount> featureCounts) {
+	static double addToFeatures(int totalMappedBases, Map<Feature,Integer> features, Map<String,FeatureCount> featureCounts) {
 		assert(features != null);
 		assert(featureCounts != null);
 		
 		if(features.size() == 0) {
-			return;
+			return 1.0;
 		}
 		
 		/*
 		 * Count the total mapping
+		 * just going to use total mapped bases
 		 */
-		double total = 0.0;
-		for(Map.Entry<Feature, Integer> entry : features.entrySet()) {
-			total += entry.getValue();
-		}
-		
+		//double total = 0.0;
+		//for(Map.Entry<Feature, Integer> entry : features.entrySet()) {
+		//	total += entry.getValue();
+		//}
+		double mapped = 0.0;
 		for(Map.Entry<Feature, Integer> entry : features.entrySet()) {
 			Feature feature = entry.getKey();
 			double count = entry.getValue();
-			
+			mapped += count;
 			String id = feature.getAttribute("id");
 			if(id == null) {
 				throw new IllegalArgumentException("Feature must have id attribute\n" + GTFFeatureRenderer.render(feature));
@@ -332,8 +339,39 @@ public class GTExFeatureCounter implements FeatureCounter {
 				throw new IllegalStateException("No FeatureCount object found for id: " + id);
 			}
 			
-			fc.addToCount(count / total);
+			fc.addToCount(count / (double) totalMappedBases);
 		}
+		double result = ((double) totalMappedBases - mapped)   /  (double) totalMappedBases;
+		if(result < 0) {
+			throw new IllegalStateException("There was an issue counting reads...");
+		}
+		return result;
+	}
+	
+	static Map<Feature,Integer> unionFeaturesForMates(Map<Feature,Integer> mappedFeaturesAcrossChunksForMate1, Map<Feature,Integer> mappedFeaturesAcrossChunksForMate2) {
+		//This map will give us the number of bases overlapping each interval, thus we can fractionally count
+		Map<Feature,Integer> union = new HashMap<>();
+		
+		
+		for(Map.Entry<Feature, Integer> entry : mappedFeaturesAcrossChunksForMate1.entrySet()) {
+			if(union.containsKey(entry.getKey())) {
+				int currentVal = union.get(entry.getKey());
+				union.put(entry.getKey(), entry.getValue() + currentVal);
+			} else {
+				union.put(entry.getKey(), entry.getValue());
+			}
+		}
+		
+		for(Map.Entry<Feature, Integer> entry : mappedFeaturesAcrossChunksForMate2.entrySet()) {
+			if(union.containsKey(entry.getKey())) {
+				int currentVal = union.get(entry.getKey());
+				union.put(entry.getKey(), entry.getValue() + currentVal);
+			} else {
+				union.put(entry.getKey(), entry.getValue());
+			}
+		}
+		
+		return union;
 	}
 	
 	@Override
@@ -350,47 +388,48 @@ public class GTExFeatureCounter implements FeatureCounter {
 		
 			totalCount += 1;
 			
-			Map<Feature,Integer> mappedFeaturesAcrossChunksForMate1 = getMappedRegionsForMate(samRecordPair.getMate1(), features);	
+			Map<Feature,Integer> mappedFeaturesAcrossChunksForMate1 = getMappedRegionsForMate(samRecordPair.getMate1(), features, converter, findOverlappingFeatures);	
 			boolean isUnmappedMate1 = mappedFeaturesAcrossChunksForMate1.size() == 0;
+			int mate1MappedBases = converter.getNumberOfMappedBases(samRecordPair.getMate1());
 			
-			
-			Map<Feature,Integer> mappedFeaturesAcrossChunksForMate2 = getMappedRegionsForMate(samRecordPair.getMate2(), features);
+			Map<Feature,Integer> mappedFeaturesAcrossChunksForMate2 = getMappedRegionsForMate(samRecordPair.getMate2(), features, converter, findOverlappingFeatures);
 			boolean isUnmappedMate2 = mappedFeaturesAcrossChunksForMate2.size() == 0;
+			int mate2MappedBases = converter.getNumberOfMappedBases(samRecordPair.getMate2());
 			
-			Map<Feature,Integer> union = new HashMap<>();
+			Map<Feature,Integer> union = unionFeaturesForMates(mappedFeaturesAcrossChunksForMate1,mappedFeaturesAcrossChunksForMate2);
 			
-			//This map will give us the number of bases overlapping each interval, thus we can fractionally count
-			for(Map.Entry<Feature, Integer> entry : mappedFeaturesAcrossChunksForMate1.entrySet()) {
-				if(union.containsKey(entry.getKey())) {
-					int currentVal = union.get(entry.getKey());
-					union.put(entry.getKey(), entry.getValue() + currentVal);
-				} else {
-					union.put(entry.getKey(), entry.getValue());
-				}
-			}
+			int totalMappedBases = mate1MappedBases + mate2MappedBases;
 			
 			
+			
+			//logger.info("Ambiguous count: " + ambiguousCount);
 			if(mapToMultipleGenes(union.keySet())) {
 				ambiguousCount += 1;
 			} else if(isUnmappedMate1 && isUnmappedMate2) {
 				unmappedCount += 1;
 			} else if(isUnmappedMate1) {
 				//Mate 2 is mapped otherwise the above case
-				addToFeatures(mappedFeaturesAcrossChunksForMate2, featureCounts);
-				mappedCount++;
+				double unmappedFrac = addToFeatures(totalMappedBases, mappedFeaturesAcrossChunksForMate2, featureCounts);
+				mappedCount += (1 - unmappedFrac);
+				unmappedCount += unmappedFrac;
+				partiallyUnmappedReads += Math.abs(unmappedFrac) < 0.0001 ? 0 : 1;
 			} else if(isUnmappedMate2) {
 				//Mate 1 is mapped otherwise the above case
-				addToFeatures(mappedFeaturesAcrossChunksForMate1, featureCounts);
-				mappedCount++;
+				double unmappedFrac = addToFeatures(totalMappedBases, mappedFeaturesAcrossChunksForMate1, featureCounts);
+				mappedCount += (1 - unmappedFrac);
+				unmappedCount += unmappedFrac;
+				partiallyUnmappedReads += Math.abs(unmappedFrac) < 0.0001 ? 0 : 1;
 			} else {
-				addToFeatures(union, featureCounts);
-				mappedCount++;
+				double unmappedFrac = addToFeatures(totalMappedBases, union, featureCounts);
+				mappedCount += (1 - unmappedFrac);
+				unmappedCount += unmappedFrac;
+				partiallyUnmappedReads += Math.abs(unmappedFrac) < 0.0001 ? 0 : 1;
 			}
-				
+			//logger.info("Ambiguous count: " + ambiguousCount);	
 			
 			
 		} else {
-			throw new IllegalStateException("Should not get here");
+			throw new IllegalStateException("Read is not properly paired. Because its pair was not found. " + samRecordPair.getMate1().getReadName());
 			//Only use first mate
 //			totalCount++;
 //			Map<Feature,Integer> mappedFeaturesAcrossChunksForMate1 = getMappedRegionsForMate(samRecordPair.getMate1() , features);
@@ -408,25 +447,34 @@ public class GTExFeatureCounter implements FeatureCounter {
 //			}
 		}
 		
+		if(!this.validState()) {
+			logger.info("Total counts reads: " + this.getTotalCount());
+			logger.info("Total counts mappedReadCount: " + this.getMappedReadCount());
+			logger.info("Total counts unmappedReadCount: " + this.getUnmappedReadCount());
+			logger.info("Total counts ambiguous read count: " + this.getAmbiguousReadCount());
+			logger.info("Partially unmapped reads: " + this.getNumberOfPartiallyUnmappedReads());
+			throw new IllegalStateException("Counts do not add up correctly. Last read: " + samRecordPair.getMate1().getReadName() + " " + samRecordPair.getMate1().getReferenceName() + ":" + samRecordPair.getMate1().getAlignmentStart());
+		}
+		
 	}
 	
 	@Override
-	public long getAmbiguousReadCount() {
+	public double getAmbiguousReadCount() {
 		return this.ambiguousCount;
 	}
 
 	@Override
-	public long getUnmappedReadCount() {
+	public double getUnmappedReadCount() {
 		return this.unmappedCount;
 	}
 
 	@Override
-	public long getMappedReadCount() {
+	public double getMappedReadCount() {
 		return this.mappedCount;
 	}
 
 	@Override
-	public long getTotalCount() {
+	public double getTotalCount() {
 		return this.totalCount;
 	}
 
@@ -435,6 +483,16 @@ public class GTExFeatureCounter implements FeatureCounter {
 		ArrayList<FeatureCount> al = new ArrayList<FeatureCount>();
 		al.addAll(this.featureCounts.values());
 		return al;
+	}
+
+	@Override
+	public long getNumberOfPartiallyUnmappedReads() {
+		return this.partiallyUnmappedReads;
+	}
+
+	@Override
+	public boolean validState() {
+		return Math.abs( this.totalCount - (this.mappedCount + this.unmappedCount + this.ambiguousCount)) < 0.01; 
 	}
 	
 	

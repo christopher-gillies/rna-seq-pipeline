@@ -56,6 +56,7 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("numberOfThreadsForAlign",true,"the number of threads to use for aligning");
 		options.addOption("numberOfThreadsForFlux",true,"the number of threads to use for flux capacitor. Default is 2");
 		options.addOption("fluxCapacitor",true,"the path to the fluxcapacitor program");
+		options.addOption("countReadsInExons",false,"count all the reads in a bam file and output the results in a gtf file");
 		
 		options.addOption("fluxQuantifyMode",true,"This paramter is used for flux capacitor. The default is PAIRED. Here are other options: AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED");
 		
@@ -117,6 +118,11 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 			applicationOptions.setFindUniqueMappedReads(false);
 		}
 		
+		if(cmd.hasOption("countReadsInExons")) {
+			applicationOptions.setCountReadsInExons(true);
+		} else {
+			applicationOptions.setCountReadsInExons(false);
+		}
 		
 		if(cmd.hasOption("starAligner")) {
 			applicationOptions.setStar(cmd.getOptionValue("starAligner"));

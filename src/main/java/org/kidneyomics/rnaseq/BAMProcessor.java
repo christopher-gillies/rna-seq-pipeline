@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import htsjdk.samtools.SAMFileHeader.SortOrder;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMRecordIterator;
@@ -18,6 +21,15 @@ public class BAMProcessor implements AutoCloseable {
 	private SAMRecordIterator iterator;
 	private Queue<SAMRecord> queue;
 	private boolean onlyUseProperlyPairedReads = true;
+	private long readCount = 0;
+	private Logger logger = LoggerFactory.getLogger(BAMProcessor.class);
+	private int logSkipSize = 10000;
+	
+	public BAMProcessor withLogSkipSize(int logSkipSize) {
+		this.logSkipSize = logSkipSize;
+		return this;
+	}
+	
 	private BAMProcessor(File in) {
 		reader = SamReaderFactory.makeDefault().open(in);
 		iterator = reader.iterator();
@@ -73,6 +85,7 @@ public class BAMProcessor implements AutoCloseable {
 		} else {
 			if(iterator.hasNext()) {
 				mate1 = iterator.next();
+				countRead(mate1);
 			}
 		}
 		return mate1;
@@ -97,6 +110,7 @@ public class BAMProcessor implements AutoCloseable {
 		
 		while(mate2 == null && iterator.hasNext()) {
 			SAMRecord tmp = iterator.next();
+			countRead(tmp);
 			if(areMates(mate1,tmp)) {
 				mate2 = tmp;
 			} else {
@@ -112,10 +126,20 @@ public class BAMProcessor implements AutoCloseable {
 		
 	}
 	
+	private void countRead(final SAMRecord record) {
+		if(record != null) {
+			readCount++;
+			if(readCount % logSkipSize == 0) {
+				logger.info("Single reads processed: " + readCount);
+				logger.info("Last read: " + record.getReferenceName() + ":" + record.getAlignmentStart() + "-" + record.getAlignmentEnd());
+			}
+		}
+	}
+	
 	/*
 	 * Maybe relax this to only ensure that the names match?
 	 */
-	public boolean areMates(SAMRecord mate1, SAMRecord mate2) {
+	public boolean areMates(final SAMRecord mate1, final SAMRecord mate2) {
 		if(mate1.getMateAlignmentStart() == mate2.getAlignmentStart()
 				&& mate2.getMateAlignmentStart() == mate1.getAlignmentStart() 
 				&& mate1.getReadName().equals(mate2.getReadName())) {

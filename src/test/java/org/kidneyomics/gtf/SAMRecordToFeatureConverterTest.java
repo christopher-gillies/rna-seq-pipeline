@@ -213,5 +213,29 @@ public class SAMRecordToFeatureConverterTest {
 		
 	}
 
-
+	
+	@Test
+	public void testNumberOfMappedBases1() {
+		SAMRecord record = new SAMRecord(new SAMFileHeader());
+		record.setCigarString("39M");
+		int result = converter.getNumberOfMappedBases(record);
+		assertEquals(39,result);
+	}
+	
+	@Test
+	public void testNumberOfMappedBases2() {
+		SAMRecord record = new SAMRecord(new SAMFileHeader());
+		record.setCigarString("39M100N39M");
+		int result = converter.getNumberOfMappedBases(record);
+		assertEquals(78,result);
+	}
+	
+	@Test
+	public void testNumberOfMappedBases3() {
+		SAMRecord record = new SAMRecord(new SAMFileHeader());
+		record.setCigarString("50M100N50M100N50M");
+		int result = converter.getNumberOfMappedBases(record);
+		assertEquals(150,result);
+	}
+	
 }

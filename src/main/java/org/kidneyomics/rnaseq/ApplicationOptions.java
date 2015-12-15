@@ -35,6 +35,7 @@ public class ApplicationOptions {
 	private boolean outGeneExpression = false;
 	private boolean outTranscriptExpression = false;
 	private boolean outTranscriptRatioMatrix = false;
+	private boolean countReadsInExons = false;
 	
 	private String fluxCapacitorQuantifyMode = "PAIRED"; //--printParameters AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED
 	
@@ -54,8 +55,8 @@ public class ApplicationOptions {
 		FIND_UNIQUE_MAPPED_READS,
 		TRANSCRIPT_EXPRESSION_MATRIX,
 		GENE_EXPRESSION_MATRIX,
-		TRANSCRIPT_RATIO_MATRIX
-		
+		TRANSCRIPT_RATIO_MATRIX,
+		COUNT_READS_IN_EXONS
 	}
 	
 	
@@ -270,6 +271,15 @@ public class ApplicationOptions {
 		this.outTranscriptRatioMatrix = outTranscriptRatioMatrix;
 	}
 
+	
+	public boolean isCountReadsInExons() {
+		return countReadsInExons;
+	}
+
+	public void setCountReadsInExons(boolean countReadsInExons) {
+		this.countReadsInExons = countReadsInExons;
+	}
+
 	public Mode validateOptions() {
 		Mode result = Mode.ERROR;
 		
@@ -421,6 +431,23 @@ public class ApplicationOptions {
 			}
 			
 			result = Mode.TRANSCRIPT_RATIO_MATRIX;
+		} else if(countReadsInExons) {
+			if(StringUtils.isEmpty(getGtf())) {
+				logger.error("please specify a gtf file");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileIn())) {
+				logger.error("please specify an input file");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileOut())) {
+				logger.error("please specify an output file");
+				System.exit(1);
+			}
+			
+			result = Mode.COUNT_READS_IN_EXONS;
 		}
 		
 		return result;

@@ -79,6 +79,22 @@ public class SAMRecordToFeatureConverter implements Converter<SAMRecord, List<Fe
 		return list;
 	}
 	
+	public int getNumberOfMappedBases(SAMRecord in) {
+		Cigar cigar = in.getCigar();
+		List<CigarElement> elements = cigar.getCigarElements();
+		int mappedBases = 0;
+		for(final CigarElement element : elements) {
+			//logger.info(element.getLength() + "");
+            switch (element.getOperator()) {
+            case M:
+            	mappedBases += element.getLength();
+                break;
+            default:
+            }
+		}
+		return mappedBases;
+	}
+	
 	private Feature buildFeature(SAMRecord in, int start, int end, boolean isNegativeStrand) {
 		Feature f = new Feature(in.getReferenceName(),"","",Location.fromBio(start, end, isNegativeStrand ? '-' : '+'),Double.MIN_VALUE,Integer.MAX_VALUE,"");
 		return f;

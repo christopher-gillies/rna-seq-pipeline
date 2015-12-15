@@ -4,7 +4,7 @@ import org.biojava.nbio.genome.parsers.gff.Feature;
 
 public class FeatureCount implements Comparable<FeatureCount> {
 	
-	private Feature feature;
+	private final Feature feature;
 	private double count = 0.0;
 	private String id = null;
 	private static FeatureComparator comparator = new FeatureComparator();
@@ -22,20 +22,20 @@ public class FeatureCount implements Comparable<FeatureCount> {
 	public Feature getFeature() {
 		return feature;
 	}
-	public void setFeature(Feature feature) {
-		this.feature = feature;
-	}
+	//public void setFeature(Feature feature) {
+	//	this.feature = feature;
+	//}
 	
 	public double getCount() {
 		return count;
 	}
 	
-	public void addToCount(double val) {
+	public void addToCount(final double val) {
 		assert(val >= 0);
 		this.count += val;
 	}
 	
-	public double getRPKM(double numberOfReads) {
+	public double getRPKM(final double numberOfReads) {
 		double length = feature.location().length();
 		return ((double) count) / length / numberOfReads * Math.pow(10, 9);
 	}

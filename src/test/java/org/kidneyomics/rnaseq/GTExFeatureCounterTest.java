@@ -244,7 +244,7 @@ public class GTExFeatureCounterTest {
 		
 		GTExFeatureCounter gfc = new GTExFeatureCounter(mock, new LoggerService());
 		
-		Map<Feature,Integer> featuresForMate = gfc.getMappedRegionsForMate(record,  null);
+		Map<Feature,Integer> featuresForMate = GTExFeatureCounter.getMappedRegionsForMate(record,  null, new SAMRecordToFeatureConverter(), mock);
 		
 		
 		assertEquals(1,featuresForMate.size());
@@ -279,7 +279,7 @@ public class GTExFeatureCounterTest {
 		
 		GTExFeatureCounter gfc = new GTExFeatureCounter(mock, new LoggerService());
 		
-		Map<Feature,Integer> featuresForMate = gfc.getMappedRegionsForMate(record,  null);
+		Map<Feature,Integer> featuresForMate = GTExFeatureCounter.getMappedRegionsForMate(record,  null, new SAMRecordToFeatureConverter(), mock);
 		
 		
 		assertEquals(2,featuresForMate.size());
@@ -321,7 +321,7 @@ public class GTExFeatureCounterTest {
 		
 		GTExFeatureCounter gfc = new GTExFeatureCounter(mock, new LoggerService());
 		
-		Map<Feature,Integer> featuresForMate = gfc.getMappedRegionsForMate(record,  null);
+		Map<Feature,Integer> featuresForMate = GTExFeatureCounter.getMappedRegionsForMate(record,  null, new SAMRecordToFeatureConverter(), mock);
 		
 		
 		assertEquals(3,featuresForMate.size());
@@ -360,16 +360,44 @@ public class GTExFeatureCounterTest {
 		fcCounts.put(fc2.getId(), fc2);
 		fcCounts.put(fc3.getId(), fc3);
 		
-		GTExFeatureCounter.addToFeatures(features, fcCounts);
+		GTExFeatureCounter.addToFeatures(100, features, fcCounts);
 		
-		assertEquals(10.0 / (33.0),  fcCounts.get(fc1.getId()).getCount(), 0.0001);
-		assertEquals(11.0 / (33.0),  fcCounts.get(fc2.getId()).getCount(), 0.0001);
-		assertEquals(12.0 / (33.0),  fcCounts.get(fc3.getId()).getCount(), 0.0001);
+		assertEquals(10.0 / (100.0),  fcCounts.get(fc1.getId()).getCount(), 0.0001);
+		assertEquals(11.0 / (100.0),  fcCounts.get(fc2.getId()).getCount(), 0.0001);
+		assertEquals(12.0 / (100.0),  fcCounts.get(fc3.getId()).getCount(), 0.0001);
 	}
 	
 	@Test
-	public void testCountPaire1() throws IOException {
-		logger.info("testCountPaire1");
+	public void testUnionFeaturesForMates() {
+		logger.info("testUnionFeaturesForMates");
+		//static Map<Feature,Integer> unionFeaturesForMates(Map<Feature,Integer> mappedFeaturesAcrossChunksForMate1, Map<Feature,Integer> mappedFeaturesAcrossChunksForMate2)
+		
+		String line = "chr1	HAVANA	exon	100	110	.	+	.	gene_id \"ENSG0000022879\"; transcript_id \"ENST00000445118\";";
+		Feature f1 = GTFFeatureBuilder.createFromLine(line);
+		
+		String line2 = "chr1	HAVANA	exon	120	130	.	+	.	gene_id \"ENSG0000022879\"; transcript_id \"ENST00000445118\";";
+		Feature f2 = GTFFeatureBuilder.createFromLine(line2);
+		
+		Map<Feature,Integer> mate1 = new HashMap<>();
+		mate1.put(f1, 3);
+		mate1.put(f2, 5);
+		
+		
+		Map<Feature,Integer> mate2 = new HashMap<>();
+		mate2.put(f1, 7);
+		mate2.put(f2, 10);
+		
+		Map<Feature,Integer> union = GTExFeatureCounter.unionFeaturesForMates(mate1, mate2);
+		
+		assertEquals(2,union.size());
+		assertEquals(10,union.get(f1).intValue());
+		assertEquals(15,union.get(f2).intValue());
+		
+	}
+	
+	@Test
+	public void testCountPair1() throws IOException {
+		logger.info("testCountPair1");
 		Resource r = new ClassPathResource("genecode.v19.annotation.head.10000.gtf.gz");
 		File gtf = r.getFile();
 		
@@ -395,19 +423,28 @@ public class GTExFeatureCounterTest {
 		gfc.count(pair);
 		
 		FeatureCount fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
+		logger.info(GTFFeatureRenderer.render(fc.getFeature()));
+		
+		logger.info("Total counts for ENSG00000223972_chr1_11869_12227: " + fc.getCount());
+		logger.info("Total counts reads: " + gfc.getTotalCount());
+		logger.info("Total counts mappedReadCount: " + gfc.getMappedReadCount());
+		logger.info("Total counts unmappedReadCount: " + gfc.getUnmappedReadCount());
+		logger.info("Total counts ambiguous read count: " + gfc.getAmbiguousReadCount());
+		logger.info("Partially unmapped reads: " + gfc.getNumberOfPartiallyUnmappedReads());
 		
 		assertEquals(1.0,fc.getCount(),0.000001);
 		
-		assertEquals(1,gfc.getTotalCount());
-		assertEquals(1,gfc.getMappedReadCount());
-		assertEquals(0,gfc.getUnmappedReadCount());
-		assertEquals(0,gfc.getAmbiguousReadCount());
+		assertEquals(1.0,gfc.getTotalCount(),0.000001);
+		assertEquals(1.0,gfc.getMappedReadCount(),0.000001);
+		assertEquals(0.0,gfc.getUnmappedReadCount(),0.000001);
+		assertEquals(0.0,gfc.getAmbiguousReadCount(),0.000001);
+		assertEquals(0,gfc.getNumberOfPartiallyUnmappedReads());
 	}
 	
 	
-	//@Test
-	public void testCountPaire2() throws IOException {
-		logger.info("testCountPaire1");
+	@Test
+	public void testCountPair2() throws IOException {
+		logger.info("testCountPair1");
 		Resource r = new ClassPathResource("genecode.v19.annotation.head.10000.gtf.gz");
 		File gtf = r.getFile();
 		
@@ -419,12 +456,12 @@ public class GTExFeatureCounterTest {
 		SAMRecord record1 = new SAMRecord(new SAMFileHeader());
 		record1.setReferenceName("chr1");
 		record1.setAlignmentStart(11869);
-		record1.setCigarString("39M");
+		record1.setCigarString("50M");
 		
 		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
 		record2.setReferenceName("chr1");
-		record2.setAlignmentStart(12000);
-		record2.setCigarString("39M");
+		record2.setAlignmentStart(12200);
+		record2.setCigarString("50M");
 		
 		SAMRecordPair pair = new SAMRecordPair();
 		pair.setMate1(record1);
@@ -433,72 +470,51 @@ public class GTExFeatureCounterTest {
 		gfc.count(pair);
 		
 		FeatureCount fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
+		logger.info(GTFFeatureRenderer.render(fc.getFeature()));
 		
-		assertEquals(1.0,fc.getCount(),0.000001);
+		logger.info("Total counts for ENSG00000223972_chr1_11869_12227: " + fc.getCount());
+		logger.info("Total counts reads: " + gfc.getTotalCount());
+		logger.info("Total counts mappedReadCount: " + gfc.getMappedReadCount());
+		logger.info("Total counts unmappedReadCount: " + gfc.getUnmappedReadCount());
+		logger.info("Total counts ambiguous read count: " + gfc.getAmbiguousReadCount());
+		logger.info("Partially unmapped reads: " + gfc.getNumberOfPartiallyUnmappedReads());
 		
-		assertEquals(1,gfc.getTotalCount());
-		assertEquals(1,gfc.getMappedReadCount());
-		assertEquals(0,gfc.getUnmappedReadCount());
-		assertEquals(0,gfc.getAmbiguousReadCount());
+		assertEquals( 78 / 100.0,fc.getCount(),0.000001);
+		
+		assertEquals(1.0,gfc.getTotalCount(),0.000001);
+		assertEquals(78 / 100.0,gfc.getMappedReadCount(),0.000001);
+		assertEquals(22 / 100.0,gfc.getUnmappedReadCount(),0.000001);
+		assertEquals(0.0,gfc.getAmbiguousReadCount(),0.000001);
+		assertEquals(1,gfc.getNumberOfPartiallyUnmappedReads());
+		
+		
+		/*
+		 * Count again
+		 */
+		
+		gfc.count(pair);
+		
+		fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
+		logger.info(GTFFeatureRenderer.render(fc.getFeature()));
+		
+		logger.info("Total counts for ENSG00000223972_chr1_11869_12227: " + fc.getCount());
+		logger.info("Total counts reads: " + gfc.getTotalCount());
+		logger.info("Total counts mappedReadCount: " + gfc.getMappedReadCount());
+		logger.info("Total counts unmappedReadCount: " + gfc.getUnmappedReadCount());
+		logger.info("Total counts ambiguous read count: " + gfc.getAmbiguousReadCount());
+		logger.info("Partially unmapped reads: " + gfc.getNumberOfPartiallyUnmappedReads());
+		
+		assertEquals( 156 / 100.0,fc.getCount(),0.000001);
+		
+		assertEquals(2.0,gfc.getTotalCount(),0.000001);
+		assertEquals(156 / 100.0,gfc.getMappedReadCount(),0.000001);
+		assertEquals(44 / 100.0,gfc.getUnmappedReadCount(),0.000001);
+		assertEquals(0.0,gfc.getAmbiguousReadCount(),0.000001);
+		assertEquals(2,gfc.getNumberOfPartiallyUnmappedReads());
 	}
 	
 	
-	//@Test
-	public void testCountUnpaired2() throws IOException {
-		
-		Resource r = new ClassPathResource("genecode.v19.annotation.head.10000.gtf.gz");
-		File gtf = r.getFile();
-		
-		FindOverlappingFeatures findOverlappingFeatures = new FindOverlappingFeatures();
-		GTExFeatureCounter gfc = new GTExFeatureCounter(findOverlappingFeatures, new LoggerService());
-		gfc.buildFeatures(gtf, "exon");
-		
-		
-		SAMRecord record = new SAMRecord(new SAMFileHeader());
-		
-		record.setReferenceName("chr1");
-		record.setAlignmentStart(11869);
-		record.setCigarString("39M800N39M250N39M");
-		
-		SAMRecordPair pair = new SAMRecordPair();
-		pair.setMate1(record);
-		
-		gfc.count(pair);
-		
-		assertEquals(1/3.0,gfc.getCounts("ENSG00000223972_chr1_11869_12227").getCount(),0.000001);
-		assertEquals(1/3.0,gfc.getCounts("ENSG00000223972_chr1_12595_12721").getCount(),0.000001);
-		assertEquals(1/3.0,gfc.getCounts("ENSG00000223972_chr1_12975_13052").getCount(),0.000001);
-		
-		assertEquals(1,gfc.getTotalCount());
-		assertEquals(1,gfc.getMappedReadCount());
-		assertEquals(0,gfc.getUnmappedReadCount());
-		assertEquals(0,gfc.getAmbiguousReadCount());
-		
-		gfc.count(pair);
-		
-		assertEquals(2/3.0,gfc.getCounts("ENSG00000223972_chr1_11869_12227").getCount(),0.000001);
-		assertEquals(2/3.0,gfc.getCounts("ENSG00000223972_chr1_12595_12721").getCount(),0.000001);
-		assertEquals(2/3.0,gfc.getCounts("ENSG00000223972_chr1_12975_13052").getCount(),0.000001);
-		
-		assertEquals(2,gfc.getTotalCount());
-		assertEquals(2,gfc.getMappedReadCount());
-		assertEquals(0,gfc.getUnmappedReadCount());
-		assertEquals(0,gfc.getAmbiguousReadCount());
-		
-		gfc.count(pair);
-		
-		assertEquals(1.0,gfc.getCounts("ENSG00000223972_chr1_11869_12227").getCount(),0.000001);
-		assertEquals(1.0,gfc.getCounts("ENSG00000223972_chr1_12595_12721").getCount(),0.000001);
-		assertEquals(1.0,gfc.getCounts("ENSG00000223972_chr1_12975_13052").getCount(),0.000001);
-		
-		assertEquals(3,gfc.getTotalCount());
-		assertEquals(3,gfc.getMappedReadCount());
-		assertEquals(0,gfc.getUnmappedReadCount());
-		assertEquals(0,gfc.getAmbiguousReadCount());
-		
-	}
-	
-	//@Test
+	@Test
 	public void testCountAmbiguous() throws IOException {
 		
 		Resource r = new ClassPathResource("genecode.v19.annotation.head.10000.gtf.gz");
@@ -518,53 +534,31 @@ public class GTExFeatureCounterTest {
 		SAMRecordPair pair = new SAMRecordPair();
 		pair.setMate1(record);
 		
-		gfc.count(pair);
 		
-		FeatureCount fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
-		
-		assertEquals(1.0,fc.getCount(),0.000001);
-		
-		assertEquals(1,gfc.getTotalCount());
-		assertEquals(1,gfc.getMappedReadCount());
-		assertEquals(0,gfc.getUnmappedReadCount());
-		assertEquals(0,gfc.getAmbiguousReadCount());
-		
-		
-		SAMRecordPair pair2 = new SAMRecordPair();
 		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
 		
 		record2.setReferenceName("chr1");
 		record2.setAlignmentStart(11869);
-		record2.setCigarString("39M17685N39M");
+		record2.setCigarString("39M17400N39M");
 		
-		pair2.setMate1(record2);
+		pair.setMate2(record2);
 		
-		gfc.count(pair2);
+		gfc.count(pair);
 		
-		assertEquals(2,gfc.getTotalCount());
-		assertEquals(1,gfc.getMappedReadCount());
-		assertEquals(0,gfc.getUnmappedReadCount());
-		assertEquals(1,gfc.getAmbiguousReadCount());
+		FeatureCount fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
+		assertEquals(0.0,fc.getCount(),0.00001);
 		
-		// Second ambiguous
-		
-		//ENSG00000238009_chr1_89295_91629
-		//ENSG00000239945_chr1_89551_90050
-		
-		record2.setReferenceName("chr1");
-		record2.setAlignmentStart(89551);
-		record2.setCigarString("39M");
-		gfc.count(pair2);
-		
-		assertEquals(3,gfc.getTotalCount());
-		assertEquals(1,gfc.getMappedReadCount());
-		assertEquals(0,gfc.getUnmappedReadCount());
-		assertEquals(2,gfc.getAmbiguousReadCount());
+		assertEquals(1.0,gfc.getTotalCount(),0.000001);
+		assertEquals(0.0,gfc.getMappedReadCount(),0.000001);
+		assertEquals(0.0,gfc.getUnmappedReadCount(),0.000001);
+		assertEquals(1,gfc.getAmbiguousReadCount(),0.000001);
+		assertEquals(0,gfc.getNumberOfPartiallyUnmappedReads());
 	}
 	
 	
-	//@Test
-	public void testCountAmbiguousPairOnePairAmbiguous() throws IOException {
+	
+	@Test
+	public void testCountOneMapped1() throws IOException {
 		
 		Resource r = new ClassPathResource("genecode.v19.annotation.head.10000.gtf.gz");
 		File gtf = r.getFile();
@@ -580,24 +574,68 @@ public class GTExFeatureCounterTest {
 		record.setAlignmentStart(11869);
 		record.setCigarString("39M");
 		
+		SAMRecordPair pair = new SAMRecordPair();
+		pair.setMate1(record);
+		
+		
 		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
 		
 		record2.setReferenceName("chr1");
-		record2.setAlignmentStart(11869);
-		record2.setCigarString("39M17685N39M");
+		record2.setAlignmentStart(12228);
+		record2.setCigarString("39M");
 		
-		SAMRecordPair pair = new SAMRecordPair();
-		pair.setMate1(record);
 		pair.setMate2(record2);
-		
 		
 		gfc.count(pair);
 		
+		FeatureCount fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
+		assertEquals(0.5,fc.getCount(),0.00001);
 		
-		assertEquals(2,gfc.getTotalCount());
-		assertEquals(0,gfc.getMappedReadCount());
-		assertEquals(0,gfc.getUnmappedReadCount());
-		assertEquals(2,gfc.getAmbiguousReadCount());
+		assertEquals(1.0,gfc.getTotalCount(),0.000001);
+		assertEquals(0.5,gfc.getMappedReadCount(),0.000001);
+		assertEquals(0.5,gfc.getUnmappedReadCount(),0.000001);
+		assertEquals(0,gfc.getAmbiguousReadCount(),0.000001);
+		assertEquals(1,gfc.getNumberOfPartiallyUnmappedReads());
+	}
+	
+	@Test
+	public void testCountOneMapped2() throws IOException {
 		
+		Resource r = new ClassPathResource("genecode.v19.annotation.head.10000.gtf.gz");
+		File gtf = r.getFile();
+		
+		FindOverlappingFeatures findOverlappingFeatures = new FindOverlappingFeatures();
+		GTExFeatureCounter gfc = new GTExFeatureCounter(findOverlappingFeatures, new LoggerService());
+		gfc.buildFeatures(gtf, "exon");
+		
+		
+		SAMRecord record = new SAMRecord(new SAMFileHeader());
+		
+		record.setReferenceName("chr1");
+		record.setAlignmentStart(12228);
+		record.setCigarString("39M");
+		
+		SAMRecordPair pair = new SAMRecordPair();
+		pair.setMate1(record);
+		
+		
+		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
+		
+		record2.setReferenceName("chr1");
+		record2.setAlignmentStart( 11869);
+		record2.setCigarString("39M");
+		
+		pair.setMate2(record2);
+		
+		gfc.count(pair);
+		
+		FeatureCount fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
+		assertEquals(0.5,fc.getCount(),0.00001);
+		
+		assertEquals(1.0,gfc.getTotalCount(),0.000001);
+		assertEquals(0.5,gfc.getMappedReadCount(),0.000001);
+		assertEquals(0.5,gfc.getUnmappedReadCount(),0.000001);
+		assertEquals(0,gfc.getAmbiguousReadCount(),0.000001);
+		assertEquals(1,gfc.getNumberOfPartiallyUnmappedReads());
 	}
 }

@@ -112,7 +112,7 @@ public class BAMProcessorTest {
 		System.out.println(lines);
 		
 		
-		try(BAMProcessor processor = BAMProcessor.getBAMProcessor(samOut)) {
+		try(BAMProcessor processor = BAMProcessor.getBAMProcessor(samOut).withLogSkipSize(1)) {
 			SAMRecordPair pair = null;
 			int count = 0;
 			while( ( pair = processor.getNextReadPair()) != null) {

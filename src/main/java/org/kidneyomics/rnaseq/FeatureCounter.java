@@ -19,11 +19,15 @@ public interface FeatureCounter {
 	
 	void count(SAMRecordPair samRecordPair);
 	
-	long getAmbiguousReadCount();
+	double getAmbiguousReadCount();
 	
-	long getUnmappedReadCount();
+	double getUnmappedReadCount();
 	
-	long getMappedReadCount();
+	double getMappedReadCount();
 	
-	long getTotalCount();
+	double getTotalCount();
+	
+	long getNumberOfPartiallyUnmappedReads();
+	
+	boolean validState();
 }

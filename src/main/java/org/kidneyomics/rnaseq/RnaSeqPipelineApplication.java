@@ -82,6 +82,12 @@ public class RnaSeqPipelineApplication {
 	        	FluxMerge fluxMerge = context.getBean(FluxMerge.class);
 	        	fluxMerge.writeTranscriptRatioMatrix();
 	        	break;
+	        case COUNT_READS_IN_EXONS: {
+	        	logger.info("Creating GTF file for exon and gene counts");
+	        	ExonQuantifier exonQuantifier = context.getBean(ExonQuantifier.class);
+	        	exonQuantifier.quantify();
+	        	break;
+	        }
 	        case ERROR: {
 	        	
 	        }
