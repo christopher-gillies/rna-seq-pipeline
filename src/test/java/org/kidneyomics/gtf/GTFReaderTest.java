@@ -122,13 +122,39 @@ public class GTFReaderTest {
 		reader.addFilter(new ExonFilter());
 		List<Feature> list = reader.readAllLines();
 		
+		
+		//logger.info(GTFFeatureRenderer.render(list.get(0)));
+		
+		
 		reader.close();
 		
 		logger.info(list.size() + "");
 		
-		assertEquals(list.size(),4805);
+		assertEquals(4805,list.size());
 		
 		assertEquals(9995 - 4805,reader.getNumberFilteredOut());
+	}
+	
+	@Test
+	public void testToThatOnlyGenesArePresent() throws IOException {
+		
+		Resource r = new ClassPathResource("genecode.v19.annotation.head.10000.gtf.gz");
+		
+		GTFReader reader = GTFReader.getGTFByFileNoEnsemblVersion(r.getFile());
+		reader.addFilter(new GeneFilter());
+		List<Feature> list = reader.readAllLines();
+		
+		
+		//logger.info(GTFFeatureRenderer.render(list.get(0)));
+		
+		
+		reader.close();
+		
+		logger.info(list.size() + "");
+		
+		assertEquals(191,list.size());
+		
+		assertEquals(9995 - 191,reader.getNumberFilteredOut());
 	}
 	
 	@Test

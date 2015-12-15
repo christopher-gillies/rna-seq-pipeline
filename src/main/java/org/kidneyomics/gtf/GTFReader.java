@@ -24,21 +24,62 @@ import htsjdk.samtools.util.CloseableIterator;
 public class GTFReader implements Iterable<Feature>, Iterator<Feature>, CloseableIterator<Feature>, AutoCloseable {
 
 	private BufferedReader reader;
-	private String currentLine = null;
+	private Feature currentFeature = null;
 	private String nextLine = null;
+	private Feature nextFeature = null;
 	private Logger logger;
 	private boolean noVersion = false;
 	private List<GTFFeatureFilter> filters = new LinkedList<GTFFeatureFilter>();
 	private long numFilteredOut = 0;
+	
 	private GTFReader(BufferedReader buffered, boolean noEnsembleVersion) throws IOException { 
 		this.noVersion = noEnsembleVersion;
 		this.reader = buffered;
 		this.logger = LoggerFactory.getLogger(GTFReader.class);
 		//Skip header lines
 		while((this.nextLine = reader.readLine()) != null && this.nextLine.startsWith("#"));
+		//no filters added at this point
+		getNextFeature();
 	}
 	
+	private Feature getNextFeature() {
+		nextFeature = null;
+		//next line is pointing to the next element
+		if(!StringUtils.isEmpty(nextLine)) {
+			if(this.noVersion) {
+				nextFeature = GTFFeatureBuilder.createFromLine(nextLine,true);
+			} else {
+				nextFeature = GTFFeatureBuilder.createFromLine(nextLine);
+			}
+			
+			//read next line
+			try {
+				//Returns: A String containing the contents of the line, not including any line-termination characters, or null if the end of the stream has been reached
+				this.nextLine = reader.readLine();
+			} catch (IOException e) {
+				logger.error(e.getMessage());
+			}
+			
+			boolean keep = keep(nextFeature);
+			
+			//if we are not keeping this feature then get the next feature 
+			if(!keep) {
+				numFilteredOut++;
+				getNextFeature();
+			}
+		}
+		return nextFeature;
+		
+	}
 
+	private boolean keep(Feature f) {
+		boolean keep = true;
+		for(GTFFeatureFilter filter : filters) {
+			boolean filterRes = filter.filter(f);
+			keep = keep && filterRes;
+		}
+		return keep;
+	}
 	private static BufferedReader getBufferedReader(File f) throws IOException {
 		BufferedReader buffered;
 		if(f.getAbsolutePath().endsWith(".gz")) {
@@ -81,7 +122,7 @@ public class GTFReader implements Iterable<Feature>, Iterator<Feature>, Closeabl
 
 	@Override
 	public boolean hasNext() {
-		if(!StringUtils.isEmpty(nextLine)) {
+		if(this.nextFeature != null) {
 			return true;
 		} else {
 			return false;
@@ -90,48 +131,9 @@ public class GTFReader implements Iterable<Feature>, Iterator<Feature>, Closeabl
 
 	@Override
 	public Feature next() {
-		this.currentLine = this.nextLine;
-		try {
-			//Returns: A String containing the contents of the line, not including any line-termination characters, or null if the end of the stream has been reached
-			this.nextLine = reader.readLine();
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-		}
-		if(StringUtils.isEmpty(nextLine)) {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-			}
-		}
-		//return null if the current line is null
-		if(StringUtils.isEmpty(this.currentLine)) {
-			return null;
-		} else {
-			Feature current = null;
-			if(this.noVersion) {
-				current = GTFFeatureBuilder.createFromLine(currentLine,true);
-			} else {
-				current = GTFFeatureBuilder.createFromLine(currentLine);
-			}
-			boolean keep = true;
-			//GTFFeatureFilter culprit = null;
-			for(GTFFeatureFilter filter : filters) {
-				boolean filterRes = filter.filter(current);
-				keep = keep && filterRes;
-				//if(!filterRes) {
-				//	culprit = filter;
-				//}
-			}
-			
-			if(keep) {
-				return current;
-			} else {
-				numFilteredOut++;
-				//logger.info(culprit.getClass().getName() + " CAUSED SKIPPING OF:" + GTFFeatureRenderer.render(current));
-				return next();
-			}
-		}
+		this.currentFeature = this.nextFeature;
+		getNextFeature();
+		return currentFeature;
 	}
 
 	@Override
@@ -164,6 +166,13 @@ public class GTFReader implements Iterable<Feature>, Iterator<Feature>, Closeabl
 	
 	public GTFReader addFilter(GTFFeatureFilter filter) {
 		this.filters.add(filter);
+		/*
+		 * After adding a filter get the next feature meeting it
+		 */
+		if(!keep(this.nextFeature)) {
+			numFilteredOut++;
+			getNextFeature();
+		}
 		return this;
 	}
 
