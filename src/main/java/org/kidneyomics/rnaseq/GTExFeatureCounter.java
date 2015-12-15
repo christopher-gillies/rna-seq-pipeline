@@ -104,6 +104,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 		//Read GTF
 		//Store all exons for each gene
 		int totalFeatures = 0;
+		int totalGenes = 0;
 		int linesRead = 0;
 		try(GTFReader reader = GTFReader.getGTFByFileNoEnsemblVersion(gtf)) {
 			reader.addFilter(new GeneOrExonFilter()).addFilter(new RemoveRetainedIntronFilter());
@@ -111,11 +112,13 @@ public class GTExFeatureCounter implements FeatureCounter {
 						
 			for(Feature feature : reader) {
 				linesRead++;
-				if(linesRead % 10000 == 0) {
+				if(linesRead % 100000 == 0) {
+					logger.info("Lines read: " + linesRead);
 					logger.info("Last read feature: " + GTFFeatureRenderer.render(feature));
 				}
 				if(feature.type().equals("gene")) {
 					geneInfo.put(feature.getAttribute("gene_id"), feature);
+					totalGenes++;
 				} else if(feature.type().equals("exon")) {
 					totalFeatures++;
 					String geneId = feature.getAttribute("gene_id");
@@ -133,6 +136,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 			}
 		}
 		
+		logger.info("Total genes " + totalGenes);
 		logger.info("Total exons " + totalFeatures);
 		
 
@@ -162,8 +166,8 @@ public class GTExFeatureCounter implements FeatureCounter {
 		FindOverlappingGenePairs findOverlappingGenePairs = new FindOverlappingGenePairs(geneInfo.values());
 		List<FeaturePair> overlappingGenes = findOverlappingGenePairs.getOverlappingGenes();
 		for(FeaturePair pair : overlappingGenes) {
-			logger.info("First of pair: " + pair.getFirst().getAttribute("gene_id"));
-			logger.info("Second of pair: " + pair.getSecond().getAttribute("gene_id"));
+			//logger.info("First of pair: " + pair.getFirst().getAttribute("gene_id"));
+			//logger.info("Second of pair: " + pair.getSecond().getAttribute("gene_id"));
 			List<Feature> gene1 = geneFeatures.get(pair.getFirst().getAttribute("gene_id"));
 			List<Feature> gene2 = geneFeatures.get(pair.getSecond().getAttribute("gene_id"));
 			//Some genes may have only retained introns...
@@ -413,6 +417,8 @@ public class GTExFeatureCounter implements FeatureCounter {
 			
 			
 			//logger.info("Ambiguous count: " + ambiguousCount);
+			logger.info("Read name: " + samRecordPair.getMate1().getReadName());
+			logger.info("Coordinates: " + samRecordPair.getMate1().getReferenceName() + ":" + samRecordPair.getMate1().getAlignmentStart() + "-" + samRecordPair.getMate1().getAlignmentEnd());
 			if(mapToMultipleGenes(union.keySet())) {
 				ambiguousCount += 1;
 			} else if(isUnmappedMate1 && isUnmappedMate2) {
