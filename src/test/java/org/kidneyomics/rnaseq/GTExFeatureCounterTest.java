@@ -330,6 +330,51 @@ public class GTExFeatureCounterTest {
 		assertEquals(8,featuresForMate.get(f3).intValue());
 	}
 	
+	
+	@Test
+	public void test4GetMappedRegionsForMate() {
+		logger.info("test4GetMappedRegionsForMate");
+		//getMappedRegionsForMate(SAMRecord mate, Set<Feature> featuresForMate, int longest, Feature[] features)
+		
+		SAMRecord record = new SAMRecord(new SAMFileHeader());
+		
+		//D7DHSVN1:224:C28PGACXX:7:1302:20524:70946	1107	1	565317	255	14M1D25M	=	565067	-290	ATGGCTATAGCAATAAACTAGGAATAGCCCCCTTTCACT	=8F=9/*894?D9<JIIJJJJJJJJJJJJJJJJJIHFJH	PG:Z:MarkDuplicates	RG:Z:25979	NH:i:1	HI:i:1	nM:i:0	AS:i:72
+
+		record.setReferenceName("chr1");
+		record.setAlignmentStart(565317);
+		record.setCigarString("14M1D25M");
+		
+		SAMRecordToFeatureConverter converter = new SAMRecordToFeatureConverter();
+		List<Feature> featuresForRecord = converter.convert(record);
+		assertTrue(featuresForRecord.size() == 2);
+		assertTrue(featuresForRecord.get(0).location().length() == 14);
+		assertTrue(featuresForRecord.get(1).location().length() == 25);
+		assertEquals("chr1",featuresForRecord.get(0).seqname());
+		assertEquals(565317,featuresForRecord.get(0).location().bioStart());
+		assertEquals(565317 + 13,featuresForRecord.get(0).location().bioEnd());
+		
+		
+		assertEquals("chr1",featuresForRecord.get(1).seqname());
+		assertEquals(565317 + 13 + 2,featuresForRecord.get(1).location().bioStart());
+		assertEquals(565317 + 13 + 2 + 24,featuresForRecord.get(1).location().bioEnd());
+		
+		FindOverlappingFeatures mock = mock(FindOverlappingFeatures.class);
+		
+		LinkedList<Feature> result = new LinkedList<Feature>();
+		
+		String line = "chr1	HAVANA	exon	565317	566317	.	+	.	gene_id \"ENSG0000022879\"; transcript_id \"ENST00000445118\";";
+		Feature f = GTFFeatureBuilder.createFromLine(line);
+		result.add(f);
+		
+		when(mock.findOverlappingFeatures(any(Feature[].class), any(Feature.class))).thenReturn(result);
+		
+		Map<Feature,Integer> featuresForMate = GTExFeatureCounter.getMappedRegionsForMate(record,  null, new SAMRecordToFeatureConverter(), mock);
+		
+		
+		assertEquals(1,featuresForMate.size());
+		assertEquals(39,featuresForMate.get(f).intValue());
+	}
+	
 	@Test
 	public void testAddToFeatures() {
 		logger.info("testAddToFeatures");

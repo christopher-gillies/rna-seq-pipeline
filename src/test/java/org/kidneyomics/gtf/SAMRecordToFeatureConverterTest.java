@@ -215,6 +215,99 @@ public class SAMRecordToFeatureConverterTest {
 
 	
 	@Test
+	public void test5() {
+		
+		
+		SAMFileHeader header = new SAMFileHeader();
+		header.setSortOrder(SortOrder.coordinate);
+		SAMSequenceRecord srec = new SAMSequenceRecord("1",10000);
+		header.addSequence(srec);
+		
+		SAMRecord record = new SAMRecord(header);
+		record.setReadName("D7DHSVN1:225:D2HR7ACXX:4:1107:16208:1");
+		record.setAlignmentStart(100);
+		record.setCigarString("14M1D25M");
+		record.setReferenceName("1");
+		record.setReferenceIndex(0);
+		record.setReadNegativeStrandFlag(false);
+				
+		List<Feature> features = converter.convert(record);
+		
+		assertTrue(features.size() == 2);
+		
+		assertEquals(100,features.get(0).location().bioStart());
+		
+		assertEquals(113,features.get(0).location().bioEnd());
+		
+		assertEquals('+',features.get(0).location().bioStrand());
+		
+		
+		assertEquals(115,features.get(1).location().bioStart());
+		
+		assertEquals(139,features.get(1).location().bioEnd());
+		
+		assertEquals('+',features.get(1).location().bioStrand());
+		
+		
+		
+		assertEquals(record.getAlignmentEnd(),features.get(1).location().bioEnd());
+		
+		
+		int result = converter.getNumberOfMappedBases(record);
+		assertEquals(39,result);
+		
+	}
+	
+	
+	@Test
+	public void test6() {
+		
+		
+		SAMFileHeader header = new SAMFileHeader();
+		header.setSortOrder(SortOrder.coordinate);
+		SAMSequenceRecord srec = new SAMSequenceRecord("1",10000);
+		header.addSequence(srec);
+		
+		SAMRecord record = new SAMRecord(header);
+		record.setReadName("D7DHSVN1:225:D2HR7ACXX:4:1107:16208:1");
+		record.setAlignmentStart(101);
+		record.setCigarString("10M1D2N2D10M");
+		record.setReferenceName("1");
+		record.setReferenceIndex(0);
+		record.setReadNegativeStrandFlag(false);
+				
+		List<Feature> features = converter.convert(record);
+		
+		assertTrue(features.size() == 2);
+		
+		assertEquals(101,features.get(0).location().bioStart());
+		
+		assertEquals(110,features.get(0).location().bioEnd());
+		
+		assertEquals('+',features.get(0).location().bioStrand());
+		//111 D
+		//112 N
+		//113 N
+		//114 D
+		//115 D
+		
+		assertEquals(116,features.get(1).location().bioStart());
+		
+		assertEquals(125,features.get(1).location().bioEnd());
+		
+		assertEquals('+',features.get(1).location().bioStrand());
+		
+		
+		
+		assertEquals(record.getAlignmentEnd(),features.get(1).location().bioEnd());
+		
+		
+		int result = converter.getNumberOfMappedBases(record);
+		assertEquals(20,result);
+		
+	}
+	
+	@Test
 	public void testNumberOfMappedBases1() {
 		SAMRecord record = new SAMRecord(new SAMFileHeader());
 		record.setCigarString("39M");

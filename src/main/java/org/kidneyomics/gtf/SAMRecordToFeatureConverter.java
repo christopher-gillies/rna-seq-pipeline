@@ -8,6 +8,7 @@ import org.springframework.core.convert.converter.Converter;
 
 import htsjdk.samtools.Cigar;
 import htsjdk.samtools.CigarElement;
+import htsjdk.samtools.CigarOperator;
 import htsjdk.samtools.SAMRecord;
 
 import java.util.LinkedList;
@@ -51,25 +52,32 @@ public class SAMRecordToFeatureConverter implements Converter<SAMRecord, List<Fe
 		
 		int currentStart = in.getAlignmentStart();
 		int currentLength = 0;
+		CigarElement previous = null;
 		for(final CigarElement element : elements) {
 			//logger.info(element.getLength() + "");
             switch (element.getOperator()) {
             case M:
-            case D:
             case EQ:
             case X:
             	currentLength += element.getLength();
                 break;
+            case D:
             case N:
-            	int currentEnd = currentStart + currentLength - 1;
-            	
-            	list.add( buildFeature(in,currentStart,currentEnd,isNegativeStrand)  );
-            	
-            	
-            	currentStart = currentEnd + element.getLength() + 1;
-            	currentLength = 0;
+            	if(previous.getOperator().equals(CigarOperator.D) || previous.getOperator().equals(CigarOperator.N)) {
+            		//Just keep skipping if the previous element was a D or N
+            		currentStart += element.getLength();
+            	} else {
+	            	int currentEnd = currentStart + currentLength - 1;
+	            	
+	            	list.add( buildFeature(in,currentStart,currentEnd,isNegativeStrand)  );
+	            	
+	            	
+	            	currentStart = currentEnd + element.getLength() + 1;
+	            	currentLength = 0;
+            	}
             	break;
             }
+            previous = element;
 		}
 		
 		//add last feature
