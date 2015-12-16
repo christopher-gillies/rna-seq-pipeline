@@ -429,12 +429,12 @@ public class GTExFeatureCounter implements FeatureCounter {
 			//logger.info("Coordinates: " + samRecordPair.getMate1().getReferenceName() + ":" + samRecordPair.getMate1().getAlignmentStart() + "-" + samRecordPair.getMate1().getAlignmentEnd());
 			if(mapToMultipleGenes(union.keySet())) {
 				ambiguousCount += 1;
-				readLogger.logRead("ambiguous", samRecordPair.getMate1());
-				readLogger.logRead("ambiguous", samRecordPair.getMate2());
+				readLogger.logRead("ambiguous", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
+				readLogger.logRead("ambiguous", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
 			} else if(isUnmappedMate1 && isUnmappedMate2) {
 				unmappedCount += 1;
-				readLogger.logRead("unmapped", samRecordPair.getMate1());
-				readLogger.logRead("unmapped", samRecordPair.getMate2());
+				readLogger.logRead("unmapped", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
+				readLogger.logRead("unmapped", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
 			} else if(isUnmappedMate1) {
 				//Mate 2 is mapped otherwise the above case
 				double unmappedFrac = addToFeatures(totalMappedBases, mappedFeaturesAcrossChunksForMate2, featureCounts);
@@ -442,8 +442,8 @@ public class GTExFeatureCounter implements FeatureCounter {
 				unmappedCount += unmappedFrac;
 				if(Math.abs(unmappedFrac) >= 0.0001) {
 					partiallyUnmappedReads++;
-					readLogger.logRead("partially_unmapped", samRecordPair.getMate1());
-					readLogger.logRead("partially_unmapped", samRecordPair.getMate2());
+					readLogger.logRead("partially_unmapped", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
+					readLogger.logRead("partially_unmapped", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
 				} 
 			} else if(isUnmappedMate2) {
 				//Mate 1 is mapped otherwise the above case
@@ -452,8 +452,8 @@ public class GTExFeatureCounter implements FeatureCounter {
 				unmappedCount += unmappedFrac;
 				if(Math.abs(unmappedFrac) >= 0.0001) {
 					partiallyUnmappedReads++;
-					readLogger.logRead("partially_unmapped", samRecordPair.getMate1());
-					readLogger.logRead("partially_unmapped", samRecordPair.getMate2());
+					readLogger.logRead("partially_unmapped", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
+					readLogger.logRead("partially_unmapped", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
 				} 
 			} else {
 				double unmappedFrac = addToFeatures(totalMappedBases, union, featureCounts);
@@ -461,8 +461,8 @@ public class GTExFeatureCounter implements FeatureCounter {
 				unmappedCount += unmappedFrac;
 				if(Math.abs(unmappedFrac) >= 0.0001) {
 					partiallyUnmappedReads++;
-					readLogger.logRead("partially_unmapped", samRecordPair.getMate1());
-					readLogger.logRead("partially_unmapped", samRecordPair.getMate2());
+					readLogger.logRead("partially_unmapped", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
+					readLogger.logRead("partially_unmapped", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
 				} 
 			}
 			//logger.info("Ambiguous count: " + ambiguousCount);	

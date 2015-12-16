@@ -4,7 +4,9 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -14,6 +16,9 @@ import org.slf4j.LoggerFactory;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.util.StringUtil;
+
+import org.biojava.nbio.genome.parsers.gff.Feature;
+import org.biojava.nbio.genome.parsers.gff.Location;
 
 public class DefaultReadLoggerTest {
 
@@ -52,7 +57,12 @@ public class DefaultReadLoggerTest {
 		
 		readLogger.setFile(f);
 		
-		readLogger.logRead("test_1", record);
+		Map<Feature,Integer> mappedFeatures = new HashMap<>();
+		
+		Feature feature = new Feature("chr","","",Location.fromBio(100, 100, '+'),0.0,0,"id \"EXON_ID\"");
+		mappedFeatures.put(feature, 13);
+		
+		readLogger.logRead("test_1", record,mappedFeatures);
 		
 		readLogger.close();
 		

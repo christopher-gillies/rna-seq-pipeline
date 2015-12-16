@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.Map;
 
+import org.biojava.nbio.genome.parsers.gff.Feature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +42,7 @@ public class DefaultReadLogger implements ReadLogger {
 	}
 	
 	@Override
-	public void logRead(String type, SAMRecord record) {
+	public void logRead(String type, SAMRecord record, Map<Feature,Integer> mappedFeatures) {
 		try {
 			if(!isOpen) {
 				open();
@@ -58,6 +60,8 @@ public class DefaultReadLogger implements ReadLogger {
 				writer.write("ALN_END");
 				writer.write("\t");
 				writer.write("READ_LENGTH");
+				writer.write("\t");
+				writer.write("MAPPED_FEATURES");
 				writer.write("\n");
 			} 
 			
@@ -74,6 +78,16 @@ public class DefaultReadLogger implements ReadLogger {
 			writer.write("" + record.getAlignmentEnd());
 			writer.write("\t");
 			writer.write("" + record.getReadLength());
+			writer.write("\t");
+			if(mappedFeatures == null || mappedFeatures.size() == 0) {
+				writer.write(".");
+			} else {
+				for(Map.Entry<Feature, Integer> entry : mappedFeatures.entrySet()) {
+					writer.write(entry.getKey().getAttribute("id"));
+					writer.write("_BASES_");
+					writer.write("" + entry.getValue() + ",");
+				}
+			}
 			writer.write("\n");
 		} catch(Exception exception) {
 			logger.error("Could not log read");
