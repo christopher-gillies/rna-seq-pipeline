@@ -76,6 +76,7 @@ public class DefaultReadLogger implements ReadLogger {
 			writer.write("\n");
 		} catch(Exception exception) {
 			logger.error("Could not log read");
+			exception.printStackTrace();
 		}
 	}
 
