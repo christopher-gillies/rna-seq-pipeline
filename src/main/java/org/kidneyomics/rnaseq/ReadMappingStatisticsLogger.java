@@ -2,10 +2,16 @@ package org.kidneyomics.rnaseq;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 import org.apache.commons.io.FileUtils;
 
 public class ReadMappingStatisticsLogger {
+	
+	private static final DecimalFormat df = new DecimalFormat("#.#");
+	static  {
+		df.setMaximumFractionDigits(100);
+	}
 	
 	public static void writeStats(File file, FeatureCounter fc) throws IOException {
 		double ambiguousReadCount = fc.getAmbiguousReadCount();
@@ -38,23 +44,23 @@ public class ReadMappingStatisticsLogger {
 		
 		
 		
-		sb.append(totalReads);
+		sb.append( df.format(totalReads) );
 		sb.append("\t");
-		sb.append(ambiguousReadCount);
+		sb.append( df.format(ambiguousReadCount));
 		sb.append("\t");
-		sb.append(ambiguousReadCount / totalReads);
+		sb.append( df.format(ambiguousReadCount / totalReads) );
 		sb.append("\t");
-		sb.append(unmappedReadCount);
+		sb.append( df.format( unmappedReadCount ));
 		sb.append("\t");
-		sb.append(unmappedReadCount / totalReads);
+		sb.append( df.format( unmappedReadCount / totalReads));
 		sb.append("\t");
 		sb.append(partiallyMappedReads);
 		sb.append("\t");
-		sb.append(partiallyMappedReads / totalReads);
+		sb.append(df.format( partiallyMappedReads / totalReads));
 		sb.append("\t");
-		sb.append(mappedReadCount);
+		sb.append( df.format( mappedReadCount));
 		sb.append("\t");
-		sb.append(mappedReadCount / totalReads);
+		sb.append(df.format(mappedReadCount / totalReads));
 		sb.append("\n");
 		
 		FileUtils.write(file, sb.toString());

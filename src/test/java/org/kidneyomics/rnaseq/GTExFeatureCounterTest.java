@@ -173,11 +173,11 @@ public class GTExFeatureCounterTest {
 			//
 		}
 		
-		List<FeatureCount> fcList = gfc.getCounts();
-		Collections.sort(fcList);
-		for(FeatureCount fc : fcList) {
+		//List<FeatureCount> fcList = gfc.getCounts();
+		//Collections.sort(fcList);
+		//for(FeatureCount fc : fcList) {
 			//logger.info(fc.getId());
-		}
+		//}
 	}
 
 	@Test
@@ -682,5 +682,52 @@ public class GTExFeatureCounterTest {
 		assertEquals(0.5,gfc.getUnmappedReadCount(),0.000001);
 		assertEquals(0,gfc.getAmbiguousReadCount(),0.000001);
 		assertEquals(1,gfc.getNumberOfPartiallyUnmappedReads());
+	}
+	
+	@Test
+	public void computeGeneLevelExpressionTest() {
+		//static List<Feature> computeGeneLevelExpression(Map<String,FeatureCount> featureCounts, Map<String,Feature> geneInfos, double numberOfReads)
+		
+		Feature f1 = new Feature("chr1","havana","exon",Location.fromBio(100, 200, '+'),0.0,0,"gene_id \"gene_1\";");
+		Feature f2 = new Feature("chr1","havana","exon",Location.fromBio(300, 400, '+'),0.0,0,"gene_id \"gene_1\";");
+		Feature f3 = new Feature("chr1","havana","exon",Location.fromBio(500, 600, '+'),0.0,0,"gene_id \"gene_1\";");
+		Feature f4 = new Feature("chr1","havana","exon",Location.fromBio(700, 800, '+'),0.0,0,"gene_id \"gene_1\";");
+		
+		FeatureCount fc1 = new FeatureCount(f1);
+		fc1.addToCount(100);
+		FeatureCount fc2 = new FeatureCount(f2);
+		fc2.addToCount(200);
+		FeatureCount fc3 = new FeatureCount(f3);
+		fc3.addToCount(400);
+		FeatureCount fc4 = new FeatureCount(f4);
+		fc4.addToCount(500);
+		
+		Feature g1 = new Feature("chr1","havana","gene",Location.fromBio(100, 1000, '+'),0.0,0,"gene_id \"gene_1\";");
+		
+		HashMap<String,FeatureCount> fcs = new HashMap<>();
+		fcs.put(fc1.getId(), fc1);
+		fcs.put(fc2.getId(), fc2);
+		fcs.put(fc3.getId(), fc3);
+		fcs.put(fc4.getId(), fc4);
+		
+		HashMap<String, Feature> geneInfos = new HashMap<>();
+		geneInfos.put(g1.getAttribute("gene_id"), g1);
+		
+		double numberOfReads = 1000000;
+		
+		List<Feature> geneCounts = GTExFeatureCounter.computeGeneLevelExpression(fcs, geneInfos, numberOfReads);
+		
+		assertEquals(1,geneCounts.size());
+		
+		Feature gene = geneCounts.get(0);
+		logger.info(GTFFeatureRenderer.render(gene));
+		
+		assertEquals("404", gene.getAttribute("length"));
+		assertEquals("1200.0", gene.getAttribute("reads"));
+		assertEquals(Double.toString( 1200.0 / 404.0 / numberOfReads * Math.pow(10, 9) ), gene.getAttribute("RPKM"));
+		assertEquals("gene_1_chr1_100_200,gene_1_chr1_300_400,gene_1_chr1_500_600,gene_1_chr1_700_800", gene.getAttribute("exons"));
+		
+		
+		
 	}
 }

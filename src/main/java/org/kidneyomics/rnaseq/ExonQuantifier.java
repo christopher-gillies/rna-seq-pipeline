@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -79,33 +80,21 @@ public class ExonQuantifier {
 		
 		gTExFeatureCounter.getReadLogger().close();
 		
-		double numberOfReads = gTExFeatureCounter.getTotalCount();
-		List<FeatureCount> counts = gTExFeatureCounter.getCounts();
-		List<Feature> newFeatures = new LinkedList<>();
-		
-		//Update features
 		logger.info("Updating exons to include read counts and RPKM");
-		for(FeatureCount fc : counts) {
-			Feature f = fc.getFeature();
-			
-			Map<String,String> newAtts = new HashMap<>();
-			newAtts.put("id", fc.getId());
-			newAtts.put("reads", Double.toString(fc.getCount()));
-			newAtts.put("RPKM", Double.toString(fc.getRPKM(numberOfReads)));
-			
-			Feature newF = GTFFeatureBuilder.addAttributesToFeature(f, newAtts);
-			newFeatures.add(newF);
-		}
-		
+		List<Feature> exonCounts = gTExFeatureCounter.getCounts();
+		List<Feature> geneCounts =  gTExFeatureCounter.getGeneCounts();
+		List<Feature> allCounts = new ArrayList<>(exonCounts.size() + geneCounts.size());
+		allCounts.addAll(exonCounts);
+		allCounts.addAll(geneCounts);
 		//Get Gene Counts
 		
 		//Write new features
 		logger.info("Sorting exon and gene results by chromosome position");
-		GTFFeatureUtil.sortFeatures(newFeatures);
+		GTFFeatureUtil.sortFeatures(allCounts);
 	
 		logger.info("Writing GTF file: " + fileOut);
 		try(GTFWriter writer = GTFWriter.getGTFWriterForFile(new File(fileOut))) {
-			writer.write(newFeatures);
+			writer.write(allCounts);
 		}
 		
 		//Log statistics

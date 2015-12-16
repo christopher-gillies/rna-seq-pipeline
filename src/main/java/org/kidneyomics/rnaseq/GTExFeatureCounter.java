@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import org.apache.commons.lang3.StringUtils;
 import org.biojava.nbio.genome.parsers.gff.Feature;
 import org.kidneyomics.gtf.ExonFilter;
 import org.kidneyomics.gtf.FeatureComparator;
@@ -21,6 +22,7 @@ import org.kidneyomics.gtf.FeaturePair;
 import org.kidneyomics.gtf.FindOverlappingExonsBetweenGenes;
 import org.kidneyomics.gtf.FindOverlappingFeatures;
 import org.kidneyomics.gtf.FindOverlappingGenePairs;
+import org.kidneyomics.gtf.GTFFeatureBuilder;
 import org.kidneyomics.gtf.GTFFeatureRenderer;
 import org.kidneyomics.gtf.GTFFeatureUtil;
 import org.kidneyomics.gtf.GTFReader;
@@ -89,6 +91,8 @@ public class GTExFeatureCounter implements FeatureCounter {
 	
 	private HashSet<Feature> featuresRemovedForAnalysis = null;
 	
+	private HashMap<String, Feature> geneInfo = new HashMap<>();
+	
 	public HashSet<Feature> getRemovedFeatures() {
 		return this.featuresRemovedForAnalysis;
 	}
@@ -104,8 +108,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 		
 		// gene -> LinkedList<Feature>
 		HashMap<String, LinkedList<Feature>> geneFeatures = new HashMap<>();
-		HashMap<String, Feature> geneInfo = new HashMap<>();
-		
+
 		if(!type.equals("exon")) {
 			throw new UnsupportedOperationException("only exon counting is supported");
 		}
@@ -150,7 +153,16 @@ public class GTExFeatureCounter implements FeatureCounter {
 		logger.info("Total genes " + totalGenes);
 		logger.info("Total exons " + totalFeatures);
 		
-
+		/*
+		 * Checking GTF Validity
+		 */
+		logger.info("Validating that every exon has at least some gene entry from GTF file");
+		for(String key : geneFeatures.keySet()) {
+			if(!geneInfo.containsKey(key)) {
+				throw new IllegalStateException(key + " does not have a gene entry in the GTF");
+			}
+		}
+		logger.info("All gene ids found for exons");
 		/*
 		 * sorting exons per gene
 		 */
@@ -290,6 +302,64 @@ public class GTExFeatureCounter implements FeatureCounter {
 		return featureCounts.get(featureId);
 	}
 	
+	static List<Feature> computeGeneLevelExpression(Map<String,FeatureCount> featureCounts, Map<String,Feature> geneInfos, double numberOfReads) {
+		List<Feature> geneFeatures = new LinkedList<Feature>();
+		
+		HashMap<String,List<FeatureCount>> geneFeaturesMap = new HashMap<>();
+		
+		//Organize exons by gene
+		Collection<FeatureCount> exons = featureCounts.values();
+		for(FeatureCount fc : exons) {
+			String geneId = fc.getFeature().getAttribute("gene_id");
+			if(geneFeaturesMap.containsKey(geneId)) {
+				geneFeaturesMap.get(geneId).add(fc);
+			} else {
+				LinkedList<FeatureCount> fcs = new LinkedList<>();
+				fcs.add(fc);
+				geneFeaturesMap.put(geneId, fcs);
+			}
+		}
+		
+		//compute total counts and total length
+		for(Map.Entry<String, List<FeatureCount>> entry : geneFeaturesMap.entrySet()) {
+			List<FeatureCount> fcsForGene = entry.getValue();
+			Collections.sort(fcsForGene);
+			Feature geneInfo = geneInfos.get(entry.getKey());
+			
+			
+			if(geneInfo == null) {
+				throw new IllegalStateException(entry.getKey() + " has no entry in geneInfos");
+			}
+			
+			if(!geneInfo.type().equals("gene")) {
+				throw new IllegalStateException(geneInfo + " is not a gene");
+			}
+			
+			//get total length and counts
+			double count = 0.0;
+			int length = 0;
+			List<String> exonIds = new LinkedList<>();
+			for(FeatureCount fc : fcsForGene) {
+				count += fc.getCount();
+				length += fc.getFeature().location().length();
+				exonIds.add(fc.getId());
+			}
+			
+			//comput rpkm
+			double rpkm = count / length / numberOfReads * Math.pow(10, 9);
+			
+			HashMap<String,String> info = new HashMap<>();
+			info.put("reads", Double.toString(count));
+			info.put("RPKM", Double.toString(rpkm));
+			info.put("length", Integer.toString(length));
+			info.put("exons", StringUtils.join(exonIds, ","));
+			
+			Feature newGeneInfo = GTFFeatureBuilder.addAttributesToFeature(geneInfo, info);
+			
+			geneFeatures.add(newGeneInfo);
+		}
+		return geneFeatures;
+	}
 	
 
 	static Map<Feature,Integer> getMappedRegionsForMate(SAMRecord mate, Feature[] features, SAMRecordToFeatureConverter converter, FindOverlappingFeatures findOverlappingFeatures) {
@@ -515,10 +585,20 @@ public class GTExFeatureCounter implements FeatureCounter {
 	}
 
 	@Override
-	public List<FeatureCount> getCounts() {
-		ArrayList<FeatureCount> al = new ArrayList<FeatureCount>();
-		al.addAll(this.featureCounts.values());
-		return al;
+	public List<Feature> getCounts() {
+		List<Feature> newFeatures = new LinkedList<>();
+		for(FeatureCount fc : this.featureCounts.values()) {
+			Feature f = fc.getFeature();
+			
+			Map<String,String> newAtts = new HashMap<>();
+			newAtts.put("id", fc.getId());
+			newAtts.put("reads", Double.toString(fc.getCount()));
+			newAtts.put("RPKM", Double.toString(fc.getRPKM(this.getTotalCount())));
+			
+			Feature newF = GTFFeatureBuilder.addAttributesToFeature(f, newAtts);
+			newFeatures.add(newF);
+		}
+		return newFeatures;
 	}
 
 	@Override
@@ -533,6 +613,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 
 	@Override
 	public void logInfo() {
+		logger.info("Current status:");
 		logger.info("Total counts reads: " + this.getTotalCount());
 		logger.info("Total mapped read count: " + this.getMappedReadCount());
 		logger.info("Total unmapped read count: " + this.getUnmappedReadCount());
@@ -543,6 +624,11 @@ public class GTExFeatureCounter implements FeatureCounter {
 	@Override
 	public ReadLogger getReadLogger() {
 		return this.readLogger;
+	}
+
+	@Override
+	public List<Feature> getGeneCounts() {
+		return GTExFeatureCounter.computeGeneLevelExpression(this.featureCounts, this.geneInfo, this.getTotalCount());
 	}
 	
 	

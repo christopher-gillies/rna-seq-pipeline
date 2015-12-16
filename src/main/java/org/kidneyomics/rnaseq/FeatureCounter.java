@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
+import org.biojava.nbio.genome.parsers.gff.Feature;
 import org.kidneyomics.gtf.FeatureCount;
 import org.kidneyomics.gtf.ReadLogger;
 
@@ -16,7 +17,9 @@ public interface FeatureCounter {
 	
 	FeatureCount getCounts(String featureId);
 	
-	List<FeatureCount> getCounts();
+	List<Feature> getCounts();
+	
+	List<Feature> getGeneCounts();
 	
 	void count(SAMRecordPair samRecordPair);
 	
