@@ -18,6 +18,7 @@ public class ApplicationOptions {
 	private String outputDirectory;
 	private String fastqFiles;
 	private String bamList;
+	private String readLogFile = null;
 	private String referenceSequence;
 	private String numThreadsGenomeIndex = "1";
 	private String numThreadsFlux = "2";
@@ -59,8 +60,14 @@ public class ApplicationOptions {
 		COUNT_READS_IN_EXONS
 	}
 	
-	
-	
+	public String getReadLogFile() {
+		return readLogFile;
+	}
+
+	public void setReadLogFile(String readLogFile) {
+		this.readLogFile = readLogFile;
+	}
+
 	public String getFluxCapacitorQuantifyMode() {
 		return fluxCapacitorQuantifyMode;
 	}

@@ -57,8 +57,9 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("numberOfThreadsForFlux",true,"the number of threads to use for flux capacitor. Default is 2");
 		options.addOption("fluxCapacitor",true,"the path to the fluxcapacitor program");
 		options.addOption("countReadsInExons",false,"count all the reads in a bam file and output the results in a gtf file");
+		options.addOption("logReads",true,"file path for a log file. This file will contain information about non-mapped reads.");
 		
-		options.addOption("fluxQuantifyMode",true,"This paramter is used for flux capacitor. The default is PAIRED. Here are other options: AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED");
+		options.addOption("fluxQuantifyMode",true,"This parameter is used for flux capacitor. The default is PAIRED. Here are other options: AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED");
 		
 		options.addOption("fileIn",true,"the input file for finding unique mapping reads");
 		options.addOption("fileOut",true,"the output file after finding unique mapping reads");
@@ -184,6 +185,10 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		if(cmd.hasOption("fileOut")) {
 			applicationOptions.setFileOut(cmd.getOptionValue("fileOut"));
+		}
+		
+		if(cmd.hasOption("logReads")) {
+			applicationOptions.setReadLogFile(cmd.getOptionValue("logReads"));
 		}
 		
 		

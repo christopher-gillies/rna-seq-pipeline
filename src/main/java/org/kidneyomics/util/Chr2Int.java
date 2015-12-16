@@ -22,7 +22,7 @@ public class Chr2Int {
 			} else if( in.equalsIgnoreCase("MT")) {
 				return 25;
 			} else {
-				return 26;
+				return 26 + in.hashCode();
 			}
 		}
 		

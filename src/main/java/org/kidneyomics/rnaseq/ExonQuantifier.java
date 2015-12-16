@@ -3,14 +3,17 @@ package org.kidneyomics.rnaseq;
 import java.io.File;
 
 import org.biojava.nbio.genome.parsers.gff.Feature;
+import org.kidneyomics.gtf.DefaultReadLogger;
 import org.kidneyomics.gtf.FeatureCount;
-import org.kidneyomics.gtf.FindOverlappingFeatures;
 import org.kidneyomics.gtf.GTFFeatureBuilder;
+import org.kidneyomics.gtf.GTFFeatureUtil;
 import org.kidneyomics.gtf.GTFWriter;
+import org.kidneyomics.gtf.ReadLogger;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,6 +42,13 @@ public class ExonQuantifier {
 		String gtfFile = applicationOptions.getGtf();
 		String fileOut = applicationOptions.getFileOut();
 		String fileIn = applicationOptions.getFileIn();
+		
+		String readLogFile = applicationOptions.getReadLogFile();
+		if(readLogFile != null) {
+			ReadLogger readLogger = new DefaultReadLogger();
+			readLogger.setFile(new File(readLogFile));
+			gTExFeatureCounter.setReadLogger(readLogger);
+		}
 		
 		//Read GTF file
 		//FindOverlappingFeatures findOverlappingFeatures = new FindOverlappingFeatures();
@@ -87,10 +97,17 @@ public class ExonQuantifier {
 		
 		//Get Gene Counts
 		
+		//Write new features
+		logger.info("Sorting exon and gene results by chromosome position");
+		GTFFeatureUtil.sortFeatures(newFeatures);
+	
 		logger.info("Writing GTF file: " + fileOut);
 		try(GTFWriter writer = GTFWriter.getGTFWriterForFile(new File(fileOut))) {
 			writer.write(newFeatures);
 		}
+		
+		//Log statistics
+		ReadMappingStatisticsLogger.writeStats(new File(fileOut + ".stats"), gTExFeatureCounter);
 	}
 	
 	

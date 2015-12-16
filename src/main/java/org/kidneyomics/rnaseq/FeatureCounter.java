@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.kidneyomics.gtf.FeatureCount;
+import org.kidneyomics.gtf.ReadLogger;
 
 public interface FeatureCounter {
 
@@ -32,4 +33,6 @@ public interface FeatureCounter {
 	boolean validState();
 	
 	void logInfo();
+
+	void setReadLogger(ReadLogger readLogger);
 }
