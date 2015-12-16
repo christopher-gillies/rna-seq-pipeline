@@ -539,6 +539,11 @@ public class GTExFeatureCounter implements FeatureCounter {
 		logger.info("Total ambiguous read count: " + this.getAmbiguousReadCount());
 		logger.info("Partially unmapped reads: " + this.getNumberOfPartiallyUnmappedReads());
 	}
+
+	@Override
+	public ReadLogger getReadLogger() {
+		return this.readLogger;
+	}
 	
 	
 

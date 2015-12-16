@@ -31,7 +31,8 @@ public class DefaultReadLogger implements ReadLogger {
 			if(this.file == null) {
 				throw new IllegalStateException("file cannot be null");
 			}
-			this.writer = Files.newBufferedWriter(file.toPath(), Charset.defaultCharset());
+			Charset charset = Charset.forName("US-ASCII");
+			this.writer = Files.newBufferedWriter(file.toPath(), charset);
 			isOpen = true;
 		} catch(Exception e) {
 			throw new IllegalStateException("Could not open writer for file");
@@ -66,13 +67,13 @@ public class DefaultReadLogger implements ReadLogger {
 			writer.write("\t");
 			writer.write(record.getReferenceName());
 			writer.write("\t");
-			writer.write(record.getAlignmentStart());
+			writer.write( "" + record.getAlignmentStart());
 			writer.write("\t");
 			writer.write(record.getCigarString());
 			writer.write("\t");
-			writer.write(record.getAlignmentEnd());
+			writer.write("" + record.getAlignmentEnd());
 			writer.write("\t");
-			writer.write(record.getReadLength());
+			writer.write("" + record.getReadLength());
 			writer.write("\n");
 		} catch(Exception exception) {
 			logger.error("Could not log read");

@@ -35,4 +35,6 @@ public interface FeatureCounter {
 	void logInfo();
 
 	void setReadLogger(ReadLogger readLogger);
+	
+	ReadLogger getReadLogger();
 }

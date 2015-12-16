@@ -77,6 +77,8 @@ public class ExonQuantifier {
 		logger.info("Finished processing reads");
 		gTExFeatureCounter.logInfo();
 		
+		gTExFeatureCounter.getReadLogger().close();
+		
 		double numberOfReads = gTExFeatureCounter.getTotalCount();
 		List<FeatureCount> counts = gTExFeatureCounter.getCounts();
 		List<Feature> newFeatures = new LinkedList<>();
