@@ -88,5 +88,54 @@ public class BiojavaFeatureTest {
 		assertFalse(l2.isBefore(l1));
 		assertFalse(l1.isAfter(l2));
 	}
+	
+	@Test
+	public void test6() {
+		
+		logger.info("BiojavaFeatureTest#test6");
+		Location l1 = Location.fromBio(51227320, 51227381, '+');
+		Location l2 = Location.fromBio(51227323, 51227382, '+');
+		
+		Location union = l1.union(l2);
+		assertEquals(51227320,union.bioStart());
+		assertEquals(51227382,union.bioEnd());
+	}
+	
+	
+	@Test
+	public void test6_5() {
+		
+		logger.info("BiojavaFeatureTest#test6_5");
+		Location l1 = Location.fromBio(99, 100, '+');
+		Location l2 = Location.fromBio(99, 101, '+');
+		
+		Location union = l1.union(l2);
+		assertEquals(99,union.bioStart());
+		assertEquals(101,union.bioEnd());
+	}
+	
+	//@Test
+	public void test7() {
+		
+		logger.info("BiojavaFeatureTest#test7");
+		Location l1 = Location.fromBio(100, 200, '+');
+		Location l2 = Location.fromBio(1, 99, '+');
+		Location intersection = l1.intersection(l2);
+		assertNull(intersection);
+	}
+	
+	
+	@Test
+	public void test8() {
+		
+		logger.info("BiojavaFeatureTest#test6");
+		Location l1 = Location.fromBio(51227320, 51227380, '+');
+		Location l2 = Location.fromBio(51227323, 51227382, '+');
+		
+		Location union = l1.union(l2);
+		assertEquals(51227320,union.bioStart());
+		assertEquals(51227382,union.bioEnd());
+	}
+	
 
 }

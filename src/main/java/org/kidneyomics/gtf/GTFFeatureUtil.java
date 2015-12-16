@@ -150,6 +150,27 @@ public class GTFFeatureUtil {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param l1
+	 * @param l2
+	 * @return the union of the locations ignoring strand
+	 */
+	public static Location unionIgnoreStrand(Location l1, Location l2) {
+		int l1Start = l1.bioStart();
+		int l1End = l1.bioEnd();
+		char l1Strand = l1.bioStrand();
+		
+		int l2Start = l2.bioStart();
+		int l2End = l2.bioEnd();
+		char l2Strand = l2.bioStrand();
+		
+		int unionStart = Math.min(l1Start, l2Start);
+		int unionEnd = Math.max(l1End, l2End);
+		
+		return Location.fromBio(unionStart, unionEnd, l1Strand);
+		
+	}
 	
 	//public static double fractionOverlap(Feature)
 	

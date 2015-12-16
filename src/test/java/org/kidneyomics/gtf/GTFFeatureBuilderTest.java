@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.biojava.nbio.genome.parsers.gff.Feature;
+import org.biojava.nbio.genome.parsers.gff.Location;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,4 +131,26 @@ public class GTFFeatureBuilderTest {
 		assertEquals("ENST00000416570",transcriptid);
 				
 	}
+	
+	
+	@Test
+	public void testUnion1() {
+		Location l1 = Location.fromBio(51227320, 51227381, '+');
+		Location l2 = Location.fromBio(51227323, 51227382, '+');
+
+		Location union = GTFFeatureUtil.unionIgnoreStrand(l1, l2);
+		assertEquals(51227320,union.bioStart());
+		assertEquals(51227382,union.bioEnd());
+	}
+	
+	@Test
+	public void testUnion2() {
+		Location l1 = Location.fromBio(51227323, 51227383, '+');
+		Location l2 = Location.fromBio(1, 51227382, '+');
+
+		Location union = GTFFeatureUtil.unionIgnoreStrand(l1, l2);
+		assertEquals(1,union.bioStart());
+		assertEquals(51227383,union.bioEnd());
+	}
 }
+
