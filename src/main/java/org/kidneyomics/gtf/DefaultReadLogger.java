@@ -63,7 +63,7 @@ public class DefaultReadLogger implements ReadLogger {
 				writer.write("READ_LENGTH");
 				writer.write("\t");
 				writer.write("MAPPED_FEATURES");
-				writer.write("\n");
+				writer.write("\t");
 				writer.write("TAGS");
 				writer.write("\n");
 			} 
