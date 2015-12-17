@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.SAMRecord.SAMTagAndValue;
 
 public class DefaultReadLogger implements ReadLogger {
 
@@ -63,6 +64,8 @@ public class DefaultReadLogger implements ReadLogger {
 				writer.write("\t");
 				writer.write("MAPPED_FEATURES");
 				writer.write("\n");
+				writer.write("TAGS");
+				writer.write("\n");
 			} 
 			
 			writer.write(type);
@@ -87,6 +90,10 @@ public class DefaultReadLogger implements ReadLogger {
 					writer.write("_BASES_");
 					writer.write("" + entry.getValue() + ",");
 				}
+			}
+			writer.write("\t");
+			for(SAMTagAndValue tag : record.getAttributes()) {
+				writer.write(tag.tag + ":" + tag.value.toString());
 			}
 			writer.write("\n");
 		} catch(Exception exception) {
