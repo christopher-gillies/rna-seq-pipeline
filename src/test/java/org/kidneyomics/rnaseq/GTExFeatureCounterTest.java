@@ -701,7 +701,7 @@ public class GTExFeatureCounterTest {
 		record1.setReferenceName("chr1");
 		record1.setAlignmentStart(11869);
 		record1.setCigarString("39M");
-		record1.setAttribute("nH", 6);
+		record1.setAttribute("nM", 6);
 		
 		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
 		record2.setReferenceName("chr1");
@@ -721,6 +721,7 @@ public class GTExFeatureCounterTest {
 		assertEquals(0,gfc.getNumberOfPartiallyUnmappedReads());
 		assertEquals(1,gfc.getNumberOfFilteredReads());
 	}
+	
 	
 	@Test
 	public void computeGeneLevelExpressionTest() {

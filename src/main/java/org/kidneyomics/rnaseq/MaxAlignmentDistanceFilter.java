@@ -12,9 +12,9 @@ public class MaxAlignmentDistanceFilter implements SAMRecordPairFilter {
 	 */
 	@Override
 	public boolean keep(SAMRecordPair pair) {
-		Object ed1 = pair.getMate1().getAttribute("nH");
+		Object ed1 = pair.getMate1().getAttribute("nM");
 		if(ed1 == null) {
-			 ed1 = pair.getMate1().getAttribute("NH");
+			 ed1 = pair.getMate1().getAttribute("NM");
 		}
 		if(ed1 != null) {
 			int ed = (Integer) ed1;
@@ -23,9 +23,9 @@ public class MaxAlignmentDistanceFilter implements SAMRecordPairFilter {
 			}
 		}
 		if(pair.bothPairsAligned()) {
-			Object ed2 = pair.getMate2().getAttribute("nH");
+			Object ed2 = pair.getMate2().getAttribute("nM");
 			if(ed2 == null) {
-				 ed2 = pair.getMate1().getAttribute("NH");
+				 ed2 = pair.getMate1().getAttribute("NM");
 			}
 			if(ed2 != null) {
 				int ed = (Integer) ed2;

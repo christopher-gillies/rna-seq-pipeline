@@ -17,11 +17,11 @@ public class MaxAlignmentDistanceFilterTest {
 		
 		SAMRecord record1 = new SAMRecord(new SAMFileHeader());
 		
-		record1.setAttribute("nH", 5);
+		record1.setAttribute("nM", 5);
 		
 		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
 		
-		record2.setAttribute("nH", 1);
+		record2.setAttribute("nM", 1);
 		
 		pair.setMate1(record1);
 		pair.setMate2(record2);
@@ -38,11 +38,11 @@ public class MaxAlignmentDistanceFilterTest {
 		
 		SAMRecord record1 = new SAMRecord(new SAMFileHeader());
 		
-		record1.setAttribute("nH", 5);
+		record1.setAttribute("nM", 5);
 		
 		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
 		
-		record2.setAttribute("nH", 7);
+		record2.setAttribute("nM", 7);
 		
 		pair.setMate1(record1);
 		pair.setMate2(record2);
@@ -58,11 +58,11 @@ public class MaxAlignmentDistanceFilterTest {
 		
 		SAMRecord record1 = new SAMRecord(new SAMFileHeader());
 		
-		record1.setAttribute("nH", 5);
+		record1.setAttribute("nM", 5);
 		
 		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
 		
-		record2.setAttribute("nH", 8);
+		record2.setAttribute("nM", 8);
 		
 		pair.setMate1(record1);
 		pair.setMate2(record2);
@@ -78,11 +78,11 @@ public class MaxAlignmentDistanceFilterTest {
 		
 		SAMRecord record1 = new SAMRecord(new SAMFileHeader());
 		
-		record1.setAttribute("nH", 8);
+		record1.setAttribute("nM", 8);
 		
 		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
 		
-		record2.setAttribute("nH", 8);
+		record2.setAttribute("nM", 8);
 		
 		pair.setMate1(record1);
 		pair.setMate2(record2);
@@ -98,11 +98,11 @@ public class MaxAlignmentDistanceFilterTest {
 		
 		SAMRecord record1 = new SAMRecord(new SAMFileHeader());
 		
-		record1.setAttribute("nH", 8);
+		record1.setAttribute("nM", 8);
 		
 		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
 		
-		record2.setAttribute("nH", 0);
+		record2.setAttribute("nM", 0);
 		
 		pair.setMate1(record1);
 		pair.setMate2(record2);
@@ -118,7 +118,7 @@ public class MaxAlignmentDistanceFilterTest {
 		
 		SAMRecord record1 = new SAMRecord(new SAMFileHeader());
 		
-		record1.setAttribute("nH", 8);
+		record1.setAttribute("nM", 8);
 		
 		pair.setMate1(record1);
 		
@@ -133,7 +133,7 @@ public class MaxAlignmentDistanceFilterTest {
 		
 		SAMRecord record1 = new SAMRecord(new SAMFileHeader());
 		
-		record1.setAttribute("NH", 8);
+		record1.setAttribute("NM", 8);
 		
 		pair.setMate1(record1);
 		
