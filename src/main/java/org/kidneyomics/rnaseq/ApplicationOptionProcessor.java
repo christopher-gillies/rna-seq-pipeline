@@ -62,7 +62,7 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("countReadsInAllSamples",false,"count all the reads for samples in a bam list and merge the results. must also specify a gtf annotation and output dir");
 		
 		
-		options.addOption("mergeExonGtfs",true,"specify a gtf list and output directory to merge the results from countReadsInExons cmd");
+		options.addOption("mergeExonGtfs",false,"specify a gtf list and output directory to merge the results from countReadsInExons cmd");
 		
 		
 		options.addOption("maxEditDistance",true,"The default for this is 6. This looks at the nH or NH tag for a read and will remove reads that have a value greater than the one specified here");
