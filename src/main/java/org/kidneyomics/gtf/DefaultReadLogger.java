@@ -94,6 +94,7 @@ public class DefaultReadLogger implements ReadLogger {
 			writer.write("\t");
 			for(SAMTagAndValue tag : record.getAttributes()) {
 				writer.write(tag.tag + ":" + tag.value.toString());
+				writer.write("_");
 			}
 			writer.write("\n");
 		} catch(Exception exception) {
