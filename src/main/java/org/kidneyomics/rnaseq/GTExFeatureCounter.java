@@ -487,8 +487,8 @@ public class GTExFeatureCounter implements FeatureCounter {
 			//Should we keep the read or not?
 			if(!keep(samRecordPair)) {
 				filtered++;
-				readLogger.logRead("ambiguous", samRecordPair.getMate1(),null);
-				readLogger.logRead("ambiguous", samRecordPair.getMate2(),null);
+				readLogger.logRead("filtered_out", samRecordPair.getMate1(),null);
+				readLogger.logRead("filtered_out", samRecordPair.getMate2(),null);
 				return;
 			}
 			
