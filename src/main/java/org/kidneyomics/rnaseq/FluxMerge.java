@@ -55,7 +55,8 @@ public class FluxMerge {
 		String outmatrix = applicationOptions.getFileOut();
 		boolean outCounts = applicationOptions.isOutCounts();
 		Collection<TranscriptQuantification> listOfTranscriptQuantifications = getTranscriptQuantifications(gtfList, annotation, outCounts).getTranscriptQuantifications();
-		writeQuantificationMatrix(listOfTranscriptQuantifications,outmatrix);
+		logger.info("Writing expression matrix");
+		QuantificationUtils.writeQuantificationMatrix(listOfTranscriptQuantifications,outmatrix);
 		
 	}
 	
@@ -66,13 +67,13 @@ public class FluxMerge {
 		boolean outCounts = applicationOptions.isOutCounts();
 		TranscriptQuantificationResult transcriptQuantificationResult = getTranscriptQuantifications(gtfList, annotation, outCounts);
 		List<GeneQuantification> listOfGeneQuantifications = getGeneQuantifications(transcriptQuantificationResult);
-		writeQuantificationMatrix(listOfGeneQuantifications,outmatrix);	
+		QuantificationUtils.writeQuantificationMatrix(listOfGeneQuantifications,outmatrix);	
 	}
 	
 	public void writeTranscriptRatioMatrix() throws Exception {
 		String outmatrix = applicationOptions.getFileOut();
 		List<TranscriptQuantification> tqs = getTranscriptRatios().transcriptRatios;
-		writeQuantificationMatrix(tqs,outmatrix);	
+		QuantificationUtils.writeQuantificationMatrix(tqs,outmatrix);	
 	}
 	
 	TranscriptRatioResult getTranscriptRatios() throws Exception {
@@ -229,24 +230,6 @@ public class FluxMerge {
 		return new TranscriptQuantificationResult(list,transcriptLengthQuantifier,geneLengthQuantifier,sampleIds);
 	}
 	
-	void writeQuantificationMatrix(Collection<? extends Quantification> listOfQuantifications, String outmatrix) throws IOException {
-		logger.info("Writing expression matrix");
-		Path p = Paths.get(outmatrix);
-		BufferedWriter bf = Files.newBufferedWriter(p,Charset.defaultCharset());
-		
-		int index = 0;
-		for(Quantification tq : listOfQuantifications) {
-			if(index == 0) {
-				bf.append(tq.printHeader());
-				bf.append("\n");
-			}
-			index++;
-			tq.appendTo(bf);
-			bf.append("\n");
-		}
-		
-		bf.close();
-	}
 	
 	class TranscriptQuantificationResult {
 		List<TranscriptQuantification> transcriptQuantifications;

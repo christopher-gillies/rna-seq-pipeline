@@ -8,7 +8,7 @@ import java.util.List;
 import org.biojava.nbio.genome.parsers.gff.Feature;
 import org.biojava.nbio.genome.parsers.gff.Location;
 import org.junit.Test;
-import org.kidneyomics.rnaseq.TranscriptQuantification.FORMAT;
+import org.kidneyomics.gtf.GTF_FORMAT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ public class TranscriptQuantificationTest {
 		
 		TranscriptQuantification t = new TranscriptQuantification(f1, samples);
 		
-		assertEquals(FORMAT.GENCODE,t.getFORMAT());
+		assertEquals(GTF_FORMAT.GENCODE,t.getFORMAT());
 		
 		t.putSampleExpression("sample1", 25);
 		t.putSampleExpression("sample2", 50);
@@ -80,7 +80,7 @@ public class TranscriptQuantificationTest {
 		
 		TranscriptQuantification t = new TranscriptQuantification(f1, samples);
 		
-		assertEquals(FORMAT.ENSEMBL,t.getFORMAT());
+		assertEquals(GTF_FORMAT.ENSEMBL,t.getFORMAT());
 		
 		t.putSampleExpression("sample1", 25);
 		t.putSampleExpression("sample2", 50);

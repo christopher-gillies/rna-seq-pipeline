@@ -2,7 +2,9 @@ package org.kidneyomics.rnaseq;
 
 import java.io.IOException;
 
-public interface Quantification {
+import org.biojava.nbio.genome.parsers.gff.Feature;
+
+public interface Quantification extends Comparable<Quantification> {
 	
 	String printHeader();
 	void appendTo(Appendable appendable) throws IOException;
@@ -18,4 +20,6 @@ public interface Quantification {
 	void setLength(int length);
 	char getStrand();
 	QuantificationType getQuantificationType();
+	String getId();
+	Feature getFeature();
 }

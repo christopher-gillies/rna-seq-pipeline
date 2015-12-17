@@ -531,8 +531,7 @@ public class MakeFileWriter {
 		
 		FileUtils.write(new File(baseDir + "/Makefile"), makefileText);
 	}
-	
-	
+		
 	private void writeFluxCapacitorCommands() throws Exception {
 		
 		String bamFile = applicationOptions.getBamList();
@@ -767,6 +766,34 @@ public class MakeFileWriter {
 		logger.info("Writing Makefile");
 		
 		FileUtils.write(new File(outputDir + "/Makefile"), makefileText);
+		
+	}
+	
+	private void writeExonCountCommands() throws Exception {
+		String bamFile = applicationOptions.getBamList();
+		String outputDir = applicationOptions.getOutputDirectory();
+		String jar = applicationOptions.getJarLocation();
+		String gtfIn = applicationOptions.getGtf();
+		
+		
+		
+		List<Sample> samples = Sample.getBamFileList(new File(bamFile));
+		Collections.sort(samples);
+		
+		File outDirRef = new File(outputDir);
+		if(!outDirRef.exists()) {
+			logger.info("Creating " + outDirRef);
+			outDirRef.mkdirs();
+		}
+		
+		MakeFile make = new MakeFile();
+		
+		
+		
+		StringBuilder sb = new StringBuilder();
+		
+		
+		
 		
 	}
 	

@@ -726,7 +726,50 @@ public class GTExFeatureCounterTest {
 		assertEquals("1200.0", gene.getAttribute("reads"));
 		assertEquals(Double.toString( 1200.0 / 404.0 / numberOfReads * Math.pow(10, 9) ), gene.getAttribute("RPKM"));
 		assertEquals("gene_1_chr1_100_200,gene_1_chr1_300_400,gene_1_chr1_500_600,gene_1_chr1_700_800", gene.getAttribute("exons"));
+
+	}
+	
+	@Test
+	public void testStrandOnCounts() throws IOException {
 		
+		Resource r = new ClassPathResource("gencode.head.gz");
+		File gtf = r.getFile();
+		
+		FindOverlappingFeatures findOverlappingFeatures = new FindOverlappingFeatures();
+		GTExFeatureCounter gfc = new GTExFeatureCounter(findOverlappingFeatures, new LoggerService());
+		gfc.buildFeatures(gtf, "exon");
+		
+		List<Feature> features = gfc.getCounts();
+		
+		int found = 0;
+		for(Feature feature : features) {
+			String geneId = feature.getAttribute("gene_id");
+			
+			assertTrue(feature.hasAttribute("tss"));
+			
+			if(geneId.equals("ENSG00000187583")) {
+				assertEquals(901877, Integer.parseInt(feature.getAttribute("tss")));
+				found++;
+			}
+			
+			
+			if(geneId.equals("ENSG00000187634")) {
+				assertEquals(860260, Integer.parseInt(feature.getAttribute("tss")));
+				found++;
+			}
+			
+			if(geneId.equals("ENSG00000268179")) {
+				assertEquals(866445, Integer.parseInt(feature.getAttribute("tss")));
+				found++;
+			}
+			
+			if(geneId.equals("ENSG00000236601")) {
+				assertEquals(460480, Integer.parseInt(feature.getAttribute("tss")));
+				found++;
+			}
+		}
+		
+		assertTrue(found >= 4);
 		
 		
 	}

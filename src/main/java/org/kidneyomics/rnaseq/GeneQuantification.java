@@ -10,7 +10,7 @@ import org.biojava.nbio.genome.parsers.gff.Location;
 import org.kidneyomics.gtf.FeatureComparator;
 import org.springframework.util.StringUtils;
 
-public class GeneQuantification implements Comparable<GeneQuantification>, Quantification {
+public class GeneQuantification implements Quantification {
 
 	
 	/*
@@ -307,8 +307,8 @@ public class GeneQuantification implements Comparable<GeneQuantification>, Quant
 	}
 	
 	@Override
-	public int compareTo(GeneQuantification o) {
-		return comparator.compare(this.feature, o.feature);
+	public int compareTo(Quantification o) {
+		return comparator.compare(this.feature, o.getFeature());
 	}
 
 	@Override
@@ -318,6 +318,16 @@ public class GeneQuantification implements Comparable<GeneQuantification>, Quant
 	
 	List<TranscriptQuantification> getTranscriptQuantifications() {
 		return this.transcriptQuantifications;
+	}
+
+	@Override
+	public String getId() {
+		return getGeneId();
+	}
+
+	@Override
+	public Feature getFeature() {
+		return this.feature;
 	}
 	
 	

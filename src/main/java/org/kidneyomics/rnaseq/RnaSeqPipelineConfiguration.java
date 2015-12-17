@@ -13,4 +13,10 @@ public class RnaSeqPipelineConfiguration {
 	public FindOverlappingFeatures findOverlappingFeatures() {
 		return new FindOverlappingFeatures();
 	}
+	
+	
+	@Bean()
+	public QuantificationFactory quantificationFactory() {
+		return new QuantificationFactory();
+	}
 }

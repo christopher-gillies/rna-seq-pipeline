@@ -589,11 +589,13 @@ public class GTExFeatureCounter implements FeatureCounter {
 		List<Feature> newFeatures = new LinkedList<>();
 		for(FeatureCount fc : this.featureCounts.values()) {
 			Feature f = fc.getFeature();
-			
+			Feature gene = geneInfo.get(f.getAttribute("gene_id"));
+			int tss = gene.location().bioStrand() == '+' ? gene.location().bioStart() : gene.location().bioEnd();
 			Map<String,String> newAtts = new HashMap<>();
 			newAtts.put("id", fc.getId());
 			newAtts.put("reads", Double.toString(fc.getCount()));
 			newAtts.put("RPKM", Double.toString(fc.getRPKM(this.getTotalCount())));
+			newAtts.put("tss", Integer.toString(tss));
 			
 			Feature newF = GTFFeatureBuilder.addAttributesToFeature(f, newAtts);
 			newFeatures.add(newF);

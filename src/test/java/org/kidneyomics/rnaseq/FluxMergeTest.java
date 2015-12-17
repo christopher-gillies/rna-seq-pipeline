@@ -158,7 +158,7 @@ public class FluxMergeTest {
 		assertTrue(tqs.get(0).getFeature().location().bioStart() == 11869);
 		
 		
-		fluxMerge.writeQuantificationMatrix(tqs, outfile.getAbsolutePath());
+		QuantificationUtils.writeQuantificationMatrix(tqs, outfile.getAbsolutePath());
 		List<String> outMatrixTextLines = FileUtils.readLines(outfile);
 		
 		assertTrue(outMatrixTextLines.size() == tqs.size()  + 1);
@@ -244,7 +244,7 @@ public class FluxMergeTest {
 		assertTrue(tqs.get(0).getFeature().location().bioStart() == 11869);
 		
 		
-		fluxMerge.writeQuantificationMatrix(tqs, outfile.getAbsolutePath());
+		QuantificationUtils.writeQuantificationMatrix(tqs, outfile.getAbsolutePath());
 		List<String> outMatrixTextLines = FileUtils.readLines(outfile);
 		
 		assertTrue(outMatrixTextLines.size() == tqs.size()  + 1);
@@ -290,7 +290,7 @@ public class FluxMergeTest {
 	
 	@Test
 	public void testGeneLevelRPKM() throws Exception {
-		//TODO
+		
 		/*
 		 * 
 		 *	transcript_id	gene_id	gene_name	gene_type	transcript_type	chr	transcription_start_site	start	end	length	strand	sample1	sample2
@@ -386,7 +386,7 @@ public class FluxMergeTest {
 	
 	@Test
 	public void testTranscriptRatioRPKM() throws Exception {
-		//TODO
+		
 		/*
 		 * 
 		 *	transcript_id	gene_id	gene_name	gene_type	transcript_type	chr	transcription_start_site	start	end	length	strand	sample1	sample2
@@ -480,7 +480,7 @@ public class FluxMergeTest {
 	
 	@Test
 	public void testTranscriptRatioRPKM2() throws Exception {
-		//TODO
+		
 		/*
 		 * 
 		 *	transcript_id	gene_id	gene_name	gene_type	transcript_type	chr	transcription_start_site	start	end	length	strand	sample1	sample2
