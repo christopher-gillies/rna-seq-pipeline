@@ -1,0 +1,18 @@
+all:	SAMPLE1_COUNTED.OK	SAMPLE2_COUNTED.OK	MERGE.OK	
+	touch $@.OK
+
+#Count reads for SAMPLE1
+SAMPLE1_COUNTED.OK:	
+	java -jar /data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar --countReadsInExons --gtf /tmp/genecode.gtf --fileIn /tmp/tmp1.bam --fileOut /tmp/test3//gene.exon.counts.rpkm.SAMPLE1.gtf
+	$@
+
+#Count reads for SAMPLE2
+SAMPLE2_COUNTED.OK:	
+	java -jar /data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar --countReadsInExons --gtf /tmp/genecode.gtf --fileIn /tmp/tmp2.bam --fileOut /tmp/test3//gene.exon.counts.rpkm.SAMPLE2.gtf
+	$@
+
+#Merging gtf files
+MERGE.OK:	SAMPLE1_COUNTED.OK	SAMPLE2_COUNTED.OK	
+	java -jar /data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar --mergeExonGtfs --fileIn /tmp/test3//gtf.list.txt --outputDir /tmp/test3/
+	$@
+

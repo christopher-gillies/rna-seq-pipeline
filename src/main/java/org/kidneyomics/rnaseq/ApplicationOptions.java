@@ -37,6 +37,8 @@ public class ApplicationOptions {
 	private boolean outTranscriptExpression = false;
 	private boolean outTranscriptRatioMatrix = false;
 	private boolean countReadsInExons = false;
+	private boolean mergeExonGtfs = false;
+	private boolean countReadsInAllSamples = false;
 	private int maxEditDistance = 6;
 	
 	private String fluxCapacitorQuantifyMode = "PAIRED"; //--printParameters AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED
@@ -58,11 +60,30 @@ public class ApplicationOptions {
 		TRANSCRIPT_EXPRESSION_MATRIX,
 		GENE_EXPRESSION_MATRIX,
 		TRANSCRIPT_RATIO_MATRIX,
-		COUNT_READS_IN_EXONS
+		COUNT_READS_IN_EXONS,
+		MERGE_EXON_COUNTS,
+		COUNT_READS_ALL_SAMPLES
 	}
 	
 	
 	
+	
+	public boolean isCountReadsInAllSamples() {
+		return countReadsInAllSamples;
+	}
+
+	public void setCountReadsInAllSamples(boolean countReadsInAllSamples) {
+		this.countReadsInAllSamples = countReadsInAllSamples;
+	}
+
+	public boolean isMergeExonGtfs() {
+		return mergeExonGtfs;
+	}
+
+	public void setMergeExonGtfs(boolean mergeExonGtfs) {
+		this.mergeExonGtfs = mergeExonGtfs;
+	}
+
 	public int getMaxEditDistance() {
 		return maxEditDistance;
 	}
@@ -466,6 +487,37 @@ public class ApplicationOptions {
 			}
 			
 			result = Mode.COUNT_READS_IN_EXONS;
+		} else if(mergeExonGtfs) {
+			
+			if(StringUtils.isEmpty(getFileIn())) {
+				logger.error("please specify an input file");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getOutputDirectory())) {
+				logger.error("please specify an output directory");
+				System.exit(1);
+			}
+			
+			result = Mode.MERGE_EXON_COUNTS;
+		} else if(countReadsInAllSamples) {
+			
+			if(StringUtils.isEmpty(getBamList())) {
+				logger.error("bam files cannot be empty when performing exon counting across samples");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getGtf())) {
+				logger.error("please specify a gtf file");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getOutputDirectory())) {
+				logger.error("please specify an output");
+				System.exit(1);
+			}
+			
+			result = Mode.COUNT_READS_ALL_SAMPLES;
 		}
 		
 		return result;

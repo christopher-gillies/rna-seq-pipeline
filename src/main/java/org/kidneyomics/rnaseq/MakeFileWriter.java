@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.stringtemplate.v4.ST;
 
+import htsjdk.samtools.util.RuntimeEOFException;
+
 @Component
 public class MakeFileWriter {
 
@@ -42,9 +44,14 @@ public class MakeFileWriter {
 			logger.info("Writing flux capacitor commands");
 			writeFluxCapacitorCommands();
 			break;
+		case COUNT_READS_ALL_SAMPLES:
+			logger.info("Writing count read commands");
+			writeExonCountCommands();
+			break;
 		case FIND_UNIQUE_MAPPED_READS:
 		case ERROR:
 			default:
+				throw new RuntimeEOFException(mode + " not supported");
 				
 		}
 	}
@@ -770,9 +777,9 @@ public class MakeFileWriter {
 	}
 	
 	private void writeExonCountCommands() throws Exception {
+		logger.info("Starting writeExonCountCommands()");
 		String bamFile = applicationOptions.getBamList();
 		String outputDir = applicationOptions.getOutputDirectory();
-		String jar = applicationOptions.getJarLocation();
 		String gtfIn = applicationOptions.getGtf();
 		
 		
@@ -788,13 +795,93 @@ public class MakeFileWriter {
 		
 		MakeFile make = new MakeFile();
 		
+		List<MakeEntry> countCommands = new LinkedList<>();
 		
+		StringBuilder sampleGtfListBuilder = new StringBuilder();
 		
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sampleStatListBuilder = new StringBuilder();
 		
+		for(Sample s : samples) {
+			logger.info("Reading sample info for " + s.getSampleId());
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Count reads for " + s.getSampleId());
+			entry.setTarget(s.getSampleId() + "_COUNTED.OK");
+			
+			if(s.getBamFiles().size() > 1) {
+				throw new RuntimeException("Make sure there is only one bam per sample");
+			}
+			
+			File bamIn = new File(s.getBamFiles().get(0).getBamFile());
+			if(!bamIn.exists()) {
+				throw new RuntimeException("Make sure all bams exist");
+			}
+			
+			String out = outputDir + "/gene.exon.counts.rpkm." + s.getSampleId() + ".gtf";
+			ST cmd = new ST("java -jar <app> --countReadsInExons --gtf <gtf> --fileIn <bam> --fileOut <out>");
+			cmd.add("app", applicationOptions.getJarLocation())
+			.add("gtf", gtfIn)
+			.add("bam", s.getBamFiles().get(0).getBamFile())
+			.add("out", out);
+			
+			entry.addCommand(cmd.render());
+			entry.addCommand("$@");
+			
+			make.addMakeEntry(entry);
+			
+			countCommands.add(entry);
+			
+			//store data for gtf list
+			sampleGtfListBuilder.append(s.getSampleId());
+			sampleGtfListBuilder.append("\t");
+			sampleGtfListBuilder.append(out);
+			sampleGtfListBuilder.append("\n");
+			
+			//store stat list
+			sampleStatListBuilder.append(s.getSampleId());
+			sampleStatListBuilder.append("\t");
+			sampleStatListBuilder.append(out +".stats");
+			sampleStatListBuilder.append("\n");
+		}
 		
+		//Write gtf file and stat files
+		String gtfList = outputDir + "/gtf.list.txt";
+		FileUtils.write(new File(gtfList), sampleGtfListBuilder.toString());
 		
+		String gtfStatList = outputDir + "/gtf.stat.list.txt";
+		FileUtils.write(new File(gtfStatList), sampleStatListBuilder.toString());
 		
+		//Merge command
+		
+		MakeEntry merge = new MakeEntry();
+		merge.addDependencies(countCommands);
+		merge.setComment("Merging gtf files");
+		merge.setTarget("MERGE.OK");
+		ST mergeCmd = new ST("java -jar <app> --mergeExonGtfs --fileIn <gtflist> --outputDir <outDir>");
+		mergeCmd.add("app", applicationOptions.getJarLocation())
+		.add("gtflist", gtfList)
+		.add("outDir", outputDir);
+		merge.addCommand(mergeCmd.render());
+		
+		merge.addCommand("$@");
+		
+		//add stat merge command here
+	
+		
+		make.addMakeEntry(merge);
+		/*
+		 * 
+		 * 
+		 * Write makefile
+		 * 
+		 * 
+		 */
+		String makefileText = make.toString();
+		
+		logger.info("Writing Makefile");
+		
+		FileUtils.write(new File(outputDir + "/Makefile"), makefileText);
+		
+		logger.info("Please run "+ outputDir + "/Makefile");
 	}
 	
 	private class SampleData {

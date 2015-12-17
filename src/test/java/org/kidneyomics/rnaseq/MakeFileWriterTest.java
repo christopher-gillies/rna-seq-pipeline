@@ -301,4 +301,89 @@ public class MakeFileWriterTest {
 			}
 	}
 	
+	@Test
+	public void testWriteExonCountCommands() throws Exception {
+		
+		LoggerService loggerService = new LoggerService();
+
+		
+		//Setup
+			File bam1 = new File("/tmp/tmp1.bam");
+			File bam2 = new File("/tmp/tmp2.bam");
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append("SAMPLE1\t/tmp/tmp1.bam\n");
+			sb.append("SAMPLE2\t/tmp/tmp2.bam\n");
+			
+			File bamlist = new File("/tmp/bamlist.txt");
+			
+			FileUtils.write(bamlist, sb.toString());
+			
+			List<File> files = new LinkedList<File>();
+			
+			files.add(bam1);
+			files.add(bam2);
+			files.add(bamlist);
+
+			File flux = new File("/tmp/flux");
+			File gtf = new File("/tmp/genecode.gtf");
+			
+			files.add(flux);
+			files.add(gtf);
+			
+			//Create files
+			//needed for validate method
+			for(File f : files) {
+				loggerService.getLogger(this).info("PATH:\t" + f.getAbsolutePath());
+				f.createNewFile();
+			}
+			
+			
+			
+			ApplicationOptions applicationOptionsMock = mock(ApplicationOptions.class);
+			
+			when(applicationOptionsMock.getBamList()).thenReturn(bamlist.getAbsolutePath());
+			
+			when(applicationOptionsMock.getGtf()).thenReturn(gtf.getAbsolutePath());
+			
+			when(applicationOptionsMock.getOutputDirectory()).thenReturn("/tmp/test3/");
+			
+			when(applicationOptionsMock.getJarLocation()).thenReturn("/data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar");
+			
+			
+			
+			
+			MakeFileWriter makeFileWriter = new MakeFileWriter(loggerService);
+			makeFileWriter.applicationOptions = applicationOptionsMock;
+			makeFileWriter.writeMakeFile(Mode.COUNT_READS_ALL_SAMPLES);
+			File out = new File("/tmp/test3/Makefile");
+			
+			assertTrue(out.exists());
+			
+			String fileText = FileUtils.readFileToString(out);
+			
+			loggerService.getLogger(this).info("\n" + fileText);
+			
+			File gtfList = new File("/tmp/test3/gtf.list.txt");
+			
+			files.add(gtfList);
+			
+			assertTrue(gtfList.exists());
+			
+			String gtfListText = FileUtils.readFileToString(gtfList);
+			loggerService.getLogger(this).info(gtfListText);
+			assertTrue(gtfListText.equals("SAMPLE1\t/tmp/test3//gene.exon.counts.rpkm.SAMPLE1.gtf\nSAMPLE2\t/tmp/test3//gene.exon.counts.rpkm.SAMPLE2.gtf\n"));
+			
+			
+			Resource r = new ClassPathResource("MakefileTestExonCounts");
+			String fileTextExpect = FileUtils.readFileToString(r.getFile());
+			
+			assertEquals(fileTextExpect, fileText);
+			
+			//cleanup
+			for(File f : files) {
+				f.delete();
+			}
+	}
+	
 }

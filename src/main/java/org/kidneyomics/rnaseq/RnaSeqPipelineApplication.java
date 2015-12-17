@@ -53,18 +53,20 @@ public class RnaSeqPipelineApplication {
 	        	makeFileWriter.writeMakeFile(mode);
 	        	break;
 	        }
-	        case FIND_UNIQUE_MAPPED_READS:
+	        case FIND_UNIQUE_MAPPED_READS: {
 	        	logger.info("Removing multimapped reads");
 	        	UniqueMappingFilter filter = context.getBean(UniqueMappingFilter.class);
 	        	File in = new File(applicationOptions.getFileIn());
 	        	File out = new File(applicationOptions.getFileOut());
 	        	filter.filter(in,out);
 	        	break;
-	        case FLUX_CAPACITOR:
+	        }
+	        case FLUX_CAPACITOR: {
 	        	logger.info("Creating makefile for transcript deconvolution");
 	        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
 	        	makeFileWriter.writeMakeFile(mode);
 	        	break;
+	        }
 	        case GENE_EXPRESSION_MATRIX: {
 	        	logger.info("Creating gene expression matrix");
 	        	FluxMerge fluxMerge = context.getBean(FluxMerge.class);
@@ -86,6 +88,18 @@ public class RnaSeqPipelineApplication {
 	        	logger.info("Counting read pairs in exons");
 	        	ExonQuantifier exonQuantifier = context.getBean(ExonQuantifier.class);
 	        	exonQuantifier.quantify();
+	        	break;
+	        }
+	        case MERGE_EXON_COUNTS: {
+	        	logger.info("Merging exon gtf count files");
+	        	ExonMerge exm = context.getBean(ExonMerge.class);
+	        	exm.writeOutMatrices();
+	        	break;
+	        }
+	        case COUNT_READS_ALL_SAMPLES: {
+	        	logger.info("Creating makefile to count all reads across samples");
+	        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
+	        	makeFileWriter.writeMakeFile(mode);
 	        	break;
 	        }
 	        case ERROR: {
