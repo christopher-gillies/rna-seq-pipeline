@@ -96,6 +96,10 @@ public class Sample implements Comparable<Sample> {
 		List<Sample> results = new LinkedList<Sample>();
 		List<String> lines = FileUtils.readLines(file);
 		for(String line : lines) {
+			//skip line if it is empty
+			if(line.length() == 0) {
+				continue;
+			}
 			String[] cols = line.split("\t");
 			if(cols.length < 2) {
 				throw new Exception(line + "\n not formatted correctly");

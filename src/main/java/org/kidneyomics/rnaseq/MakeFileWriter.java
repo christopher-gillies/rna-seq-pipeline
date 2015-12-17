@@ -824,7 +824,7 @@ public class MakeFileWriter {
 			.add("out", out);
 			
 			entry.addCommand(cmd.render());
-			entry.addCommand("$@");
+			entry.addCommand("touch $@");
 			
 			make.addMakeEntry(entry);
 			
@@ -862,7 +862,7 @@ public class MakeFileWriter {
 		.add("outDir", outputDir);
 		merge.addCommand(mergeCmd.render());
 		
-		merge.addCommand("$@");
+		merge.addCommand("touch $@");
 		
 		//add stat merge command here
 	
