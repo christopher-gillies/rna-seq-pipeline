@@ -37,6 +37,7 @@ public class ApplicationOptions {
 	private boolean outTranscriptExpression = false;
 	private boolean outTranscriptRatioMatrix = false;
 	private boolean countReadsInExons = false;
+	private int maxEditDistance = 6;
 	
 	private String fluxCapacitorQuantifyMode = "PAIRED"; //--printParameters AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED
 	
@@ -60,6 +61,16 @@ public class ApplicationOptions {
 		COUNT_READS_IN_EXONS
 	}
 	
+	
+	
+	public int getMaxEditDistance() {
+		return maxEditDistance;
+	}
+
+	public void setMaxEditDistance(int maxEditDistance) {
+		this.maxEditDistance = maxEditDistance;
+	}
+
 	public String getReadLogFile() {
 		return readLogFile;
 	}

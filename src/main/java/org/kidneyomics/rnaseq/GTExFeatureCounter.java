@@ -56,6 +56,8 @@ public class GTExFeatureCounter implements FeatureCounter {
 	 * 
 	 */
 	
+	private List<SAMRecordPairFilter> filters = new LinkedList<>();
+	
 	//Read logger
 	private ReadLogger readLogger = new NoOpReadLogger();
 	
@@ -83,6 +85,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 	private double ambiguousCount = 0.0;
 	private double mappedCount = 0.0;
 	private double totalCount = 0.0;
+	private long filtered = 0;
 	private long partiallyUnmappedReads = 0;
 	
 	private FindOverlappingFeatures findOverlappingFeatures;
@@ -468,6 +471,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 	
 	@Override
 	public void count(SAMRecordPair samRecordPair) {
+				
 		String chr = samRecordPair.getMate1().getReferenceName();
 		
 		Feature[] features = chromosomeFeatures.get(chr);
@@ -479,6 +483,14 @@ public class GTExFeatureCounter implements FeatureCounter {
 		if(samRecordPair.bothPairsAligned()) {
 		
 			totalCount += 1;
+			
+			//Should we keep the read or not?
+			if(!keep(samRecordPair)) {
+				filtered++;
+				readLogger.logRead("ambiguous", samRecordPair.getMate1(),null);
+				readLogger.logRead("ambiguous", samRecordPair.getMate2(),null);
+				return;
+			}
 			
 			Map<Feature,Integer> mappedFeaturesAcrossChunksForMate1 = getMappedRegionsForMate(samRecordPair.getMate1(), features, converter, findOverlappingFeatures);	
 			boolean isUnmappedMate1 = mappedFeaturesAcrossChunksForMate1.size() == 0;
@@ -610,7 +622,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 
 	@Override
 	public boolean validState() {
-		return Math.abs( this.totalCount - (this.mappedCount + this.unmappedCount + this.ambiguousCount)) < 0.01; 
+		return Math.abs( this.totalCount - (this.mappedCount + this.unmappedCount + this.ambiguousCount + this.filtered)) < 0.01; 
 	}
 
 	@Override
@@ -621,6 +633,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 		logger.info("Total unmapped read count: " + this.getUnmappedReadCount());
 		logger.info("Total ambiguous read count: " + this.getAmbiguousReadCount());
 		logger.info("Partially unmapped reads: " + this.getNumberOfPartiallyUnmappedReads());
+		logger.info("Filtered out read count: " + this.getNumberOfFilteredReads());
 	}
 
 	@Override
@@ -632,7 +645,24 @@ public class GTExFeatureCounter implements FeatureCounter {
 	public List<Feature> getGeneCounts() {
 		return GTExFeatureCounter.computeGeneLevelExpression(this.featureCounts, this.geneInfo, this.getTotalCount());
 	}
+
+	@Override
+	public void addFilter(SAMRecordPairFilter filter) {
+		this.filters.add(filter);
+	}
 	
-	
+	private boolean keep(SAMRecordPair pair) {
+		for(SAMRecordPairFilter filter : filters) {
+			if(!filter.keep(pair)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public long getNumberOfFilteredReads() {
+		return filtered;
+	}
 
 }

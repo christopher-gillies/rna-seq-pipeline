@@ -55,6 +55,8 @@ public class ExonQuantifier {
 		//FindOverlappingFeatures findOverlappingFeatures = new FindOverlappingFeatures();
 		//FeatureCounter featureCounter = new GTExFeatureCounter(findOverlappingFeatures, loggerService)
 		
+		gTExFeatureCounter.addFilter(new MaxAlignmentDistanceFilter(applicationOptions.getMaxEditDistance()));
+		
 		gTExFeatureCounter.buildFeatures(new File(gtfFile), "exon");
 		
 		

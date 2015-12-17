@@ -18,6 +18,7 @@ public class ReadMappingStatisticsLogger {
 		double mappedReadCount = fc.getMappedReadCount();
 		double totalReads = fc.getTotalCount();
 		long partiallyMappedReads = fc.getNumberOfPartiallyUnmappedReads();
+		long filtered = fc.getNumberOfFilteredReads();
 		double unmappedReadCount = fc.getUnmappedReadCount();
 		
 		StringBuilder sb = new StringBuilder();
@@ -28,6 +29,10 @@ public class ReadMappingStatisticsLogger {
 		sb.append("AMBIGUOUS_READS");
 		sb.append("\t");
 		sb.append("AMBIGUOUS_FRACTION");
+		sb.append("\t");
+		sb.append("FILTERED_OUT_READS");
+		sb.append("\t");
+		sb.append("FILTERED_OUT_FRACTION");
 		sb.append("\t");
 		sb.append("UNMAPPED_READS");
 		sb.append("\t");
@@ -49,6 +54,10 @@ public class ReadMappingStatisticsLogger {
 		sb.append( df.format(ambiguousReadCount));
 		sb.append("\t");
 		sb.append( df.format(ambiguousReadCount / totalReads) );
+		sb.append("\t");
+		sb.append( df.format(filtered));
+		sb.append("\t");
+		sb.append( df.format(filtered / totalReads) );
 		sb.append("\t");
 		sb.append( df.format( unmappedReadCount ));
 		sb.append("\t");

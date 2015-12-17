@@ -33,6 +33,8 @@ public interface FeatureCounter {
 	
 	long getNumberOfPartiallyUnmappedReads();
 	
+	long getNumberOfFilteredReads();
+	
 	boolean validState();
 	
 	void logInfo();
@@ -40,4 +42,6 @@ public interface FeatureCounter {
 	void setReadLogger(ReadLogger readLogger);
 	
 	ReadLogger getReadLogger();
+	
+	void addFilter(SAMRecordPairFilter filter);
 }

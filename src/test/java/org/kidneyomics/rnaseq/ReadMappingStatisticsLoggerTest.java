@@ -32,6 +32,7 @@ public class ReadMappingStatisticsLoggerTest {
 		when(fc.getTotalCount()).thenReturn(2.1117682E7);
 		when(fc.getNumberOfPartiallyUnmappedReads()).thenReturn(1873854l);
 		when(fc.getUnmappedReadCount()).thenReturn(4909185.085325402);
+		when(fc.getNumberOfFilteredReads()).thenReturn(111111l);
 		ReadMappingStatisticsLogger.writeStats(f, fc);
 		
 		List<String> lines = FileUtils.readLines(f);

@@ -685,6 +685,44 @@ public class GTExFeatureCounterTest {
 	}
 	
 	@Test
+	public void testCountPairFiltered() throws IOException {
+		logger.info("testCountPair1");
+		Resource r = new ClassPathResource("genecode.v19.annotation.head.10000.gtf.gz");
+		//File gtf = r.getFile();
+		
+		FindOverlappingFeatures findOverlappingFeatures = new FindOverlappingFeatures();
+		GTExFeatureCounter gfc = new GTExFeatureCounter(findOverlappingFeatures, new LoggerService());
+		gfc.addFilter(new MaxAlignmentDistanceFilter(5));
+		
+		//gfc.buildFeatures(gtf, "exon");
+		
+		
+		SAMRecord record1 = new SAMRecord(new SAMFileHeader());
+		record1.setReferenceName("chr1");
+		record1.setAlignmentStart(11869);
+		record1.setCigarString("39M");
+		record1.setAttribute("nH", 6);
+		
+		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
+		record2.setReferenceName("chr1");
+		record2.setAlignmentStart(12000);
+		record2.setCigarString("39M");
+		
+		SAMRecordPair pair = new SAMRecordPair();
+		pair.setMate1(record1);
+		pair.setMate2(record2);
+		
+		gfc.count(pair);
+		
+		assertEquals(1.0,gfc.getTotalCount(),0.000001);
+		assertEquals(0.0,gfc.getMappedReadCount(),0.000001);
+		assertEquals(0.0,gfc.getUnmappedReadCount(),0.000001);
+		assertEquals(0.0,gfc.getAmbiguousReadCount(),0.000001);
+		assertEquals(0,gfc.getNumberOfPartiallyUnmappedReads());
+		assertEquals(1,gfc.getNumberOfFilteredReads());
+	}
+	
+	@Test
 	public void computeGeneLevelExpressionTest() {
 		//static List<Feature> computeGeneLevelExpression(Map<String,FeatureCount> featureCounts, Map<String,Feature> geneInfos, double numberOfReads)
 		
