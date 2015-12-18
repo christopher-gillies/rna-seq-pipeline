@@ -39,6 +39,8 @@ public class ApplicationOptions {
 	private boolean countReadsInExons = false;
 	private boolean mergeExonGtfs = false;
 	private boolean countReadsInAllSamples = false;
+	private boolean mergeExonStatFiles = false;
+	
 	private int maxEditDistance = 6;
 	
 	private String fluxCapacitorQuantifyMode = "PAIRED"; //--printParameters AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED
@@ -62,12 +64,21 @@ public class ApplicationOptions {
 		TRANSCRIPT_RATIO_MATRIX,
 		COUNT_READS_IN_EXONS,
 		MERGE_EXON_COUNTS,
+		MERGE_EXON_COUNTS_STATS,
 		COUNT_READS_ALL_SAMPLES
 	}
 	
 	
 	
 	
+	public boolean isMergeExonStatFiles() {
+		return mergeExonStatFiles;
+	}
+
+	public void setMergeExonStatFiles(boolean mergeExonStatFiles) {
+		this.mergeExonStatFiles = mergeExonStatFiles;
+	}
+
 	public boolean isCountReadsInAllSamples() {
 		return countReadsInAllSamples;
 	}
@@ -518,6 +529,19 @@ public class ApplicationOptions {
 			}
 			
 			result = Mode.COUNT_READS_ALL_SAMPLES;
+		} else if(mergeExonStatFiles) {
+			
+			if(StringUtils.isEmpty(getFileIn())) {
+				logger.error("please specify an input file. This should be a list of stat files. Two columns [ID]\t[STAT_FILE]");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileOut())) {
+				logger.error("please specify an output file. This is the merged matrix.");
+				System.exit(1);
+			}
+			
+			result = Mode.MERGE_EXON_COUNTS_STATS;
 		}
 		
 		return result;

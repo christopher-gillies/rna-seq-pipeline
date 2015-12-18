@@ -29,7 +29,7 @@ public class ReadCountStatMerger {
 	
 	public void mergeStatFiles() throws IOException {
 		String statList = applicationOptions.getFileIn();
-		String outfile = applicationOptions.getOutputDirectory();
+		String outfile = applicationOptions.getFileOut();
 		
 		List<String> lines = FileUtils.readLines(new File(statList));
 		List<StatFile> statFiles = new LinkedList<>();
@@ -55,8 +55,7 @@ public class ReadCountStatMerger {
 		
 		StringBuilder sb = new StringBuilder();
 		String[] cols = first.cols;
-		String header = StringUtils.join(first.cols, "\t");
-		header.replaceAll("#", "");
+		String header = StringUtils.join(first.cols, "\t").replaceAll("#", "");
 		
 		sb.append("#ID");
 		sb.append("\t");

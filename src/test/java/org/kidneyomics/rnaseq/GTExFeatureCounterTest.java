@@ -1,25 +1,25 @@
 package org.kidneyomics.rnaseq;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.biojava.nbio.genome.parsers.gff.Feature;
 import org.biojava.nbio.genome.parsers.gff.Location;
 import org.junit.Test;
 import org.kidneyomics.gtf.ExonFilter;
-import org.kidneyomics.gtf.FeatureComparator;
 import org.kidneyomics.gtf.FeatureCount;
 import org.kidneyomics.gtf.FeatureMerger;
 import org.kidneyomics.gtf.FindOverlappingFeatures;
@@ -29,7 +29,6 @@ import org.kidneyomics.gtf.GTFFeatureUtil;
 import org.kidneyomics.gtf.GTFReader;
 import org.kidneyomics.gtf.RemoveRetainedIntronFilter;
 import org.kidneyomics.gtf.SAMRecordToFeatureConverter;
-import org.mockito.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -37,9 +36,6 @@ import org.springframework.core.io.Resource;
 
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMRecord;
-import junit.framework.Assert;
-
-import static org.mockito.Mockito.*;
 
 public class GTExFeatureCounterTest {
 

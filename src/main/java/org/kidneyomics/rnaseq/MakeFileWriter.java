@@ -863,11 +863,23 @@ public class MakeFileWriter {
 		merge.addCommand(mergeCmd.render());
 		
 		merge.addCommand("touch $@");
+		make.addMakeEntry(merge);
 		
 		//add stat merge command here
 	
+		MakeEntry mergeStats = new MakeEntry();
+		mergeStats.addDependencies(countCommands);
+		mergeStats.setComment("Merging stat files");
+		mergeStats.setTarget("MERGE_STATS.OK");
+		ST mergeStatsCmd = new ST("java -jar <app> --mergeExonStatFiles --fileIn <in> --fileOut <out>");
+		mergeStatsCmd.add("app", applicationOptions.getJarLocation())
+		.add("in", gtfStatList)
+		.add("out", outputDir + "/merged.stats.txt");
+		mergeStats.addCommand(mergeStatsCmd.render());
 		
-		make.addMakeEntry(merge);
+		mergeStats.addCommand("touch $@");
+		
+		make.addMakeEntry(mergeStats);
 		/*
 		 * 
 		 * 

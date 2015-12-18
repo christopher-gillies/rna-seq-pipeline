@@ -102,6 +102,12 @@ public class RnaSeqPipelineApplication {
 	        	makeFileWriter.writeMakeFile(mode);
 	        	break;
 	        }
+	        case MERGE_EXON_COUNTS_STATS: {
+	        	logger.info("Merging statistics for all exon counts");
+	        	ReadCountStatMerger merger = context.getBean(ReadCountStatMerger.class);
+	        	merger.mergeStatFiles();
+	        	break;
+	        }
 	        case ERROR: {
 	        	
 	        }
