@@ -118,6 +118,7 @@ ___
 ___
 
 #Count reads in exons and genes using GTEx-like methodology
+* currently this program is written for unstranded, paired-end RNA-seq data
 * these read counts follow closely to the methodology mentioned in the GTEx paper http://www.ncbi.nlm.nih.gov/pubmed/25954001
 * exons labeled 'retained_intron' are excluded
 * exons that overlap across genes are excluded
@@ -128,7 +129,7 @@ ___
 * alignment edit distance has to be <= 6
 * read pairs or split reads that map to multiple genes are excluded
 * reads pairs overlapping multiple exons from the same gene are fractionally counted. For example if a has 78 mapped bases, where 30 mapped to one exon, 20 to a second exon and 38 to a third exon, then the exons would be counted 30/78, 20/78, and 38/78 respectively.
-* One difference between the GTEx methodology and this program is that this program fractionally counts reads that overlap introns, where GTEx ignores reads where this happens. GTEx requires reads to be 100% within exon boundaries. So if a read has 78 mapped bases, and 32 overlap and exon then the read is fractionally counted to the exon as 32/78.
+* One difference between the GTEx methodology and this program is that this program fractionally counts reads that overlap introns, where GTEx ignores reads where this happens. GTEx requires reads to be 100% within exon boundaries. For example, if a read has 78 mapped bases, and 32 overlap an exon, then this read will be counted by this program as 32/78.
 * Gene-level counts are calculated as the sum of exons for the gene. The length of the gene is equal to the sum of the length of the exons included in the analysis. So exons that overlap between genes are not included in the calculation of the gene length, because no reads are counted over such regions.
 * rpkm values are normalized by the number of uniquely mapped reads because these are the only reads used in quantification.
 ```
