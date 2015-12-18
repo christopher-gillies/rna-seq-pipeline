@@ -113,8 +113,10 @@ nohup make -j2 1> nohup.out 2> nohup.err &
 * transcript.ratios.from.count.expression.txt -- a matrix containing the transcript ratio using transcript count data per sample. The ratio for a transcript in a subject is the transcript read count / sum of transcripts read counts for the gene of the transcript of interest.
 * transcript.ratios.from.rpkm.expression.txt -- a matrix containing the transcript ratio using transcript rpkm data per sample. The ratio for a transcript in a subject is the transcript rpkm / sum of all transcript rpkms for the gene of the transcript of interest.
 * gtf.list.txt -- a tab separated file containing the sample id and the path to the gtf file for the sample of interest
+
 ___
 ___
+
 #Count reads in exons and genes using GTEx-like methodology
 * these read counts follow closely to the methodology mentioned in the GTEx paper http://www.ncbi.nlm.nih.gov/pubmed/25954001
 * exons labeled 'retained_intron' are excluded
