@@ -45,13 +45,30 @@ cd $OUT
 
 nohup make -j 2 1> nohup.out 2> nohup.err &
 ```
+
+## Parameter notes
 ```
 --numberOfThreadsForGenomeIndex parameter should be as many threads as you can spare because genome indexing is time consuming. This is done one time and before all samples are aligned.
 --numberOfThreadsForAlign is the number of threads to use for the align command
 -j with make command specifies the number of samples to align at the same time
 ```
 
+```
+--fastqList
+#FORMAT
+[SAMPLE_ID]TAB[PATH_TO_FASTQ_MATE_1]TAB[PATH_TO_FASTQ_MATE_2]
 
+#EXAMPLE
+25848	/path/R1.clipped.fastq.gz	/path/R2.clipped.fastq.gz
+25848	/path/R1.clipped.fastq.gz	/path/R2.clipped.fastq.gz
+25848	/path/R1.clipped.fastq.gz	/path/R2.clipped.fastq.gz
+```
+##Files in output directory
+* $OUT/bam.list.txt -- a list of bam files
+###FORMAT 
+```
+[SAMPLE_ID][TAB][PATH_TO_BAM][SPLICE_JUNCTION_TABLE_PASS_1][TAB][SPLICE_JUNCTION_TABLE_PASS_2][TAB][DUPLICATE_METRIC_FILE]
+```
 
 
 
