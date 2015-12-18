@@ -80,7 +80,8 @@ ___
 ___
 
 #Quantify transcript and gene expression using flux capacitor
-* Download flux capacitor
+* this program will generate a makefile to quantify sample expression using flux capacitor. It will also merge the expression values into a series gene expression matrices. 
+* download flux capacitor
 ```
 wget http://sammeth.net/artifactory/barna/barna/barna.capacitor/1.6.1/flux-capacitor-1.6.1.tgz
 ```
