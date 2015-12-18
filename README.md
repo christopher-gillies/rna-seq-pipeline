@@ -97,6 +97,7 @@ nohup make -j2 1> nohup.out 2> nohup.err &
 
 ##Parameter information
 ```
+--bamList is the bam list from the alignment command
 --fluxCapacitor path to the flux capacitor executable file
 --numberOfThreadsForFlux the number of threads for each flux command
 -j for make command is the number fo flux capacitor instances to run in parallel
@@ -110,6 +111,35 @@ nohup make -j2 1> nohup.out 2> nohup.err &
 * transcript.ratios.from.count.expression.txt -- a matrix containing the transcript ratio using transcript count data per sample. The ratio for a transcript in a subject is the transcript read count / sum of transcripts read counts for the gene of the transcript of interest.
 * transcript.ratios.from.rpkm.expression.txt -- a matrix containing the transcript ratio using transcript rpkm data per sample. The ratio for a transcript in a subject is the transcript rpkm / sum of all transcript rpkms for the gene of the transcript of interest.
 * gtf.list.txt -- a tab separated file containing the sample id and the path to the gtf file for the sample of interest
+___
+
+
+#Count reads in exons and genes using GTEx-like methodology
+```
+export OUT=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/
+export OUT_DIR=$OUT/EXON_COUNTS/
+export BAM_LIST=$OUT/bam.list.txt
+export GTF=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/Homo_sapiens.GRCh37.75.gtf
+export PIPELINE=/net/wonderland/home/cgillies/programs/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar 
+java -jar $PIPELINE --countReadsInAllSamples --bamList $BAM_LIST --gtf $GTF --outputDir $OUT_DIR
+cd $OUT_DIR
+nohup make -j10 1> nohup.out 2> nohup.err &
+```
+
+##Paramter information
+```
+--bamList is the bam list from the alignment command
+```
+##Output files
+* gene.exon.counts.rpkm.sample_id.gtf -- gtf file containing the exon and gene rpkms and read counts
+* gene.exon.counts.rpkm.sample_id.gtf.stats -- statistics file for each gtf. This file contains the total number of read pairs, the number and fraction of ambiguously mapped reads, the number and fraction of reads filtered out, the number and fraction of unmapped reads, the number and fraction of partially mapped reads, and finally the number and fraction of mapped reads
+* exon.counts.txt -- a count expression matrix for each exon and sample
+* exon.rpkm.txt	 -- a rpkm expression matrix for each exon and sample
+* gene.counts.txt -- a count expression matrix for each gene and sample
+* gene.rpkm.txt -- a rpkm expression matrix for each gene and sample
+* merged.stats.txt -- the statistics files merge for each sample
+
+
 
 #Other
 banner generated at http://patorjk.com/software/taag/
