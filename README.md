@@ -97,7 +97,7 @@ wget http://sammeth.net/artifactory/barna/barna/barna.capacitor/1.6.1/flux-capac
 ```
 export FLUX_MEM=4G
 export OUT=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/
-export PIPELINE=/net/wonderland/home/cgillies/programs/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar 
+export PIPELINE=/path/to/rna-seq-pipeline/rna-seq-pipeline-1.0.0.jar
 export FLUX_CAPACITOR=~/programs/flux-capacitor-1.6.1/bin/flux-capacitor
 export GTF=$OUT/Homo_sapiens.GRCh37.75.gtf
 export BAMLIST=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/bam.list.txt 
@@ -147,7 +147,7 @@ export OUT=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/
 export OUT_DIR=$OUT/EXON_COUNTS/
 export BAM_LIST=$OUT/bam.list.txt
 export GTF=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/Homo_sapiens.GRCh37.75.gtf
-export PIPELINE=/net/wonderland/home/cgillies/programs/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar 
+export PIPELINE=/path/to/rna-seq-pipeline/rna-seq-pipeline-1.0.0.jar
 java -jar $PIPELINE --countReadsInAllSamples --bamList $BAM_LIST --gtf $GTF --outputDir $OUT_DIR
 cd $OUT_DIR
 nohup make -j10 1> nohup.out 2> nohup.err &
