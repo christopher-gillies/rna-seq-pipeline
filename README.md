@@ -65,11 +65,13 @@ nohup make -j 2 1> nohup.out 2> nohup.err &
 ```
 ##Files in output directory
 * $OUT/bam.list.txt -- a list of bam files
+* $OUT/SAMPLE_ID/final.bam in folder for each sample
 ###FORMAT 
 ```
-[SAMPLE_ID][TAB][PATH_TO_BAM][SPLICE_JUNCTION_TABLE_PASS_1][TAB][SPLICE_JUNCTION_TABLE_PASS_2][TAB][DUPLICATE_METRIC_FILE]
+[SAMPLE_ID][TAB][PATH_TO_BAM][TAB][LOG_PASS_1][TAB][LOG_PASS_2][SPLICE_JUNCTION_TABLE_PASS_1][TAB][SPLICE_JUNCTION_TABLE_PASS_2][TAB][DUPLICATE_METRIC_FILE]
+#EXAMPLE
 25969	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25969//final.bam	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25969_1//Log.final.out	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25969//Log.final.out	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25969_1//SJ.out.tab	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25969//SJ.out.tab	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25969//duplicate.output.metrics
-25968	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25968//final.bam	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25968_1//Log.final.out	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25968//Log.final.out	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25968_1//SJ.out.tab	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25968//duplicate.output.metrics
+25968	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25968//final.bam	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25968_1//Log.final.out	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25968//Log.final.out	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25968_1//SJ.out.tab /net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25968//SJ.out.tab	/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015//25968//duplicate.output.metrics
 ```
 
 
