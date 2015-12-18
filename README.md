@@ -68,7 +68,8 @@ nohup make -j 2 1> nohup.out 2> nohup.err &
 ##Files in output directory
 * $OUT/bam.list.txt -- a list of bam files
 * $OUT/SAMPLE_ID/final.bam in folder for each sample
-###FORMAT 
+
+###Format of bam.list.txt
 ```
 [SAMPLE_ID][TAB][PATH_TO_BAM][TAB][LOG_PASS_1][TAB][LOG_PASS_2][SPLICE_JUNCTION_TABLE_PASS_1][TAB][SPLICE_JUNCTION_TABLE_PASS_2][TAB][DUPLICATE_METRIC_FILE]
 #EXAMPLE
