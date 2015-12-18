@@ -25,9 +25,9 @@ import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMRecordCoordinateComparator;
 import htsjdk.samtools.SAMSequenceRecord;
 
-public class BAMProcessorTest {
+public class BAMProcessorImplQueueTest {
 
-	Logger logger = LoggerFactory.getLogger(BAMProcessorTest.class);
+	Logger logger = LoggerFactory.getLogger(BAMProcessorImplQueueTest.class);
 	
 	@Test
 	public void test() throws Exception {

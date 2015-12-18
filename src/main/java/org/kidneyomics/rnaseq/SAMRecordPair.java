@@ -29,5 +29,32 @@ public class SAMRecordPair {
 		return mate1 != null && mate2 != null;
 	}
 	
+	public boolean isValidPair() {
+		if(mate1.getMateAlignmentStart() == mate2.getAlignmentStart()
+				&& mate2.getMateAlignmentStart() == mate1.getAlignmentStart() 
+				&& mate1.getReadName().equals(mate2.getReadName())) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param record
+	 * @return true if record added and false otherwise
+	 */
+	public boolean addPair(SAMRecord record) {
+		boolean result = true;
+		if(mate1 == null) {
+			mate1 = record;
+		} else if(mate2 == null) {
+			mate2 = record;
+		} else {
+			result = false;
+		}
+		return result;
+	}
+	
 	
 }

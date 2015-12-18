@@ -15,7 +15,7 @@ import htsjdk.samtools.SamPairUtil;
 import htsjdk.samtools.SamReader;
 import htsjdk.samtools.SamReaderFactory;
 
-public class BAMProcessorImplQueue implements AutoCloseable, BAMProcessor {
+public class BAMProcessorImplQueue implements BAMProcessor {
 
 	private SamReader reader;
 	private SAMRecordIterator iterator;

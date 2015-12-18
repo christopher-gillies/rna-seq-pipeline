@@ -1,5 +1,5 @@
 package org.kidneyomics.rnaseq;
 
-public interface BAMProcessor {
+public interface BAMProcessor extends AutoCloseable {
 	SAMRecordPair getNextReadPair();
 }
