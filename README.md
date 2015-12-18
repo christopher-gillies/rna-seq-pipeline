@@ -24,7 +24,7 @@ ___
 # Download
 
 ```
-wget https://github.com/christopher-gillies/rna-seq-pipeline/blob/master/release/rna-seq-pipeline-1.0.0.jar?raw=true
+wget -O rna-seq-pipeline-1.0.0.jar https://github.com/christopher-gillies/rna-seq-pipeline/blob/master/release/rna-seq-pipeline-1.0.0.jar?raw=true
 ```
 ___
 ___
