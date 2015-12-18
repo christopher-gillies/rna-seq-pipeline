@@ -346,6 +346,8 @@ public class MakeFileWriterTest {
 			
 			when(applicationOptionsMock.getGtf()).thenReturn(gtf.getAbsolutePath());
 			
+			when(applicationOptionsMock.getMaxEditDistance()).thenReturn(5);
+			
 			when(applicationOptionsMock.getOutputDirectory()).thenReturn("/tmp/test3/");
 			
 			when(applicationOptionsMock.getJarLocation()).thenReturn("/data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar");

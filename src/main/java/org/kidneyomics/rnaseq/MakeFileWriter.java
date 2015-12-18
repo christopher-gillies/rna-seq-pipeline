@@ -817,9 +817,10 @@ public class MakeFileWriter {
 			}
 			
 			String out = outputDir + "/gene.exon.counts.rpkm." + s.getSampleId() + ".gtf";
-			ST cmd = new ST("java -jar <app> --countReadsInExons --gtf <gtf> --fileIn <bam> --fileOut <out>");
+			ST cmd = new ST("java -jar <app> --countReadsInExons --maxEditDistance <dist> --gtf <gtf> --fileIn <bam> --fileOut <out>");
 			cmd.add("app", applicationOptions.getJarLocation())
 			.add("gtf", gtfIn)
+			.add("dist", applicationOptions.getMaxEditDistance())
 			.add("bam", s.getBamFiles().get(0).getBamFile())
 			.add("out", out);
 			
