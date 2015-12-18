@@ -474,6 +474,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 				
 		String chr = samRecordPair.getMate1().getReferenceName();
 		
+		//all features from the same chromosome
 		Feature[] features = chromosomeFeatures.get(chr);
 
 		/*

@@ -38,6 +38,50 @@ public class GTFFeatureUtil {
 	
 	/**
 	 * 
+	 * @param features
+	 * @return true if all have the same sequence name
+	 */
+	public static boolean sameChr(List<Feature> features) {
+		if(features.size() < 2) {
+			return true;
+		} else {
+			Iterator<Feature> iter = features.iterator();
+			Feature current = iter.next();
+			while(iter.hasNext()) {
+				Feature next = iter.next();
+				if(!next.seqname().equals(current.seqname())) {
+					return false;
+				}
+				current = next;
+			}
+			return true;
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @param features
+	 * @return true if all have the same sequence name
+	 */
+	public static boolean sameChr(Feature[] features) {
+		if(features.length < 2) {
+			return true;
+		} else {
+			for(int i = 0; i < features.length - 1; i++) {
+				Feature current = features[i];
+				Feature next = features[i + 1];
+				if(!next.seqname().equals(current.seqname())) {
+					return false;
+				}
+				current = next;
+			}
+			return true;
+		}
+	}
+	
+	/**
+	 * 
 	 * @param exons
 	 * @return true if the exons are sorted by the start location else false
 	 */

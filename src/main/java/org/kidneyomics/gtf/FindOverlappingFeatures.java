@@ -16,13 +16,13 @@ public class FindOverlappingFeatures {
 	 * @param target
 	 * @return the overlapping elements sorted
 	 */
-	private FeatureIntersectionComparator comparator = new FeatureIntersectionComparator();
+	private FeatureIntersectionComparatorIgnoreStrandAndChromosome comparator = new FeatureIntersectionComparatorIgnoreStrandAndChromosome();
 	public List<Feature> findOverlappingFeatures(Feature[] sortedFeatures, Feature target) {
 		
 		assert(sortedFeatures != null);
 		assert(GTFFeatureUtil.isSorted(sortedFeatures));
 		assert(GTFFeatureUtil.hasNoOverlapIgnoreStrand(sortedFeatures));
-		
+		assert(GTFFeatureUtil.sameChr(sortedFeatures));
 		List<Feature> result = new LinkedList<>();
 		if(target == null) {
 			return result;

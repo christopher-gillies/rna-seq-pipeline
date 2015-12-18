@@ -69,7 +69,7 @@ public class ExonQuantifier {
 			while( ( pair = processor.getNextReadPair()) != null) {
 				gTExFeatureCounter.count(pair);
 				pairsCounted++;
-				if(pairsCounted % 10000 == 0) {
+				if(pairsCounted % 100000 == 0) {
 					logger.info("Read pairs counted: " + pairsCounted);
 					gTExFeatureCounter.logInfo();
 				}
