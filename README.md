@@ -34,6 +34,7 @@ ___
 * Download Reference gene annotation: ftp://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz (http://feb2014.archive.ensembl.org/info/data/ftp/index.html)
 * Download Reference genome: ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz
 * The command below will generate a makefile in the specified output directory. The makefile contains the necessary commands for genome indexing, alignment, filtering, and duplicate marking
+* This pipeline follows the 2-pass approach mentioned in the GATK best practices: https://www.broadinstitute.org/gatk/guide/article?id=3891
 ```
 export PIPELINE=/path/to/rna-seq-pipeline/rna-seq-pipeline-1.0.0.jar
 export STAR=/data/RNA-Seq/11_18_2015/STAR/bin/Linux_x86_64_static/STAR
