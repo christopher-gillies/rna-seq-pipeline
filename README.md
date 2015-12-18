@@ -12,6 +12,14 @@
 
 [![Build Status](https://travis-ci.org/christopher-gillies/rna-seq-pipeline.svg?branch=master)](https://travis-ci.org/christopher-gillies/rna-seq-pipeline?branch=master)
 
+* This program generates a make file to process RNA-seq data. The methodology is similar to the GTEx methodology. There are a few differences. For example this program uses STAR aligner instead of Tophat.
+* This program starts with a list of fastq files and creates a series of BAM files using STAR aligner
+* The BAM files can then be quantified using flux capacitor or a read counting program. Both these programs output a series of gene expression matrices in terms of counts and RPKM that can be analyzed further.
+* To align samples you will need to download STAR aligner, picard tools, a reference gene annotation, and a reference genome. Currently, Ensembl and GENCODE are supported.
+* To quantify transcript expression you will need to install flux capacitor
+* To quantify exon and gene expression you just need the bam list produced from the alignment step
+* This program is implemented in Java using Spring Boot, Apache commons, HTSJDK, ANTLR String template and biojava 4.1.
+
 ___
 # Download
 
@@ -156,7 +164,7 @@ nohup make -j10 1> nohup.out 2> nohup.err &
 * exon.rpkm.txt	 -- a rpkm expression matrix for each exon and sample
 * gene.counts.txt -- a count expression matrix for each gene and sample
 * gene.rpkm.txt -- a rpkm expression matrix for each gene and sample
-* merged.stats.txt -- the statistics files merge for each sample
+* merged.stats.txt -- the statistics files merged for each sample
 
 
 
