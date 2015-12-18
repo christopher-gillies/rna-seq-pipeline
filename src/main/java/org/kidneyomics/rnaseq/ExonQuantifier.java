@@ -63,7 +63,7 @@ public class ExonQuantifier {
 		//Process BAM
 		File fin = new File(fileIn);
 		int pairsCounted = 0;
-		try(BAMProcessor processor = BAMProcessor.getBAMProcessor(fin)) {
+		try(BAMProcessorImplQueue processor = BAMProcessorImplQueue.getBAMProcessor(fin)) {
 			
 			SAMRecordPair pair = null;
 			while( ( pair = processor.getNextReadPair()) != null) {

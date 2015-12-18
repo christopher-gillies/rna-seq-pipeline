@@ -112,7 +112,7 @@ public class BAMProcessorTest {
 		System.out.println(lines);
 		
 		
-		try(BAMProcessor processor = BAMProcessor.getBAMProcessor(samOut).withLogSkipSize(1)) {
+		try(BAMProcessorImplQueue processor = BAMProcessorImplQueue.getBAMProcessor(samOut).withLogSkipSize(1)) {
 			SAMRecordPair pair = null;
 			int count = 0;
 			while( ( pair = processor.getNextReadPair()) != null) {
@@ -272,7 +272,7 @@ public class BAMProcessorTest {
 		System.out.println(lines);
 		
 		
-		try(BAMProcessor processor = BAMProcessor.getBAMProcessor(samOut)) {
+		try(BAMProcessorImplQueue processor = BAMProcessorImplQueue.getBAMProcessor(samOut)) {
 			SAMRecordPair pair = null;
 			int count = 0;
 			while( ( pair = processor.getNextReadPair()) != null) {
@@ -430,7 +430,7 @@ public class BAMProcessorTest {
 		System.out.println(lines);
 		
 		
-		try(BAMProcessor processor = BAMProcessor.getBAMProcessor(samOut)) {
+		try(BAMProcessorImplQueue processor = BAMProcessorImplQueue.getBAMProcessor(samOut)) {
 			SAMRecordPair pair = null;
 			int count = 0;
 			while( ( pair = processor.getNextReadPair()) != null) {
