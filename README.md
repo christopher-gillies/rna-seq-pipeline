@@ -76,7 +76,8 @@ nohup make -j 2 1> nohup.out 2> nohup.err &
 ```
 ##Files in output directory
 * $OUT/bam.list.txt -- a list of bam files
-* $OUT/SAMPLE_ID/final.bam in folder for each sample
+* $OUT/SAMPLE_ID/final.bam -- in folder for each sample
+* $OUT/STAR_RUN_STATS.txt -- a table containing all the statistics from the final STAR log for each sample
 
 ###Format of bam.list.txt
 ```
