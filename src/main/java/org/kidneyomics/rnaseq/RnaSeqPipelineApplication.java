@@ -108,6 +108,12 @@ public class RnaSeqPipelineApplication {
 	        	merger.mergeStatFiles();
 	        	break;
 	        }
+	        case MERGE_STAR_LOGS: {
+	        	logger.info("Merging statistics for all star logs");
+	        	STARLogMerger merger = context.getBean(STARLogMerger.class);
+	        	merger.readBamList();
+	        	break;
+	        }
 	        case ERROR: {
 	        	
 	        }

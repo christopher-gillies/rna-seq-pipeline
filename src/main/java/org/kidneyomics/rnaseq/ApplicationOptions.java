@@ -564,7 +564,7 @@ public class ApplicationOptions {
 				System.exit(1);
 			}
 			
-			result = Mode.MERGE_EXON_COUNTS_STATS;
+			result = Mode.MERGE_STAR_LOGS;
 		}
 		
 		return result;

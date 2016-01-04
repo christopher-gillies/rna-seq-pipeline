@@ -18,7 +18,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component()
 public class STARLogMerger {
 
 	//STAR
@@ -205,12 +207,15 @@ BIN	VALUE
 		
 		File bamList = new File(applicationOptions.getBamList());
 		List<String> lines = FileUtils.readLines(bamList);
+		logger.info("Reading bam list");
 		List<BAMInfo> infos = BAMInfo.getBAMInfoFromLines(lines);
 			
 		List<STARLog> logs = new LinkedList<>();
 		
+		logger.info("Parsing star logs");
 		for(BAMInfo info : infos) {
 			String filePath = info.getLog2();
+			logger.info("Reading log for " + info.getSampleId());
 			List<String> logLines = FileUtils.readLines(new File(filePath));
 			
 			//process lines
@@ -236,6 +241,7 @@ BIN	VALUE
 		BufferedWriter bf = Files.newBufferedWriter(p,Charset.defaultCharset());
 		
 		
+		logger.info("Writing outfile");
 		//Write header
 		bf.write("SampleId");
 		bf.write("\t");
@@ -262,6 +268,7 @@ BIN	VALUE
 		//close
 		bf.close();
 		
+		logger.info("finished");
 	}
 	
 	
