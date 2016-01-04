@@ -65,6 +65,8 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("mergeExonGtfs",false,"specify a gtf list and output directory to merge the results from countReadsInExons command");
 		options.addOption("mergeExonStatFiles",false,"merge the read count statistic files from countReadsInExons command");
 		
+		options.addOption("mergeSTARLogs",false,"merge the statistic files from starAligner command");
+		
 		
 		options.addOption("maxEditDistance",true,"The default for this is 6. This looks at the nH or NH tag for a read and will remove reads that have a value greater than the one specified here");
 		
@@ -110,6 +112,11 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 			applicationOptions.setMergeExonStatFiles(false);
 		}
 		
+		if(cmd.hasOption("mergeSTARLogs")) {
+			applicationOptions.setMergeSTARLogs(true);
+		} else {
+			applicationOptions.setMergeSTARLogs(false);
+		}
 		
 		if(cmd.hasOption("countReadsInAllSamples")) {
 			applicationOptions.setCountReadsInAllSamples(true);

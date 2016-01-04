@@ -40,6 +40,7 @@ public class ApplicationOptions {
 	private boolean mergeExonGtfs = false;
 	private boolean countReadsInAllSamples = false;
 	private boolean mergeExonStatFiles = false;
+	private boolean mergeSTARLogs = false;
 	
 	private int maxEditDistance = 6;
 	
@@ -65,12 +66,21 @@ public class ApplicationOptions {
 		COUNT_READS_IN_EXONS,
 		MERGE_EXON_COUNTS,
 		MERGE_EXON_COUNTS_STATS,
-		COUNT_READS_ALL_SAMPLES
+		COUNT_READS_ALL_SAMPLES,
+		MERGE_STAR_LOGS
 	}
 	
 	
 	
 	
+	public boolean isMergeSTARLogs() {
+		return mergeSTARLogs;
+	}
+
+	public void setMergeSTARLogs(boolean mergeSTARLogs) {
+		this.mergeSTARLogs = mergeSTARLogs;
+	}
+
 	public boolean isMergeExonStatFiles() {
 		return mergeExonStatFiles;
 	}
@@ -533,6 +543,19 @@ public class ApplicationOptions {
 			
 			if(StringUtils.isEmpty(getFileIn())) {
 				logger.error("please specify an input file. This should be a list of stat files. Two columns [ID]\t[STAT_FILE]");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileOut())) {
+				logger.error("please specify an output file. This is the merged matrix.");
+				System.exit(1);
+			}
+			
+			result = Mode.MERGE_EXON_COUNTS_STATS;
+		} else if(mergeSTARLogs) {
+			
+			if(StringUtils.isEmpty(getBamList())) {
+				logger.error("bam files cannot be empty when performing exon counting across samples");
 				System.exit(1);
 			}
 			
