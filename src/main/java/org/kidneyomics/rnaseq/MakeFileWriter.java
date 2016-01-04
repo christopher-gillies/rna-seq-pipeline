@@ -510,6 +510,30 @@ public class MakeFileWriter {
 		/*
 		 * 
 		 * 
+		 * 
+		 * Merge statistics command
+		 * 
+		 * 
+		 * 
+		 */
+		MakeEntry mergeStats = new MakeEntry();
+		mergeStats.setComment("Command to merge statistics from final log");
+		mergeStats.setTarget(dirBase + "/MERGE_STATS.OK");
+		mergeStats.addDependencies(make.getMakeEntries());
+		
+		ST mergeCmd = new ST("java -jar <app> --mergeSTARLogs --bamList <bamlist> --fileOut <out>");
+		mergeCmd.add("app", applicationOptions.getJarLocation());
+		mergeCmd.add("bamlist", dirBase + "bam.list.txt");
+		mergeCmd.add("out", dirBase + "STAR_RUN_STATS.txt");
+		mergeStats.addCommand(mergeCmd.render());
+		mergeStats.addCommand("touch $@");
+		
+		make.addMakeEntry(mergeStats);
+		
+		
+		/*
+		 * 
+		 * 
 		 * Write output data
 		 * 
 		 * 

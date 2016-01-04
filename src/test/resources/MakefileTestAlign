@@ -1,4 +1,4 @@
-all:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	/tmp/test/SAMPLE2.FIRST_PASS.OK	/tmp/test/SAMPLE1.FIRST_PASS.OK	/tmp/test/GENOME_REMOVED_FIRST_PASS.OK	/tmp/test/SECOND_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_SECOND_PASS.OK	/tmp/test/SAMPLE2.SECOND_PASS.OK	/tmp/test/SAMPLE1.SECOND_PASS.OK	/tmp/test/GENOME_REMOVED_SECOND_PASS.OK	/tmp/test/SAMPLE2_BAM_POLISH.OK	/tmp/test/SAMPLE1_BAM_POLISH.OK	/tmp/test/SAMPLE2_CLEAN_UP.OK	/tmp/test/SAMPLE1_CLEAN_UP.OK	
+all:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	/tmp/test/SAMPLE2.FIRST_PASS.OK	/tmp/test/SAMPLE1.FIRST_PASS.OK	/tmp/test/GENOME_REMOVED_FIRST_PASS.OK	/tmp/test/SECOND_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_SECOND_PASS.OK	/tmp/test/SAMPLE2.SECOND_PASS.OK	/tmp/test/SAMPLE1.SECOND_PASS.OK	/tmp/test/GENOME_REMOVED_SECOND_PASS.OK	/tmp/test/SAMPLE2_BAM_POLISH.OK	/tmp/test/SAMPLE1_BAM_POLISH.OK	/tmp/test/SAMPLE2_CLEAN_UP.OK	/tmp/test/SAMPLE1_CLEAN_UP.OK	/tmp/test/MERGE_STATS.OK	
 	touch $@.OK
 
 #Generate the genome for first pass alignment
@@ -83,5 +83,10 @@ all:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	
 	rm /tmp/test/SAMPLE1//Aligned.out.bam
 	rm /tmp/test/SAMPLE1//sorted.bam
 	rm /tmp/test/SAMPLE1//unique.bam
+	touch $@
+
+#Command to merge statistics from final log
+/tmp/test/MERGE_STATS.OK:	/tmp/test/FIRST_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_FIRST_PASS.OK	/tmp/test/SAMPLE2.FIRST_PASS.OK	/tmp/test/SAMPLE1.FIRST_PASS.OK	/tmp/test/GENOME_REMOVED_FIRST_PASS.OK	/tmp/test/SECOND_PASS_GENOME_INDEX.OK	/tmp/test/GENOME_LOADED_SECOND_PASS.OK	/tmp/test/SAMPLE2.SECOND_PASS.OK	/tmp/test/SAMPLE1.SECOND_PASS.OK	/tmp/test/GENOME_REMOVED_SECOND_PASS.OK	/tmp/test/SAMPLE2_BAM_POLISH.OK	/tmp/test/SAMPLE1_BAM_POLISH.OK	/tmp/test/SAMPLE2_CLEAN_UP.OK	/tmp/test/SAMPLE1_CLEAN_UP.OK	
+	java -jar /data/RNA-Seq/11_18_2015/rna-seq-pipeline/target/rna-seq-pipeline-0.0.1-SNAPSHOT.jar --mergeSTARLogs --bamList /tmp/testbam.list.txt --fileOut /tmp/testSTAR_RUN_STATS.txt
 	touch $@
 
