@@ -241,12 +241,12 @@ BIN	VALUE
 		BufferedWriter bf = Files.newBufferedWriter(p,Charset.defaultCharset());
 		
 		
-		logger.info("Writing outfile");
+		logger.info("Writing to " + outfile);
 		//Write header
 		bf.write("SampleId");
 		bf.write("\t");
 		bf.write(StringUtils.join(header, '\t'));
-		bf.write("\t");
+		bf.write("\n");
 		
 		
 		//Write lines
@@ -262,7 +262,7 @@ BIN	VALUE
 					bf.write("\t");
 				}
 			}
-			
+			bf.write("\n");
 		}
 		
 		//close
