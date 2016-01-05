@@ -8,7 +8,7 @@ public class MaxAlignmentDistanceFilter implements SAMRecordPairFilter {
 		this.max = max;
 	}
 	/**
-	 * return true if the alignment distance is less than max
+	 * return true if the alignment distance is less than or equal to max
 	 */
 	@Override
 	public boolean keep(SAMRecordPair pair) {

@@ -56,5 +56,17 @@ public class SAMRecordPair {
 		return result;
 	}
 	
+	//Swap mates if not in correct order
+	public void reorderMates() {
+		if(bothPairsAligned()) {
+			SAMRecord tmp = null;
+			if(!mate1.getFirstOfPairFlag()) {
+				tmp = mate1;
+				mate1 = mate2;
+				mate2 = tmp;
+			}
+		}
+	}
+	
 	
 }
