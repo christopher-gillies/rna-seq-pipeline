@@ -32,6 +32,7 @@ public class ApplicationOptions {
 	private String expressionMatrix;
 	private String fileIn;
 	private String fileOut;
+	private boolean help = false;
 	private boolean findUniqueMappedReads = false;
 	private boolean noSharedMemory = false;
 	private boolean outCounts = true;
@@ -71,7 +72,8 @@ public class ApplicationOptions {
 		MERGE_EXON_COUNTS_STATS,
 		COUNT_READS_ALL_SAMPLES,
 		MERGE_STAR_LOGS,
-		MAP_EXPRESSION_IDS
+		MAP_EXPRESSION_IDS,
+		HELP
 	}
 	
 	
@@ -587,6 +589,8 @@ public class ApplicationOptions {
 			}
 			
 			result = Mode.MAP_EXPRESSION_IDS;
+		} else if(help) {
+			result = Mode.HELP;
 		}
 		
 		this.mode = result;
@@ -624,6 +628,15 @@ public class ApplicationOptions {
 	public void setMapExpressionIds(boolean mapExpressionIds) {
 		this.mapExpressionIds = mapExpressionIds;
 	}
+
+	public boolean isHelp() {
+		return help;
+	}
+
+	public void setHelp(boolean help) {
+		this.help = help;
+	}
+	
 	
 	
 	

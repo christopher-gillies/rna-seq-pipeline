@@ -76,7 +76,7 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		options.addOption("fileIn",true,"the input file for finding unique mapping reads");
 		options.addOption("fileOut",true,"the output file after finding unique mapping reads");
-		options.addOption("findUniqueMappedReads",false,"finds the reads that are uniquely mapped");
+		options.addOption("findUniqueMappedReads",false,"finds the reads that are uniquely mapped. This removes reads whose mapping quality is not 255.");
 		
 		options.addOption("outRPKM",false,"output the RPKM");
 		options.addOption("outGeneExpressionMatrix",false,"output a gene expression matrix from flux capacitor gtf list");
@@ -99,6 +99,9 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		if(cmd.hasOption("help")) {
 			printHelp(options);
+			applicationOptions.setHelp(true);
+		} else {
+			applicationOptions.setHelp(false);
 		}
 		
 		if(cmd.hasOption("outRPKM")) {

@@ -91,6 +91,9 @@ public class RnaSeqPipelineApplication {
 	        	logger.info("Remapping expression ids");
 	        	command = context.getBean(MapIdentifiersForExpressionMatrix.class);
 	        	break;
+	        case HELP:
+	        	//logger.info("Showing help");
+	        	command = context.getBean(DoNothingApplicationCommand.class);
 	        case ERROR: {
 	        	
 	        }
