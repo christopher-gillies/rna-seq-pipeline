@@ -186,7 +186,8 @@ ___
 * this function is useful if you need to change the sample ids from the expression matrix to new values
 * you need to specify the expression matrix that you want to relabel (--expressionMatrix)
 * you need to specify the new path of the expression matrix after relabeling (--fileOut)
-* lastly, you need to specify a two column tab seprated file (--fileIn), where first column is the old id and the second column is the new id. Each line is a separate mapping
+* lastly, you need to specify a two column tab seprated file (--fileIn), where first column is the old id and the second column is the new id. Each line is a separate mapping.
+* This command works by constructing a dictionary mapping between the old ids and the new ids. If you only specify a single id mapping, then this command will only relabel the single sample and all other ids will remain the same.
 
 ```
 export OUT=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/
