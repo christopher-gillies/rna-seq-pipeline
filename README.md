@@ -168,7 +168,18 @@ nohup make -j10 1> nohup.out 2> nohup.err &
 * gene.rpkm.txt -- a rpkm expression matrix for each gene and sample
 * merged.stats.txt -- the statistics files merged for each sample
 
+___
+___
 
+#Find uniquely mapped reads in a STAR-aligned BAM
+```
+export PIPELINE=/path/to/rna-seq-pipeline/rna-seq-pipeline-1.0.0.jar
+export FILE_IN=/path/to/bam
+export FILE_OUT=/path/to/newbam
+java -jar $PIPELINE --findUniqueMappedReads --fileIn $FILE_IN --fileOut $FILE_OUT
+```
+___
+___
 
 #Other
 banner generated at http://patorjk.com/software/taag/
