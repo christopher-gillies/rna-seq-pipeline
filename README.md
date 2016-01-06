@@ -182,5 +182,29 @@ java -jar $PIPELINE --findUniqueMappedReads --fileIn $FILE_IN --fileOut $FILE_OU
 ___
 ___
 
+#Relabel expression matrix
+* this function is useful if you need to change the sample ids from the expression matrix to new values
+* you need to specify the expression matrix that you want to relabel (--expressionMatrix)
+* you need to specify the new path of the expression matrix after relabeling (--fileOut)
+* lastly, you need to specify a two column tab seprated file (--fileIn), where first column is the old id and the second column is the new id. Each line is a separate mapping
+
+```
+export OUT=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/
+export IN_FILE=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/ID_MAP_FOR_EXPRESSION.txt
+export EXPRESSION_MATRIX=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/EXON_COUNTS/gene.rpkm.txt
+export OUT_FILE=$OUT/EXON_COUNTS//reheader.gene.rpkm.txt
+export PIPELINE=/net/wonderland/home/cgillies/programs/rna-seq-pipeline/release/rna-seq-pipeline-1.0.0.jar
+java -jar $PIPELINE --mapExpressionIds --fileIn $IN_FILE --expressionMatrix $EXPRESSION_MATRIX --fileOut $OUT_FILE
+```
+##Here is the --fileIn format for this command
+```
+OLD_ID1 NEW_ID1
+OLD_ID2 NEW_ID2
+OLD_ID3 NEW_ID3
+OLD_ID4 NEW_ID4
+```
+___
+___
+
 #Other
 banner generated at http://patorjk.com/software/taag/
