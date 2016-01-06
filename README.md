@@ -172,6 +172,7 @@ ___
 ___
 
 #Find uniquely mapped reads in a STAR-aligned BAM
+* to use this function, just download the release jar file and specify the input and output bam file names as described below
 ```
 export PIPELINE=/path/to/rna-seq-pipeline/rna-seq-pipeline-1.0.0.jar
 export FILE_IN=/path/to/bam
