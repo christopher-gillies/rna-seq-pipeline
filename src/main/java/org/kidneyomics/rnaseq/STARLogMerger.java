@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component()
-public class STARLogMerger {
+public class STARLogMerger implements ApplicationCommand {
 
 	//STAR
 	
@@ -270,11 +270,9 @@ BIN	VALUE
 		
 		logger.info("finished");
 	}
-	
-	
-	
-	
-	
-	
-	
+
+	@Override
+	public void doWork() throws Exception {
+		readBamList();
+	}
 }

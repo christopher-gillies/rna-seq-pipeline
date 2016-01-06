@@ -16,13 +16,16 @@ import htsjdk.samtools.SamReaderFactory;
 
 
 @Component
-public class UniqueMappingFilter {
+public class UniqueMappingFilter implements ApplicationCommand {
 
+	ApplicationOptions applicationOptions;
+	
 	Logger logger;
 	
 	@Autowired
-	public UniqueMappingFilter(LoggerService loggerService) {
+	public UniqueMappingFilter(LoggerService loggerService, ApplicationOptions applicationOptions) {
 		logger = loggerService.getLogger(this);
+		this.applicationOptions = applicationOptions;
 	}
 	
 	public void filter(File in, File out) throws IOException {
@@ -64,5 +67,12 @@ public class UniqueMappingFilter {
 		
 		logger.info("Found " + uniqueReads + " uniquely mapped records");
 		
+	}
+
+	@Override
+	public void doWork() throws Exception {
+    	File in = new File(applicationOptions.getFileIn());
+    	File out = new File(applicationOptions.getFileOut());
+    	this.filter(in,out);
 	}
 }

@@ -11,6 +11,8 @@ import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMRecordIterator;
 import static org.mockito.Mockito.*;
 
+import java.io.UnsupportedEncodingException;
+
 public class UniqueMappingFilterTest {
 
 	@Test
@@ -20,7 +22,9 @@ public class UniqueMappingFilterTest {
 		Logger logger = LoggerFactory.getLogger(UniqueMappingFilterTest.class);
 		when(loggerService.getLogger(anyObject())).thenReturn(logger);
 		
-		UniqueMappingFilter filter = new UniqueMappingFilter(loggerService);
+		ApplicationOptions applicationOptions = new ApplicationOptions(loggerService);
+		
+		UniqueMappingFilter filter = new UniqueMappingFilter(loggerService, applicationOptions);
 		
 		SAMRecordIterator iterator = mock(SAMRecordIterator.class);
 		

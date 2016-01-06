@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class ExonQuantifier {
+public class ExonQuantifier implements ApplicationCommand {
 
 	
 	@Autowired
@@ -101,6 +101,12 @@ public class ExonQuantifier {
 		
 		//Log statistics
 		ReadMappingStatisticsLogger.writeStats(new File(fileOut + ".stats"), gTExFeatureCounter);
+	}
+
+
+	@Override
+	public void doWork() throws Exception {
+		quantify();
 	}
 	
 	

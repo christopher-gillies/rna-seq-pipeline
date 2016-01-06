@@ -72,6 +72,8 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		options.addOption("fluxQuantifyMode",true,"This parameter is used for flux capacitor. The default is PAIRED. Here are other options: AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED");
 		
+		options.addOption("expressionMatrix",true,"the input file that specifies the location of an expression matrix");
+		
 		options.addOption("fileIn",true,"the input file for finding unique mapping reads");
 		options.addOption("fileOut",true,"the output file after finding unique mapping reads");
 		options.addOption("findUniqueMappedReads",false,"finds the reads that are uniquely mapped");
@@ -80,6 +82,9 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("outGeneExpressionMatrix",false,"output a gene expression matrix from flux capacitor gtf list");
 		options.addOption("outTranscriptExpressionMatrix",false,"output a transcript expression matrix from flux capacitor gtf list");
 		options.addOption("outTranscriptRatioMatrix",false,"output a transcript ratio expression matrix from flux results. For each sample you will have the transcript expression / total expression across the gene the transcript comes from");
+		
+		
+		options.addOption("mapExpressionIds",false,"map the expression sample ids to new values. specify the fileIn option with a file containing a tab separated line for each sample that you want to remap: OLD_ID\tNEW_ID");
 		
 		logger.info(StringUtils.arrayToCommaDelimitedString(args));
 		
@@ -123,6 +128,14 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		} else {
 			applicationOptions.setCountReadsInAllSamples(false);
 		}
+		
+		
+		if(cmd.hasOption("mapExpressionIds")) {
+			applicationOptions.setMapExpressionIds(true);
+		} else {
+			applicationOptions.setMapExpressionIds(false);
+		}
+		
 		
 		if(cmd.hasOption("maxEditDistance")) {
 			applicationOptions.setMaxEditDistance(Integer.parseInt(cmd.getOptionValue("maxEditDistance")));
@@ -217,6 +230,10 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 			applicationOptions.setNumThreadsAlign(cmd.getOptionValue("numberOfThreadsForAlign"));
 		}
 		
+		
+		if(cmd.hasOption("expressionMatrix")) {
+			applicationOptions.setExpressionMatrix(cmd.getOptionValue("expressionMatrix"));
+		}
 		
 		if(cmd.hasOption("fileIn")) {
 			applicationOptions.setFileIn(cmd.getOptionValue("fileIn"));

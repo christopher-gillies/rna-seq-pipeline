@@ -44,79 +44,62 @@ public class RnaSeqPipelineApplication {
         
         try {
 	        Mode mode = applicationOptions.validateOptions();
-			
+			ApplicationCommand command = null;
+	        
 	        switch(mode) {
 	        
+	        case COUNT_READS_ALL_SAMPLES:
+	        case FLUX_CAPACITOR:
 	        case ALIGN: {
 	        	logger.info("Creating makefile for alignment");
-	        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
-	        	makeFileWriter.writeMakeFile(mode);
+	        	command = context.getBean(MakeFileWriter.class);
 	        	break;
 	        }
 	        case FIND_UNIQUE_MAPPED_READS: {
 	        	logger.info("Removing multimapped reads");
-	        	UniqueMappingFilter filter = context.getBean(UniqueMappingFilter.class);
-	        	File in = new File(applicationOptions.getFileIn());
-	        	File out = new File(applicationOptions.getFileOut());
-	        	filter.filter(in,out);
+	        	command = context.getBean(UniqueMappingFilter.class);
 	        	break;
 	        }
-	        case FLUX_CAPACITOR: {
-	        	logger.info("Creating makefile for transcript deconvolution");
-	        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
-	        	makeFileWriter.writeMakeFile(mode);
-	        	break;
-	        }
-	        case GENE_EXPRESSION_MATRIX: {
-	        	logger.info("Creating gene expression matrix");
-	        	FluxMerge fluxMerge = context.getBean(FluxMerge.class);
-	        	fluxMerge.writeGeneMatrix();
-	        	break;
-	        }
-	        case TRANSCRIPT_EXPRESSION_MATRIX: {
-	        	logger.info("Creating transcript expression matrix");
-	        	FluxMerge fluxMerge = context.getBean(FluxMerge.class);
-	        	fluxMerge.writeTranscriptMatrix();
-	        	break;
-	        }
+	        case TRANSCRIPT_EXPRESSION_MATRIX:
 	        case TRANSCRIPT_RATIO_MATRIX:
-	        	logger.info("Creating transcript ratio matrix");
-	        	FluxMerge fluxMerge = context.getBean(FluxMerge.class);
-	        	fluxMerge.writeTranscriptRatioMatrix();
+	        case GENE_EXPRESSION_MATRIX: {
+	        	logger.info("Running flux merge");
+	        	command = context.getBean(FluxMerge.class);
 	        	break;
+	        }
 	        case COUNT_READS_IN_EXONS: {
 	        	logger.info("Counting read pairs in exons");
-	        	ExonQuantifier exonQuantifier = context.getBean(ExonQuantifier.class);
-	        	exonQuantifier.quantify();
+	        	command = context.getBean(ExonQuantifier.class);
 	        	break;
 	        }
 	        case MERGE_EXON_COUNTS: {
 	        	logger.info("Merging exon gtf count files");
-	        	ExonMerge exm = context.getBean(ExonMerge.class);
-	        	exm.writeOutMatrices();
-	        	break;
-	        }
-	        case COUNT_READS_ALL_SAMPLES: {
-	        	logger.info("Creating makefile to count all reads across samples");
-	        	MakeFileWriter makeFileWriter = context.getBean(MakeFileWriter.class);
-	        	makeFileWriter.writeMakeFile(mode);
+	        	command = context.getBean(ExonMerge.class);
 	        	break;
 	        }
 	        case MERGE_EXON_COUNTS_STATS: {
 	        	logger.info("Merging statistics for all exon counts");
-	        	ReadCountStatMerger merger = context.getBean(ReadCountStatMerger.class);
-	        	merger.mergeStatFiles();
+	        	command = context.getBean(ReadCountStatMerger.class);
 	        	break;
 	        }
 	        case MERGE_STAR_LOGS: {
 	        	logger.info("Merging statistics for all star logs");
-	        	STARLogMerger merger = context.getBean(STARLogMerger.class);
-	        	merger.readBamList();
+	        	command = context.getBean(STARLogMerger.class);
 	        	break;
 	        }
+	        case MAP_EXPRESSION_IDS:
+	        	logger.info("Remapping expression ids");
+	        	command = context.getBean(MapIdentifiersForExpressionMatrix.class);
+	        	break;
 	        case ERROR: {
 	        	
 	        }
+	        }
+	        
+	        if(command != null) {
+	        	command.doWork();
+	        } else {
+	        	throw new Exception("No command selected");
 	        }
         } catch(Exception e) {
         	logger.error(e.getMessage());

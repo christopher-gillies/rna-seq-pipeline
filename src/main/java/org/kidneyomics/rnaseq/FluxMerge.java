@@ -19,6 +19,7 @@ import org.kidneyomics.gtf.GTFReader;
 import org.kidneyomics.gtf.GeneLengthQuantifier;
 import org.kidneyomics.gtf.TranscriptLengthQuantifier;
 import org.kidneyomics.gtf.VersionTrimmer;
+import org.kidneyomics.rnaseq.ApplicationOptions.Mode;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.biojava.nbio.genome.parsers.gff.Feature;
 
 @Component
-public class FluxMerge {
+public class FluxMerge implements ApplicationCommand {
 	/**
 	 * This class will perform the merging of the individual gtf files into a matrix
 	 * Also there will be options for read-level, rpkm, gene-level
@@ -281,5 +282,29 @@ public class FluxMerge {
 			this.transcriptQuantificationResult = transcriptQuantificationResult;
 			this.transcriptRatios = transcriptRatios;
 		}
+	}
+
+	@Override
+	public void doWork() throws Exception {
+		Mode mode = applicationOptions.getMode();
+		switch(mode) {
+		case GENE_EXPRESSION_MATRIX: {
+        	logger.info("Creating gene expression matrix");
+        	this.writeGeneMatrix();
+        	break;
+        }
+        case TRANSCRIPT_EXPRESSION_MATRIX: {
+        	logger.info("Creating transcript expression matrix");
+        	this.writeTranscriptMatrix();
+        	break;
+        }
+        case TRANSCRIPT_RATIO_MATRIX:
+        	logger.info("Creating transcript ratio matrix");
+        	this.writeTranscriptRatioMatrix();
+        	break;
+        	default:
+        		throw new IllegalArgumentException(mode + " not supported");
+		}
+		
 	}
 }

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public class ExonMerge {
+public class ExonMerge implements ApplicationCommand {
 
 	
 	private ApplicationOptions applicationOptions;
@@ -155,6 +155,11 @@ public class ExonMerge {
 			default:
 				throw new IllegalStateException(type + " not supported");
 		}
+	}
+
+	@Override
+	public void doWork() throws Exception {
+		writeOutMatrices();
 	}
 	
 	

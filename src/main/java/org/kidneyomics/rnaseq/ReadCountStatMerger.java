@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReadCountStatMerger {
+public class ReadCountStatMerger implements ApplicationCommand {
 
 	private ApplicationOptions applicationOptions;
 	
@@ -110,5 +110,10 @@ public class ReadCountStatMerger {
 			return this.id.compareTo(o.id);
 		}
 		
+	}
+
+	@Override
+	public void doWork() throws Exception {
+		mergeStatFiles();
 	}
 }

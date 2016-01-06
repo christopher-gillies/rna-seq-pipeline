@@ -28,6 +28,8 @@ public class ApplicationOptions {
 	private String picard;
 	private String numThreadsAlign = "1";
 	private String jarLocation;
+	private String lastNonSampleColInExpressionMatrix = "strand";
+	private String expressionMatrix;
 	private String fileIn;
 	private String fileOut;
 	private boolean findUniqueMappedReads = false;
@@ -41,7 +43,8 @@ public class ApplicationOptions {
 	private boolean countReadsInAllSamples = false;
 	private boolean mergeExonStatFiles = false;
 	private boolean mergeSTARLogs = false;
-	
+	private boolean mapExpressionIds = false;
+	private Mode mode = null;
 	private int maxEditDistance = 6;
 	
 	private String fluxCapacitorQuantifyMode = "PAIRED"; //--printParameters AUTO, SINGLE, PAIRED, SINGLE_STRANDED, PAIRED_STRANDED
@@ -50,7 +53,7 @@ public class ApplicationOptions {
 	
 	
 	@Autowired
-	ApplicationOptions(LoggerService loggerService) throws UnsupportedEncodingException {
+	ApplicationOptions(LoggerService loggerService) {
 		this.logger = loggerService.getLogger(this);
 		jarLocation =  new ApplicationHome(ApplicationOptions.class).getSource().getAbsolutePath();
 	}
@@ -67,7 +70,8 @@ public class ApplicationOptions {
 		MERGE_EXON_COUNTS,
 		MERGE_EXON_COUNTS_STATS,
 		COUNT_READS_ALL_SAMPLES,
-		MERGE_STAR_LOGS
+		MERGE_STAR_LOGS,
+		MAP_EXPRESSION_IDS
 	}
 	
 	
@@ -565,10 +569,62 @@ public class ApplicationOptions {
 			}
 			
 			result = Mode.MERGE_STAR_LOGS;
+		} else if(mapExpressionIds) {
+			
+			if(StringUtils.isEmpty(getFileIn())) {
+				logger.error("please specify an input file. This should be a list of old its and new ids. Two columns [OLD_ID]\t[NEW_ID]");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getExpressionMatrix())) {
+				logger.error("the expression matrix that you wish to remap ids for");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileOut())) {
+				logger.error("please specify an output file. The expression matrix with new sample ids");
+				System.exit(1);
+			}
+			
+			result = Mode.MAP_EXPRESSION_IDS;
 		}
 		
+		this.mode = result;
 		return result;
 	}
+
+	public Mode getMode() {
+		return mode;
+	}
+
+	public void setMode(Mode mode) {
+		this.mode = mode;
+	}
+
+	public String getExpressionMatrix() {
+		return expressionMatrix;
+	}
+
+	public void setExpressionMatrix(String expressionMatrix) {
+		this.expressionMatrix = expressionMatrix;
+	}
+
+	public String getLastNonSampleColInExpressionMatrix() {
+		return lastNonSampleColInExpressionMatrix;
+	}
+
+	public void setLastNonSampleColInExpressionMatrix(String lastNonSampleColInExpressionMatrix) {
+		this.lastNonSampleColInExpressionMatrix = lastNonSampleColInExpressionMatrix;
+	}
+
+	public boolean isMapExpressionIds() {
+		return mapExpressionIds;
+	}
+
+	public void setMapExpressionIds(boolean mapExpressionIds) {
+		this.mapExpressionIds = mapExpressionIds;
+	}
+	
 	
 	
 }

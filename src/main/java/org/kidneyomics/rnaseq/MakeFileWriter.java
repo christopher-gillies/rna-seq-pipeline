@@ -22,7 +22,7 @@ import org.stringtemplate.v4.ST;
 import htsjdk.samtools.util.RuntimeEOFException;
 
 @Component
-public class MakeFileWriter {
+public class MakeFileWriter implements ApplicationCommand {
 
 	@Autowired
 	ApplicationOptions applicationOptions;
@@ -32,6 +32,13 @@ public class MakeFileWriter {
 	@Autowired
 	MakeFileWriter(LoggerService loggerService) {
 		this.logger = loggerService.getLogger(this);
+	}
+	
+	
+	@Override
+	public void doWork() throws Exception {
+		Mode mode = applicationOptions.getMode();
+		writeMakeFile(mode);
 	}
 	
 	public void writeMakeFile(Mode mode) throws Exception {
@@ -942,5 +949,5 @@ public class MakeFileWriter {
 			return StringUtils.arrayToDelimitedString(new String[] { id, finalBam, finalLogPass1, finalLogPass2, sjdb1, sjdb2, dupMetrics  }, "\t");
 		}
 	}
-	
+
 }
