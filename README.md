@@ -20,6 +20,7 @@
 * To quantify exon and gene expression you just need the bam list produced from the alignment step
 * This program is implemented in Java using Spring Boot, Apache commons, HTSJDK, ANTLR String template and biojava 4.1.
 * Please make sure you have java 1.7 or later installed for this program to work
+
 ___
 # Download
 
