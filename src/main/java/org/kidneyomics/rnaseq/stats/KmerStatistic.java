@@ -3,6 +3,7 @@ package org.kidneyomics.rnaseq.stats;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import htsjdk.samtools.SAMRecord;
 
@@ -13,7 +14,7 @@ import htsjdk.samtools.SAMRecord;
  */
 class KmerStatistic extends AbstractReadPairStatistic {
 
-	private final HashMap<String,Integer> kmerCount;
+	private final Map<String,Integer> kmerCount;
 	private final int k;
 	
 	public KmerStatistic(int k) {
@@ -24,10 +25,14 @@ class KmerStatistic extends AbstractReadPairStatistic {
 	
 	@Override
 	protected void addRecord(SAMRecord record) {
-		String bases = record.getBaseQualityString();
-		for(int i = 0; i < bases.length() - k + 1; i++) {
-			//end position is exclusive
-			String kmer = bases.substring(i, i + k);
+		
+		//get read string
+		String bases = record.getReadString();
+		
+		//check all kmers of length k
+		KmerIterator iter = new KmerIterator(k, bases);
+		while(iter.hasNext()) {
+			String kmer = iter.next();
 			if(kmerCount.containsKey(kmer)) {
 				int val = kmerCount.get(kmer);
 				kmerCount.put(kmer, val + 1);
@@ -35,6 +40,7 @@ class KmerStatistic extends AbstractReadPairStatistic {
 				kmerCount.put(kmer, 1);
 			}
 		}
+
 	}
 
 	@Override
@@ -45,7 +51,7 @@ class KmerStatistic extends AbstractReadPairStatistic {
 			double val = kmerCount.get(fields[i]);
 			results.add(val);
 		}
-		return null;
+		return results;
 	}
 
 	@Override
@@ -54,5 +60,5 @@ class KmerStatistic extends AbstractReadPairStatistic {
 		kmerCount.keySet().toArray(fields);
 		return fields;
 	}
-
+	
 }

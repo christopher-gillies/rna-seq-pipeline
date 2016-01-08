@@ -3,8 +3,6 @@ package org.kidneyomics.rnaseq;
 
 
 
-import java.io.File;
-
 import org.kidneyomics.rnaseq.ApplicationOptions.Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
