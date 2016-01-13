@@ -92,6 +92,11 @@ public class RnaSeqPipelineApplication {
 	        case HELP:
 	        	//logger.info("Showing help");
 	        	command = context.getBean(DoNothingApplicationCommand.class);
+	        	break;
+	        case BAM_STATS: {
+	        	command = context.getBean(ReadStatCalculator.class);
+	        	break;
+	        }
 	        case ERROR: {
 	        	
 	        }
