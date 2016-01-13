@@ -7,6 +7,8 @@ import java.util.Map;
 import org.kidneyomics.rnaseq.SAMRecordPair;
 
 public interface ReadPairStatistic {
+	
+	
 	void addReadPair(SAMRecordPair pair);
 	
 	/**
@@ -29,4 +31,6 @@ public interface ReadPairStatistic {
 	
 	void appendStatistic(Appendable appendable) throws IOException;
 	void appendHeader(Appendable appendable) throws IOException;
+	
+	
 }

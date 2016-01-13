@@ -18,7 +18,9 @@ class InsertSizeStatistic extends AbstractReadPairStatistic {
 	
 	@Override
 	public void addReadPair(org.kidneyomics.rnaseq.SAMRecordPair pair) {
-		meanAndVarCalc.add(pair.getMate1().getInferredInsertSize());
+		
+		pair.reorderMatesByCoordinate();
+		meanAndVarCalc.add(pair.getMate2().getAlignmentStart() - pair.getMate1().getAlignmentEnd());
 	}
 	
 	@Override
@@ -36,7 +38,6 @@ class InsertSizeStatistic extends AbstractReadPairStatistic {
 
 	@Override
 	protected String[] getFields() {
-		// TODO Auto-generated method stub
 		return fields;
 	}
 

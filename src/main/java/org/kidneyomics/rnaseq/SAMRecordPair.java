@@ -57,10 +57,10 @@ public class SAMRecordPair {
 	}
 	
 	//Swap mates if not in correct order
-	public void reorderMates() {
+	public void reorderMatesByCoordinate() {
 		if(bothPairsAligned()) {
 			SAMRecord tmp = null;
-			if(!mate1.getFirstOfPairFlag()) {
+			if(mate1.getAlignmentStart() > mate2.getAlignmentStart()) {
 				tmp = mate1;
 				mate1 = mate2;
 				mate2 = tmp;

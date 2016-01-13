@@ -57,6 +57,7 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("numberOfThreadsForFlux",true,"the number of threads to use for flux capacitor. Default is 2");
 		options.addOption("fluxCapacitor",true,"the path to the fluxcapacitor program");
 		options.addOption("countReadsInExons",false,"count all the reads in a bam file and output the results in a gtf file");
+		options.addOption("computeBamStatistics",false,"compute various bam statistics for an input bam");
 		options.addOption("logReads",true,"file path for a log file. This file will contain information about non-mapped reads.");
 		
 		options.addOption("countReadsInAllSamples",false,"count all the reads for samples in a bam list and merge the results. must also specify a gtf annotation and output dir");
@@ -137,6 +138,12 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 			applicationOptions.setMapExpressionIds(true);
 		} else {
 			applicationOptions.setMapExpressionIds(false);
+		}
+		
+		if(cmd.hasOption("computeBamStatistics")) {
+			applicationOptions.setBamStats(true);
+		} else {
+			applicationOptions.setBamStats(false);
 		}
 		
 		
