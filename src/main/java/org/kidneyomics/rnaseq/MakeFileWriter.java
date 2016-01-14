@@ -553,7 +553,7 @@ public class MakeFileWriter implements ApplicationCommand {
 		
 		for(SampleData sampleData : sampleMap.values()) {
 			MakeEntry bamStats = new MakeEntry();
-			bamStats.addDependency(bamStats);
+			bamStats.addDependency(sampleData.polishEntry);
 			bamStats.setComment("Computing defaults bam statistics for " + sampleData.id);
 			bamStats.setTarget(sampleData.pass2Dir + "/BAM_STATS.OK");
 			
