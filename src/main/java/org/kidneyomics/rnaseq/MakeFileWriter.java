@@ -184,7 +184,7 @@ public class MakeFileWriter implements ApplicationCommand {
 			ST firstPassAlign = new ST("<star> --genomeDir <genomeDir> <genomeLoad> --readFilesIn <files> --readFilesCommand <uncompress> --outFileNamePrefix <outdir> --outSJfilterCountUniqueMin 4 2 2 2 --outSJfilterCountTotalMin 4 2 2 2 --runThreadN <n> --outSAMtype BAM Unsorted");
 			firstPassAlign.add("star", applicationOptions.getStar());
 			firstPassAlign.add("genomeDir", genomeOutDir);
-			firstPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), " "));
+			firstPassAlign.add("files", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), ","));
 			firstPassAlign.add("uncompress", applicationOptions.getUncompressCommand());
 			firstPassAlign.add("outdir", sampleDir);
 			firstPassAlign.add("n", applicationOptions.getNumThreadsAlign());
@@ -557,10 +557,15 @@ public class MakeFileWriter implements ApplicationCommand {
 			bamStats.setComment("Computing defaults bam statistics for " + sampleData.id);
 			bamStats.setTarget(sampleData.pass2Dir + "/BAM_STATS.OK");
 			
+			sampleData.bamStatsFile = sampleData.pass2Dir  + "/final.bam.stats";
+			
 			ST bamStatsCmd = new ST("java -jar <app> --computeBamStatistics --fileIn <in> --fileOut <out>");
 			bamStatsCmd.add("app", applicationOptions.getJarLocation());
-			bamStatsCmd.add("in", sampleData.pass2Dir  + "/final.bam");
-			bamStatsCmd.add("out", sampleData.pass2Dir  + "/final.bam.stats");
+			bamStatsCmd.add("in", sampleData.finalBam);
+			bamStatsCmd.add("out", sampleData.bamStatsFile);
+			
+		
+			
 			
 			bamStats.addCommand(bamStatsCmd.render());
 			bamStats.addCommand("touch $@");
@@ -973,12 +978,13 @@ public class MakeFileWriter implements ApplicationCommand {
 		String sjdb1;
 		String sjdb2;
 		String dupMetrics;
+		String bamStatsFile;
 		MakeEntry polishDependency;
 		MakeEntry cleanUpDependency;
 		MakeEntry polishEntry;
 		
 		public String toLine() {
-			return StringUtils.arrayToDelimitedString(new String[] { id, finalBam, finalLogPass1, finalLogPass2, sjdb1, sjdb2, dupMetrics  }, "\t");
+			return StringUtils.arrayToDelimitedString(new String[] { id, finalBam, finalLogPass1, finalLogPass2, sjdb1, sjdb2, dupMetrics, bamStatsFile  }, "\t");
 		}
 	}
 

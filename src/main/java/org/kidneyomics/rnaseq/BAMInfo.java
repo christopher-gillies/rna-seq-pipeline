@@ -12,6 +12,7 @@ class BAMInfo {
 	String splice1;
 	String splice2;
 	String dupmetrics;
+	String bamStats;
 	
 	private BAMInfo() {
 		
@@ -30,7 +31,7 @@ class BAMInfo {
 	static BAMInfo getBAMInfoFromLine(String line) {
 		String[] cols = line.split("\t");
 		BAMInfo b = new BAMInfo();
-		if(cols.length != 7) {
+		if(cols.length != 8) {
 			throw new RuntimeException("bamlist is not properly formatted");
 		} else {
 			b.sampleId = cols[0];
@@ -40,6 +41,7 @@ class BAMInfo {
 			b.splice1 = cols[4];
 			b.splice2 = cols[5];
 			b.dupmetrics = cols[6];
+			b.bamStats = cols[7];
 		}
 		return b;
 	}
@@ -112,6 +114,16 @@ class BAMInfo {
 
 	public void setDupmetrics(String dupmetrics) {
 		this.dupmetrics = dupmetrics;
+	}
+
+
+	String getBamStats() {
+		return bamStats;
+	}
+
+
+	void setBamStats(String bamStats) {
+		this.bamStats = bamStats;
 	}
 	
 	
