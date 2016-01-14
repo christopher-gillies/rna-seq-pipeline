@@ -12,7 +12,7 @@ public class ReadPairStatisticsFactory {
 		stats.add( new MeanBaseQualityStatistic());
 		stats.add( new MeanBasesPerReadGreaterThanQ30() );
 		stats.add( new InsertSizeStatistic() );
-		stats.add( new KmerStatistic(9));
+		stats.add( new KmerStatistic(7));
 		return stats;
 		
 		

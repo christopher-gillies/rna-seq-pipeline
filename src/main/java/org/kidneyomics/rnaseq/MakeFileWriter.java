@@ -442,8 +442,14 @@ public class MakeFileWriter implements ApplicationCommand {
 		 * 
 		 */
 		
+		
 		for(SampleData sampleData : sampleMap.values()) {
 			MakeEntry polishBamEntry = new MakeEntry();
+			
+			//store polishBamCommands
+			sampleData.polishEntry = polishBamEntry;
+			
+			
 			sampleData.cleanUpDependency = polishBamEntry;
 			polishBamEntry.setComment("Filter out mulitmapped reads and add the readgroups to the bam and mark duplicates for " + sampleData.id);
 			polishBamEntry.setTarget(dirBase + "/" + sampleData.id + "_BAM_POLISH.OK");
@@ -513,7 +519,6 @@ public class MakeFileWriter implements ApplicationCommand {
 			make.addMakeEntry(cleanUpEntry);
 		}
 		
-		
 		/*
 		 * 
 		 * 
@@ -536,6 +541,32 @@ public class MakeFileWriter implements ApplicationCommand {
 		mergeStats.addCommand("touch $@");
 		
 		make.addMakeEntry(mergeStats);
+		
+		/***
+		 * 
+		 * 
+		 * Calculate bam stats per sample
+		 * 
+		 * 
+		 * 
+		 */
+		
+		for(SampleData sampleData : sampleMap.values()) {
+			MakeEntry bamStats = new MakeEntry();
+			bamStats.addDependency(bamStats);
+			bamStats.setComment("Computing defaults bam statistics for " + sampleData.id);
+			bamStats.setTarget(dirBase + "/" + sampleData.pass2Dir + "/BAM_STATS.OK");
+			
+			ST bamStatsCmd = new ST("java -jar <app> --computeBamStatistics --fileIn <in> --fileOut <out>");
+			bamStatsCmd.add("app", applicationOptions.getJarLocation());
+			bamStatsCmd.add("in", dirBase + "/" + sampleData.pass2Dir  + "/final.bam");
+			bamStatsCmd.add("out", dirBase + "/" + sampleData.pass2Dir  + "/final.bam.stats");
+			
+			bamStats.addCommand(bamStatsCmd.render());
+			bamStats.addCommand("touch $@");
+			
+			make.addMakeEntry(bamStats);
+		}
 		
 		
 		/*
@@ -944,6 +975,7 @@ public class MakeFileWriter implements ApplicationCommand {
 		String dupMetrics;
 		MakeEntry polishDependency;
 		MakeEntry cleanUpDependency;
+		MakeEntry polishEntry;
 		
 		public String toLine() {
 			return StringUtils.arrayToDelimitedString(new String[] { id, finalBam, finalLogPass1, finalLogPass2, sjdb1, sjdb2, dupMetrics  }, "\t");

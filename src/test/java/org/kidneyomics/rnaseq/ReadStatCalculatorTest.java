@@ -78,7 +78,7 @@ public class ReadStatCalculatorTest {
 		assertEquals("MEAN_BASES_PER_READ_GREATER_THAN_Q30",header[10]);
 		assertEquals("MEAN_INSERT_SIZE",header[11]);
 		assertEquals("SD_INSERT_SIZE",header[12]);
-		assertEquals("AAAAAAAAA",header[13]);
+		assertEquals("AAAAAAA",header[13]);
 		
 		
 		String[] vals = lines.get(1).split("\t");
@@ -96,7 +96,7 @@ public class ReadStatCalculatorTest {
 		assertEquals("78.0",vals[10]);
 		assertEquals("158.15384615384616",vals[11]);
 		assertEquals("19.61161351381841",vals[12]);
-		assertEquals("1612.0",vals[13]);
+		assertEquals("1716.0",vals[13]);
 		
 		
 		sam.delete();
