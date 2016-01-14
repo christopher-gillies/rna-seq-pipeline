@@ -555,12 +555,12 @@ public class MakeFileWriter implements ApplicationCommand {
 			MakeEntry bamStats = new MakeEntry();
 			bamStats.addDependency(bamStats);
 			bamStats.setComment("Computing defaults bam statistics for " + sampleData.id);
-			bamStats.setTarget(dirBase + "/" + sampleData.pass2Dir + "/BAM_STATS.OK");
+			bamStats.setTarget(sampleData.pass2Dir + "/BAM_STATS.OK");
 			
 			ST bamStatsCmd = new ST("java -jar <app> --computeBamStatistics --fileIn <in> --fileOut <out>");
 			bamStatsCmd.add("app", applicationOptions.getJarLocation());
-			bamStatsCmd.add("in", dirBase + "/" + sampleData.pass2Dir  + "/final.bam");
-			bamStatsCmd.add("out", dirBase + "/" + sampleData.pass2Dir  + "/final.bam.stats");
+			bamStatsCmd.add("in", sampleData.pass2Dir  + "/final.bam");
+			bamStatsCmd.add("out", sampleData.pass2Dir  + "/final.bam.stats");
 			
 			bamStats.addCommand(bamStatsCmd.render());
 			bamStats.addCommand("touch $@");
