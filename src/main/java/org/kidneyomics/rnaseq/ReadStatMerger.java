@@ -1,16 +1,10 @@
 package org.kidneyomics.rnaseq;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.kidneyomics.rnaseq.stats.ReadPairStatistic;
 import org.kidneyomics.rnaseq.stats.ReadPairStatisticsFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

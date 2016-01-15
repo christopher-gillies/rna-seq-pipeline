@@ -58,6 +58,9 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("fluxCapacitor",true,"the path to the fluxcapacitor program");
 		options.addOption("countReadsInExons",false,"count all the reads in a bam file and output the results in a gtf file");
 		options.addOption("computeBamStatistics",false,"compute various bam statistics for an input bam");
+		
+		options.addOption("mergeBamStatistics",false,"merge ba stats across samples");
+		
 		options.addOption("logReads",true,"file path for a log file. This file will contain information about non-mapped reads.");
 		
 		options.addOption("countReadsInAllSamples",false,"count all the reads for samples in a bam list and merge the results. must also specify a gtf annotation and output dir");
@@ -114,6 +117,15 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		} else {
 			applicationOptions.setMergeExonGtfs(false);
 		}
+		
+		
+		if(cmd.hasOption("mergeBamStatistics")) {
+			applicationOptions.setMergeBamStats(true);
+		} else {
+			applicationOptions.setMergeBamStats(false);
+		}
+		
+		
 		
 		if(cmd.hasOption("mergeExonStatFiles")) {
 			applicationOptions.setMergeExonStatFiles(true);

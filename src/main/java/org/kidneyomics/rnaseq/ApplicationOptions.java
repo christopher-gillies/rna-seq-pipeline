@@ -46,6 +46,7 @@ public class ApplicationOptions {
 	private boolean mergeSTARLogs = false;
 	private boolean mapExpressionIds = false;
 	private boolean bamStats = false;
+	private boolean mergeBamStats = false;
 	private Mode mode = null;
 	private int maxEditDistance = 6;
 	
@@ -75,12 +76,21 @@ public class ApplicationOptions {
 		MERGE_STAR_LOGS,
 		MAP_EXPRESSION_IDS,
 		BAM_STATS,
+		MERGE_BAM_STATS,
 		HELP
 	}
 	
 	
 	
 	
+	boolean isMergeBamStats() {
+		return mergeBamStats;
+	}
+
+	void setMergeBamStats(boolean mergeBamStats) {
+		this.mergeBamStats = mergeBamStats;
+	}
+
 	boolean isBamStats() {
 		return bamStats;
 	}
@@ -613,6 +623,18 @@ public class ApplicationOptions {
 				System.exit(1);
 			}
 			result = Mode.BAM_STATS;
+		} else if(mergeBamStats) {
+			
+			if(StringUtils.isEmpty(getBamList())) {
+				logger.error("bam files cannot be empty when performing merge bamstats");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileOut())) {
+				logger.error("please specify an output file (--fileOut). The expression matrix with new sample ids");
+				System.exit(1);
+			}
+			result = Mode.MERGE_BAM_STATS;
 		}
 		
 		this.mode = result;
