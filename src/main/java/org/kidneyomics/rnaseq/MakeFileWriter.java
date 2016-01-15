@@ -551,6 +551,7 @@ public class MakeFileWriter implements ApplicationCommand {
 		 * 
 		 */
 		
+		List<MakeEntry> bamStatsList = new LinkedList<MakeEntry>();
 		for(SampleData sampleData : sampleMap.values()) {
 			MakeEntry bamStats = new MakeEntry();
 			bamStats.addDependency(sampleData.polishEntry);
@@ -570,10 +571,30 @@ public class MakeFileWriter implements ApplicationCommand {
 			bamStats.addCommand(bamStatsCmd.render());
 			bamStats.addCommand("touch $@");
 			
+			bamStatsList.add(bamStats);
 			make.addMakeEntry(bamStats);
 		}
 		
+		/*
+		 * 
+		 * 
+		 * Merge BAM stats
+		 * 
+		 * 
+		 */
 		
+		MakeEntry mergeBamStats = new MakeEntry();
+		mergeBamStats.addDependencies(bamStatsList);
+		mergeBamStats.setComment("Merge bam statistics across samples");
+		mergeBamStats.setTarget(baseDir + "/MERGE_BAM_STATS.OK");
+		ST mergeBamStatsCmd = new ST("java -jar <app> --mergeBamStatistics --bamList <in> --fileOut <out>");
+		mergeBamStatsCmd.add("app", applicationOptions.getJarLocation());
+		mergeBamStatsCmd.add("in", dirBase + "/bam.list.txt");
+		mergeBamStatsCmd.add("out", dirBase + "/MERGED_BAM_STATS.txt");
+		
+		mergeBamStats.addCommand(mergeBamStatsCmd.render());
+		mergeBamStats.addCommand("touch $@");
+		make.addMakeEntry(mergeBamStats);
 		/*
 		 * 
 		 * 
@@ -589,7 +610,7 @@ public class MakeFileWriter implements ApplicationCommand {
 			sb.append("\n");
 		}
 		
-		FileUtils.write(new File(dirBase + "bam.list.txt"), sb.toString());
+		FileUtils.write(new File(dirBase + "/bam.list.txt"), sb.toString());
 		
 		
 		/*

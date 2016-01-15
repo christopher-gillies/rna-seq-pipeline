@@ -42,7 +42,7 @@ public class ReadStatMerger implements ApplicationCommand {
 		logger.info("Parsing bam stats");
 		for(BAMInfo info : infos) {
 			String filePath = info.getBamStats();
-			logger.info("Reading log for " + info.getSampleId());
+			logger.info("Reading stat file for " + info.getSampleId());
 			List<String> statLines = FileUtils.readLines(new File(filePath));
 			
 			if(statLines.size() != 2) {
@@ -57,7 +57,7 @@ public class ReadStatMerger implements ApplicationCommand {
 			
 		}
 		
-		logger.info("Writing out merged matrix");
+		logger.info("Writing out merged matrix: " + fileOut);
 		DelimitedFileEntry.writeToFile(entries, fileOut, "\t");
 		
 		
