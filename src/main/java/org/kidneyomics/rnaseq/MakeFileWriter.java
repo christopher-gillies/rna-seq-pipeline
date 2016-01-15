@@ -542,7 +542,7 @@ public class MakeFileWriter implements ApplicationCommand {
 		
 		make.addMakeEntry(mergeStats);
 		
-		/***
+		/*
 		 * 
 		 * 
 		 * Calculate bam stats per sample
@@ -556,7 +556,7 @@ public class MakeFileWriter implements ApplicationCommand {
 			MakeEntry bamStats = new MakeEntry();
 			bamStats.addDependency(sampleData.polishEntry);
 			bamStats.setComment("Computing defaults bam statistics for " + sampleData.id);
-			bamStats.setTarget(sampleData.pass2Dir + "/BAM_STATS.OK");
+			bamStats.setTarget(dirBase + "/" + sampleData.id + "_BAM_STATS.OK");
 			
 			sampleData.bamStatsFile = sampleData.pass2Dir  + "/final.bam.stats";
 			
