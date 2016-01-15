@@ -98,7 +98,7 @@ public class RnaSeqPipelineApplication {
 	        	break;
 	        }
 	        case MERGE_BAM_STATS: {
-	        	command = context.getBean(ReadStatMerger.class);
+	        	command = context.getBean(DelimitedStatMerger.class);
 	        	break;
 	        }
 	        case ERROR: {

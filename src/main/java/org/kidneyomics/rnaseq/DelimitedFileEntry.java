@@ -37,7 +37,7 @@ class DelimitedFileEntry {
 	static DelimitedFileEntry getDelimitedFileEntry(String sampleId, String[] header, String[] values) {
 		
 		if(header.length != values.length) {
-			throw new RuntimeException("There are a different number of header columns and values.") ;
+			throw new RuntimeException("There are a different number of header columns and values." + "\n" + StringUtils.join(header,",") + "\n" + StringUtils.join(values,",")) ;
 		}
 		
 		

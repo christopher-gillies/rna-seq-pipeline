@@ -14,7 +14,7 @@ class BAMInfo {
 	String dupmetrics;
 	String bamStats;
 	
-	private BAMInfo() {
+	BAMInfo() {
 		
 	}
 	
