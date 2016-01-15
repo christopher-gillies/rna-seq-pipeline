@@ -29,9 +29,12 @@ public class ReadStatMerger implements ApplicationCommand {
 		String fileOut = applicationOptions.getFileOut();
 		File bamList = new File(applicationOptions.getBamList());
 		
+		if(!bamList.exists()) {
+			throw new IllegalArgumentException("bamList "+ bamList.getAbsolutePath() + " not found!");
+		}
 		
+		logger.info("Reading bam list: " + bamList.getAbsolutePath());
 		List<String> lines = FileUtils.readLines(bamList);
-		logger.info("Reading bam list");
 		List<BAMInfo> infos = BAMInfo.getBAMInfoFromLines(lines);
 	
 		List<DelimitedFileEntry> entries = new LinkedList<DelimitedFileEntry>();
