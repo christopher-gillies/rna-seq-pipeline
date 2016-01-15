@@ -62,6 +62,13 @@ public class ReadStatCalculator implements ApplicationCommand {
 		
 		logger.info("Finished processing read pairs: " + pairsCounted + " pairs counted");
 		logger.info("Writing log file to: " + outfile);
+		
+		File outfileRef = new File(outfile);
+		if(outfileRef.exists()) {
+			logger.info("Outfile already exists...deleting");
+			outfileRef.delete();
+		}
+		
 		try(BufferedWriter writer = Files.newBufferedWriter(Paths.get(outfile), Charset.defaultCharset(), StandardOpenOption.CREATE)) {
 			
 			//write header
