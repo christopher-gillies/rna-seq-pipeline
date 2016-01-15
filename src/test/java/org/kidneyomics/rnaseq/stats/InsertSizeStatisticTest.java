@@ -28,6 +28,8 @@ public class InsertSizeStatisticTest {
 		r2.setCigarString("51M");
 		
 		
+		// 100 - 150
+		//30 - 80
 		
 		SAMRecordPair pair = new SAMRecordPair();
 		pair.addPair(r1);
@@ -52,11 +54,13 @@ public class InsertSizeStatisticTest {
 		InsertSizeStatistic stat = new InsertSizeStatistic();
 		
 		stat.addReadPair(pair);
+		stat.addReadPair(pair);
 		stat.addReadPair(pair2);
 		
 		
-		assertEquals(15, stat.getStatisticAsMap().get("MEAN_INSERT_SIZE"),0.001);
-		assertEquals( 7.071068, stat.getStatisticAsMap().get("SD_INSERT_SIZE"),0.001);
+		assertEquals(16.66667, stat.getStatisticAsMap().get("MEAN_INSERT_SIZE"),0.001);
+		assertEquals( 5.773503, stat.getStatisticAsMap().get("SD_INSERT_SIZE"),0.001);
+		assertEquals( 20, stat.getStatisticAsMap().get("MODE"),0.001);
 	}
 
 }

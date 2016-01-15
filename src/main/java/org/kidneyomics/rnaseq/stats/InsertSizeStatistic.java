@@ -13,14 +13,19 @@ class InsertSizeStatistic extends AbstractReadPairStatistic {
 	 */
 	
 	private final StreamingMeanAndVarianceCalculator meanAndVarCalc = new StreamingMeanAndVarianceCalculator();
+	private final ModeCalculator modeCalculator = new ModeCalculator();
 	
-	private static final String[] fields = { "MEAN_INSERT_SIZE", "SD_INSERT_SIZE" };
+	private static final String[] fields = { "MEAN_INSERT_SIZE", "SD_INSERT_SIZE", "MODE" };
 	
 	@Override
 	public void addReadPair(org.kidneyomics.rnaseq.SAMRecordPair pair) {
 		
 		pair.reorderMatesByCoordinate();
-		meanAndVarCalc.add(pair.getMate2().getAlignmentStart() - pair.getMate1().getAlignmentEnd());
+		
+		int insertSize = pair.getMate2().getAlignmentStart() - pair.getMate1().getAlignmentEnd();
+		
+		modeCalculator.add(insertSize);
+		meanAndVarCalc.add(insertSize);
 	}
 	
 	@Override
@@ -33,6 +38,7 @@ class InsertSizeStatistic extends AbstractReadPairStatistic {
 		LinkedList<Double> res = new LinkedList<>();
 		res.add(meanAndVarCalc.getMean());
 		res.add(meanAndVarCalc.getSd());
+		res.add(((Integer)modeCalculator.getMode()).doubleValue());
 		return res;
 	}
 

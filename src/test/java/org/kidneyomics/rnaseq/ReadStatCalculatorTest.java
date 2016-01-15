@@ -78,7 +78,8 @@ public class ReadStatCalculatorTest {
 		assertEquals("MEAN_BASES_PER_READ_GREATER_THAN_Q30",header[10]);
 		assertEquals("MEAN_INSERT_SIZE",header[11]);
 		assertEquals("SD_INSERT_SIZE",header[12]);
-		assertEquals("AAAAAAA",header[13]);
+		assertEquals("MODE",header[13]);
+		assertEquals("AAAAAAA",header[14]);
 		
 		
 		String[] vals = lines.get(1).split("\t");
@@ -96,7 +97,8 @@ public class ReadStatCalculatorTest {
 		assertEquals("78.0",vals[10]);
 		assertEquals("158.15384615384616",vals[11]);
 		assertEquals("19.61161351381841",vals[12]);
-		assertEquals("1716.0",vals[13]);
+		assertEquals("162.0",vals[13]);
+		assertEquals("1716.0",vals[14]);
 		
 		
 		sam.delete();
@@ -125,6 +127,8 @@ public class ReadStatCalculatorTest {
 				record.setReadString(StringUtils.repeat("A", 39));
 				record.setBaseQualityString(StringUtils.repeat("H", 39));
 				record.setAlignmentStart(100 + pos);
+				// 101 + 39 = 139
+				//
 				record.setMateAlignmentStart(100 + pos + 200);
 				record.setCigarString("39M");
 				record.setReferenceName("1");
