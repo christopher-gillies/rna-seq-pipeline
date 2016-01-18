@@ -47,6 +47,7 @@ public class ApplicationOptions {
 	private boolean mapExpressionIds = false;
 	private boolean bamStats = false;
 	private boolean mergeBamStats = false;
+	private boolean mergeDuplicateStats = false;
 	private Mode mode = null;
 	private int maxEditDistance = 6;
 	
@@ -77,12 +78,19 @@ public class ApplicationOptions {
 		MAP_EXPRESSION_IDS,
 		BAM_STATS,
 		MERGE_BAM_STATS,
+		MERGE_DUPLICATE_STATS,
 		HELP
 	}
 	
 	
-	
-	
+	boolean isMergeDuplicateStats() {
+		return mergeDuplicateStats;
+	}
+
+	void setMergeDuplicateStats(boolean mergeDuplicateStats) {
+		this.mergeDuplicateStats = mergeDuplicateStats;
+	}
+
 	boolean isMergeBamStats() {
 		return mergeBamStats;
 	}
@@ -635,6 +643,18 @@ public class ApplicationOptions {
 				System.exit(1);
 			}
 			result = Mode.MERGE_BAM_STATS;
+		} else if(mergeDuplicateStats) {
+			
+			if(StringUtils.isEmpty(getBamList())) {
+				logger.error("bam files cannot be empty when performing merge duplicate stats");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getFileOut())) {
+				logger.error("please specify an output file (--fileOut). The expression matrix with new sample ids");
+				System.exit(1);
+			}
+			result = Mode.MERGE_DUPLICATE_STATS;
 		}
 		
 		this.mode = result;

@@ -23,6 +23,14 @@ public class DelimitedStatMerger implements ApplicationCommand {
 	
 	private String headerLineStartsWith = null;
 	
+	//Defaults to select stats file
+	private BAMInfoSelector bamInfoSelector = new BAMInfoStatsSelector();
+	
+	
+	void setBamInfoSelector(BAMInfoSelector bamInfoSelector) {
+		this.bamInfoSelector = bamInfoSelector;
+	}
+
 	@Autowired
 	public DelimitedStatMerger(LoggerService loggerService, ApplicationOptions applicationOptions, BAMInfoService bamInfoService) {
 		this.logger = loggerService.getLogger(this);
@@ -43,7 +51,7 @@ public class DelimitedStatMerger implements ApplicationCommand {
 		
 		logger.info("Parsing bam stats");
 		for(BAMInfo info : infos) {
-			String filePath = info.getBamStats();
+			String filePath = bamInfoSelector.getField(info);
 			logger.info("Reading stat file for " + info.getSampleId());
 			List<String> statLines = FileUtils.readLines(new File(filePath));
 			

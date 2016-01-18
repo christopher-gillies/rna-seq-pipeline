@@ -59,7 +59,8 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("countReadsInExons",false,"count all the reads in a bam file and output the results in a gtf file");
 		options.addOption("computeBamStatistics",false,"compute various bam statistics for an input bam");
 		
-		options.addOption("mergeBamStatistics",false,"merge ba stats across samples");
+		options.addOption("mergeBamStatistics",false,"merge bam stats across samples");
+		options.addOption("mergeDuplicateStatistics",false,"merge duplicate stats across samples");
 		
 		options.addOption("logReads",true,"file path for a log file. This file will contain information about non-mapped reads.");
 		
@@ -123,6 +124,12 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 			applicationOptions.setMergeBamStats(true);
 		} else {
 			applicationOptions.setMergeBamStats(false);
+		}
+		
+		if(cmd.hasOption("mergeDuplicateStatistics")) {
+			applicationOptions.setMergeDuplicateStats(true);
+		} else {
+			applicationOptions.setMergeDuplicateStats(false);
 		}
 		
 		

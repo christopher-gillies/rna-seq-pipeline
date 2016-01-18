@@ -44,7 +44,9 @@ public class DelimitedStatMergerTest {
 		BAMInfo info1 = new BAMInfo();
 		
 		info1.setSampleId("sample1");
-		info1.setBamStats(r.getFile().getAbsolutePath());
+		//info1.setBamStats(r.getFile().getAbsolutePath());
+		
+		info1.setDupmetrics(r.getFile().getAbsolutePath());
 		
 		logger.info(info1.getBamStats());
 		
@@ -55,6 +57,7 @@ public class DelimitedStatMergerTest {
 		
 		DelimitedStatMerger merger = new DelimitedStatMerger(ls, opts, bs);
 		merger.setHeaderLineStartsWith("LIBRARY");
+		merger.setBamInfoSelector(new BAMInfoDuplicateSelector());
 		
 		merger.doWork();
 		

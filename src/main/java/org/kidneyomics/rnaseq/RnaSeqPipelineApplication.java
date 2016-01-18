@@ -100,6 +100,12 @@ public class RnaSeqPipelineApplication {
 	        case MERGE_BAM_STATS: {
 	        	command = context.getBean(DelimitedStatMerger.class);
 	        	break;
+	        } case MERGE_DUPLICATE_STATS: {
+	        	command = context.getBean(DelimitedStatMerger.class);
+	        	
+	        	((DelimitedStatMerger) command).setBamInfoSelector(new BAMInfoDuplicateSelector());
+	        	((DelimitedStatMerger) command).setHeaderLineStartsWith("LIBRARY");
+	        	break;
 	        }
 	        case ERROR: {
 	        	
