@@ -582,19 +582,46 @@ public class MakeFileWriter implements ApplicationCommand {
 		 * 
 		 * 
 		 */
+		{
+			MakeEntry mergeBamStats = new MakeEntry();
+			mergeBamStats.addDependencies(bamStatsList);
+			mergeBamStats.setComment("Merge bam statistics across samples");
+			mergeBamStats.setTarget(baseDir + "/MERGE_BAM_STATS.OK");
+			ST mergeBamStatsCmd = new ST("java -jar <app> --mergeBamStatistics --bamList <in> --fileOut <out>");
+			mergeBamStatsCmd.add("app", applicationOptions.getJarLocation());
+			mergeBamStatsCmd.add("in", dirBase + "/bam.list.txt");
+			mergeBamStatsCmd.add("out", dirBase + "/MERGED_BAM_STATS.txt");
+			
+			mergeBamStats.addCommand(mergeBamStatsCmd.render());
+			mergeBamStats.addCommand("touch $@");
+			make.addMakeEntry(mergeBamStats);
+		}
 		
-		MakeEntry mergeBamStats = new MakeEntry();
-		mergeBamStats.addDependencies(bamStatsList);
-		mergeBamStats.setComment("Merge bam statistics across samples");
-		mergeBamStats.setTarget(baseDir + "/MERGE_BAM_STATS.OK");
-		ST mergeBamStatsCmd = new ST("java -jar <app> --mergeBamStatistics --bamList <in> --fileOut <out>");
-		mergeBamStatsCmd.add("app", applicationOptions.getJarLocation());
-		mergeBamStatsCmd.add("in", dirBase + "/bam.list.txt");
-		mergeBamStatsCmd.add("out", dirBase + "/MERGED_BAM_STATS.txt");
 		
-		mergeBamStats.addCommand(mergeBamStatsCmd.render());
-		mergeBamStats.addCommand("touch $@");
-		make.addMakeEntry(mergeBamStats);
+		
+		/*
+		 * 
+		 * 
+		 * Merge Duplicate stats
+		 * 
+		 * 
+		 */
+		{
+			MakeEntry mergeDupStats = new MakeEntry();
+			//if merge stats is done then we can merge duplicates
+			mergeDupStats.addDependency(mergeStats);
+			mergeDupStats.setComment("Merge duplicate statistics across samples");
+			mergeDupStats.setTarget(baseDir + "/MERGED_DUP_STATS.OK");
+			ST mergeDupStatsCmd = new ST("java -jar <app> --mergeDuplicateStatistics --bamList <in> --fileOut <out>");
+			mergeDupStatsCmd.add("app", applicationOptions.getJarLocation());
+			mergeDupStatsCmd.add("in", dirBase + "/bam.list.txt");
+			mergeDupStatsCmd.add("out", dirBase + "/MERGED_DUP_STATS.txt");
+			
+			mergeDupStats.addCommand(mergeDupStatsCmd.render());
+			mergeDupStats.addCommand("touch $@");
+			make.addMakeEntry(mergeDupStats);
+		}
+		
 		/*
 		 * 
 		 * 
