@@ -1,6 +1,12 @@
 package org.kidneyomics.rnaseq;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 import org.biojava.nbio.genome.parsers.gff.Feature;
 import org.kidneyomics.gtf.DefaultReadLogger;
@@ -14,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -99,8 +106,43 @@ public class ExonQuantifier implements ApplicationCommand {
 			writer.write(allCounts);
 		}
 		
+		logger.info("Writing log files");
 		//Log statistics
 		ReadMappingStatisticsLogger.writeStats(new File(fileOut + ".stats"), gTExFeatureCounter);
+		
+		logger.info("Write out removed features");
+		writeOutRemovedExons(gTExFeatureCounter.getRemovedFeatures(),fileOut);
+	}
+	
+	//write out exons that overlap
+	private void writeOutRemovedExons(Collection<Feature> removedFeatures, String fileOut) throws IOException {
+		
+		try(BufferedWriter writer = Files.newBufferedWriter(Paths.get(fileOut + ".exons.removed"), Charset.defaultCharset(), StandardOpenOption.CREATE)) {
+		
+			for(Feature feature : removedFeatures) {
+				String gene = feature.getAttribute("gene_id");
+				String transcript = feature.getAttribute("transcript_id");
+				String chr = feature.seqname();
+				Integer start = feature.location().bioStart();
+				Integer end = feature.location().bioEnd();
+				
+				writer.append(transcript);
+				writer.append("\t");
+				
+				writer.append(gene);
+				writer.append("\t");
+				
+				writer.append(chr);
+				writer.append("\t");
+				
+				writer.append(start.toString());
+				writer.append("\t");
+				
+				writer.append(end.toString());
+				
+				writer.append("\n");
+			}
+		}
 	}
 
 

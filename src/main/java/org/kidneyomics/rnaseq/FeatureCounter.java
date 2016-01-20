@@ -44,4 +44,6 @@ public interface FeatureCounter {
 	ReadLogger getReadLogger();
 	
 	void addFilter(SAMRecordPairFilter filter);
+	
+	Collection<Feature> getRemovedFeatures();
 }
