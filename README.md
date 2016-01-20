@@ -79,7 +79,8 @@ nohup make -j 2 1> nohup.out 2> nohup.err &
 * $OUT/bam.list.txt -- a list of bam files
 * $OUT/SAMPLE_ID/final.bam -- in folder for each sample
 * $OUT/STAR_RUN_STATS.txt -- a table containing all the statistics from the final STAR log for each sample
-
+* $OUT/MERGED_DUP_STATS.txt -- a table summarizing the results from the mar duplicate scripts
+* $OUT/MERGED_BAM_STATS.txt -- a table summarizing basic statistics across samples such as GC content, mean phred score, mean Q30 bases per gene
 ###Format of bam.list.txt
 ```
 [SAMPLE_ID][TAB][PATH_TO_BAM][TAB][LOG_PASS_1][TAB][LOG_PASS_2][SPLICE_JUNCTION_TABLE_PASS_1][TAB][SPLICE_JUNCTION_TABLE_PASS_2][TAB][DUPLICATE_METRIC_FILE]
@@ -191,11 +192,11 @@ ___
 * This command works by constructing a dictionary mapping between the old ids and the new ids. If you only specify a single id mapping, then this command will only relabel the single sample and all other ids will remain the same.
 
 ```
-export OUT=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/
-export IN_FILE=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/ID_MAP_FOR_EXPRESSION.txt
-export EXPRESSION_MATRIX=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/EXON_COUNTS/gene.rpkm.txt
+export OUT=/OUT_DIRECTORY/
+export IN_FILE=/PATH/ID_MAP_FOR_EXPRESSION.txt
+export EXPRESSION_MATRIX=/PATH/gene.rpkm.txt
 export OUT_FILE=$OUT/EXON_COUNTS//reheader.gene.rpkm.txt
-export PIPELINE=/net/wonderland/home/cgillies/programs/rna-seq-pipeline/release/rna-seq-pipeline-1.0.0.jar
+export PIPELINE=/PATH/rna-seq-pipeline-1.0.0.jar
 java -jar $PIPELINE --mapExpressionIds --fileIn $IN_FILE --expressionMatrix $EXPRESSION_MATRIX --fileOut $OUT_FILE
 ```
 ##Here is the --fileIn format for this command
