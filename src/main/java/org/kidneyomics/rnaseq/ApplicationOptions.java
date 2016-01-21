@@ -1,7 +1,5 @@
 package org.kidneyomics.rnaseq;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +18,11 @@ public class ApplicationOptions {
 	private String bamList;
 	private String readLogFile = null;
 	private String referenceSequence;
+	private String referenceTranscriptome;
 	private String numThreadsGenomeIndex = "1";
 	private String numThreadsFlux = "2";
+	private String numThreadsKallisto = "2";
+	private String kallisto;
 	private String gtf;
 	private int readLength = 100;
 	private String uncompressCommand = "zcat";
@@ -65,6 +66,7 @@ public class ApplicationOptions {
 	public enum Mode {
 		ALIGN,
 		FLUX_CAPACITOR,
+		KALLISTO,
 		ERROR,
 		FIND_UNIQUE_MAPPED_READS,
 		TRANSCRIPT_EXPRESSION_MATRIX,
@@ -83,6 +85,31 @@ public class ApplicationOptions {
 	}
 	
 	
+	
+	String getReferenceTranscriptome() {
+		return referenceTranscriptome;
+	}
+
+	void setReferenceTranscriptome(String referenceTranscriptome) {
+		this.referenceTranscriptome = referenceTranscriptome;
+	}
+
+	String getNumThreadsKallisto() {
+		return numThreadsKallisto;
+	}
+
+	void setNumThreadsKallisto(String numThreadsKallisto) {
+		this.numThreadsKallisto = numThreadsKallisto;
+	}
+
+	String getKallisto() {
+		return kallisto;
+	}
+
+	void setKallisto(String kallisto) {
+		this.kallisto = kallisto;
+	}
+
 	boolean isMergeDuplicateStats() {
 		return mergeDuplicateStats;
 	}
@@ -655,6 +682,23 @@ public class ApplicationOptions {
 				System.exit(1);
 			}
 			result = Mode.MERGE_DUPLICATE_STATS;
+		} else if(!StringUtils.isEmpty(getKallisto())) {
+			if(StringUtils.isEmpty(getFastqFiles())) {
+				logger.error("fastq files cannot be empty when performing kallisto");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getReferenceTranscriptome())) {
+				logger.error("Please specify a reference transcriptome");
+				System.exit(1);
+			}
+			
+			if(StringUtils.isEmpty(getOutputDirectory())) {
+				logger.error("please specify an output");
+				System.exit(1);
+			}
+			
+			this.mode = Mode.KALLISTO;
 		}
 		
 		this.mode = result;

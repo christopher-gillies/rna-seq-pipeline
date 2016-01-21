@@ -45,7 +45,7 @@ public class RnaSeqPipelineApplication {
 			ApplicationCommand command = null;
 	        
 	        switch(mode) {
-	        
+	        case KALLISTO:
 	        case COUNT_READS_ALL_SAMPLES:
 	        case FLUX_CAPACITOR:
 	        case ALIGN: {

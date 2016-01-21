@@ -91,6 +91,10 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		options.addOption("mapExpressionIds",false,"map the expression sample ids to new values. specify the fileIn option with a file containing a tab separated line for each sample that you want to remap: OLD_ID\tNEW_ID");
 		
+		options.addOption("kallisto",true,"the path to the program kallisto");
+		options.addOption("kallistoThreads",true,"the number of threads for kallisto to use");
+		options.addOption("referenceTranscriptome",true,"the reference transcriptome for kallisto");
+		
 		logger.info(StringUtils.arrayToCommaDelimitedString(args));
 		
 		
@@ -111,6 +115,18 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		
 		if(cmd.hasOption("outRPKM")) {
 			applicationOptions.setOutCounts(false);
+		}
+		
+		if(cmd.hasOption("kallisto")) {
+			applicationOptions.setKallisto(cmd.getOptionValue("kallisto"));
+		}
+		
+		if(cmd.hasOption("kallistoThreads")) {
+			applicationOptions.setNumThreadsKallisto(cmd.getOptionValue("kallistoThreads"));
+		}
+		
+		if(cmd.hasOption("referenceTranscriptome")) {
+			applicationOptions.setReferenceTranscriptome(cmd.getOptionValue("referenceTranscriptome"));
 		}
 		
 		if(cmd.hasOption("mergeExonGtfs")) {

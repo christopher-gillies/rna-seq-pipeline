@@ -1,0 +1,18 @@
+all:	/tmp/transcriptome.fa.idx	/tmp/test/SAMPLE2.OK	/tmp/test/SAMPLE1.OK	
+	touch $@.OK
+
+#Indexing the transcriptome
+/tmp/transcriptome.fa.idx:	
+	/tmp/kallisto index -i /tmp/transcriptome.fa.idx /tmp/transcriptome.fa
+	touch $@
+
+#Quantifying expression for SAMPLE2
+/tmp/test/SAMPLE2.OK:	/tmp/transcriptome.fa.idx	
+	/tmp/kallisto quant -i /tmp/transcriptome.fa.idx -t2 -o /tmp/test/SAMPLE2/ [/tmp/fastq3.fastq.gz /tmp/fastq4.fastq.gz]
+	touch $@
+
+#Quantifying expression for SAMPLE1
+/tmp/test/SAMPLE1.OK:	/tmp/transcriptome.fa.idx	
+	/tmp/kallisto quant -i /tmp/transcriptome.fa.idx -t2 -o /tmp/test/SAMPLE1/ [/tmp/fastq1.fastq.gz /tmp/fastq2.fastq.gz]
+	touch $@
+

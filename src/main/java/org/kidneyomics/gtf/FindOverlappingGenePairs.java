@@ -10,7 +10,11 @@ import java.util.Map;
 
 import org.biojava.nbio.genome.parsers.gff.Feature;
 
-
+/**
+ * The purpose of this program is to get a list candidate genes that overlap each other
+ * @author cgillies
+ *
+ */
 public class FindOverlappingGenePairs {
 	
 	private final HashMap<String,List<Feature>> genes;

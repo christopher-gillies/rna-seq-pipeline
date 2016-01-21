@@ -1,7 +1,12 @@
 package org.kidneyomics.rnaseq;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,12 +60,121 @@ public class MakeFileWriter implements ApplicationCommand {
 			logger.info("Writing count read commands");
 			writeExonCountCommands();
 			break;
+		case KALLISTO:
+			logger.info("Writing kallisto commands");
+			writeKallistoCommands();
+			break;
 		case FIND_UNIQUE_MAPPED_READS:
 		case ERROR:
 			default:
 				throw new RuntimeEOFException(mode + " not supported");
 				
 		}
+	}
+	
+	private void writeKallistoCommands() throws Exception {
+		
+		MakeFile make = new MakeFile();
+		
+		String dirBase = applicationOptions.getOutputDirectory();
+		
+		File baseDir = new File(dirBase);
+		
+		String kallisto = applicationOptions.getKallisto();
+		String fasta = applicationOptions.getReferenceTranscriptome();
+		String fastqFiles = applicationOptions.getFastqFiles();
+		
+		
+		if(!baseDir.exists()) {
+			logger.info("Creating " + baseDir);
+			baseDir.mkdirs();
+		}
+		
+		/*
+		 *
+		 * Generating index
+		 * 
+		 * 
+		 */
+		
+		
+		MakeEntry indexTranscriptome = new MakeEntry();
+		
+		String index = fasta + ".idx";
+		
+		indexTranscriptome.setComment("Indexing the transcriptome");
+		indexTranscriptome.setTarget(index);
+		ST indexCmd = new ST("<kallisto> index -i <index> <fasta>");
+		indexCmd.add("kallisto", kallisto)
+		.add("index", index)
+		.add("fasta", fasta);
+		
+		indexTranscriptome.addCommand(indexCmd.render());
+		indexTranscriptome.addCommand("touch $@");
+		
+		make.addMakeEntry(indexTranscriptome);
+		
+		
+		/*
+		 * Quantify files
+		 */
+		Collection<Sample> samples = Sample.getFastqFileList(new File(applicationOptions.getFastqFiles()));
+		List<KallistoSample> ksSamples = new LinkedList<KallistoSample>();
+		for(Sample sample : samples) {
+			
+			
+			MakeEntry quantify = new MakeEntry();
+			
+			String outDir =  dirBase + "/" + sample.getSampleId() + "/";
+			quantify.setComment("Quantifying expression for " + sample.getSampleId());
+			quantify.addDependency(indexTranscriptome);
+			quantify.setTarget(dirBase + "/" + sample.getSampleId() + ".OK");
+			ST quantifyCmd = new ST("<kallisto> quant -i <index> -t<threads> -o <out> <fastq>");
+			quantifyCmd.add("kallisto", kallisto)
+			.add("index", index)
+			.add("fastq", sample.getFastqFiles().toString())
+			.add("threads", applicationOptions.getNumThreadsKallisto())
+			.add("out",outDir);
+			
+			quantify.addCommand(quantifyCmd.render());
+			quantify.addCommand("touch $@");
+			
+			make.addMakeEntry(quantify);
+			
+			KallistoSample ks = new KallistoSample();
+			ks.id = sample.getSampleId();
+			ks.dir = outDir;
+			ks.matrix = outDir + "/abundance.txt";
+			ks.stats =  outDir + "/abundance.hd5";
+			
+			ksSamples.add(ks);
+		}
+		
+		
+		/*
+		 * Write final file list
+		 */
+		try(BufferedWriter writer = Files.newBufferedWriter(Paths.get(baseDir + "/" + "transcript.quant.list.txt"), Charset.defaultCharset(), StandardOpenOption.CREATE)) {
+			for(KallistoSample ks : ksSamples) {
+				writer.write(ks.toString());
+				writer.write("\n");
+			}
+		}
+		
+		
+		/*
+		 * 
+		 * 
+		 * Write makefile
+		 * 
+		 * 
+		 */
+		String makefileText = make.toString();
+		
+		logger.info("Writing Makefile");
+		
+		FileUtils.write(new File(baseDir + "/Makefile"), makefileText);
+		
 	}
 	
 	private void writeAlignCommands() throws Exception {
@@ -1010,6 +1124,17 @@ public class MakeFileWriter implements ApplicationCommand {
 		FileUtils.write(new File(outputDir + "/Makefile"), makefileText);
 		
 		logger.info("Please run "+ outputDir + "/Makefile");
+	}
+	
+	private class KallistoSample {
+		String id;
+		String dir;
+		String matrix;
+		String stats;
+		
+		public String toString() {
+			return id + "\t" + dir + "\t" + matrix + "\t" + stats;
+		}
 	}
 	
 	private class SampleData {
