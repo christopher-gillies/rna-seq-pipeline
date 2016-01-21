@@ -132,7 +132,7 @@ public class MakeFileWriter implements ApplicationCommand {
 			ST quantifyCmd = new ST("<kallisto> quant -i <index> -t<threads> -o <out> <fastq>");
 			quantifyCmd.add("kallisto", kallisto)
 			.add("index", index)
-			.add("fastq", sample.getFastqFiles().toString())
+			.add("fastq", StringUtils.collectionToDelimitedString(sample.getFastqFiles(), ","))
 			.add("threads", applicationOptions.getNumThreadsKallisto())
 			.add("out",outDir);
 			
