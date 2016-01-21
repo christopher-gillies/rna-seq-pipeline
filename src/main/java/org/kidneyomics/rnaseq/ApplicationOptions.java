@@ -698,7 +698,7 @@ public class ApplicationOptions {
 				System.exit(1);
 			}
 			
-			this.mode = Mode.KALLISTO;
+			result = Mode.KALLISTO;
 		}
 		
 		this.mode = result;
