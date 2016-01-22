@@ -118,7 +118,8 @@ public class MakeFileWriter implements ApplicationCommand {
 		/*
 		 * Quantify files
 		 */
-		Collection<Sample> samples = Sample.getFastqFileList(new File(applicationOptions.getFastqFiles()));
+		List<MakeEntry> quantCommands = new LinkedList<MakeEntry>();
+		Collection<Sample> samples = Sample.getFastqFileList(new File(fastqFiles));
 		List<KallistoSample> ksSamples = new LinkedList<KallistoSample>();
 		for(Sample sample : samples) {
 			
@@ -140,6 +141,7 @@ public class MakeFileWriter implements ApplicationCommand {
 			quantify.addCommand("touch $@");
 			
 			make.addMakeEntry(quantify);
+			quantCommands.add(quantify);
 			
 			KallistoSample ks = new KallistoSample();
 			ks.id = sample.getSampleId();
@@ -154,11 +156,128 @@ public class MakeFileWriter implements ApplicationCommand {
 		/*
 		 * Write final file list
 		 */
-		try(BufferedWriter writer = Files.newBufferedWriter(Paths.get(baseDir + "/" + "transcript.quant.list.txt"), Charset.defaultCharset(), StandardOpenOption.CREATE)) {
+		String outList = baseDir + "/" + "transcript.quant.list.txt";
+		try(BufferedWriter writer = Files.newBufferedWriter(Paths.get(outList), Charset.defaultCharset(), StandardOpenOption.CREATE)) {
 			for(KallistoSample ks : ksSamples) {
 				writer.write(ks.toString());
 				writer.write("\n");
 			}
+		}
+		
+		
+		/*
+		 * 
+		 * 
+		 * Summarization commands
+		 * 
+		 * 
+		 */
+		{
+			ST expressionTemplate = new ST("java -jar <pipeline> --kallistoMerge --outTranscriptExpressionMatrix --gtf <gtf> --fileIn <kallistoList> --fileOut <out>");
+			expressionTemplate
+			.add("pipeline",applicationOptions.getJarLocation())
+			.add("gtf",applicationOptions.getGtf())
+			.add("kallistoList", outList)
+			.add("out",baseDir + "/transcript.count.expression.txt");
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Summarize transcript count expression");
+			entry.setTarget("TRANSCRIPT_COUNT_SUMMARY.OK");
+			entry.addCommand(expressionTemplate.render());
+			entry.addCommand("touch $@");
+			entry.addDependencies(quantCommands);
+			
+			make.addMakeEntry(entry);
+		}
+		
+		{
+			ST expressionTemplate = new ST("java -jar <pipeline> --kallistoMerge --outTranscriptExpressionMatrix --gtf <gtf> --fileIn <kallistoList> --fileOut <out> --outRPKM");
+			expressionTemplate
+			.add("pipeline",applicationOptions.getJarLocation())
+			.add("gtf",applicationOptions.getGtf())
+			.add("kallistoList", outList)
+			.add("out",baseDir + "/transcript.tpm.expression.txt");
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Summarize transcript tpm expression");
+			entry.setTarget("TRANSCRIPT_TPM_SUMMARY.OK");
+			entry.addCommand(expressionTemplate.render());
+			entry.addCommand("touch $@");
+			entry.addDependencies(quantCommands);
+			
+			make.addMakeEntry(entry);
+		}
+		
+		{
+			ST expressionTemplate = new ST("java -jar <pipeline> --kallistoMerge --outTranscriptRatioMatrix --gtf <gtf> --fileIn <kallistoList> --fileOut <out>");
+			expressionTemplate
+			.add("pipeline",applicationOptions.getJarLocation())
+			.add("gtf",applicationOptions.getGtf())
+			.add("kallistoList", outList)
+			.add("out",baseDir + "/transcript.ratios.from.count.expression.txt");
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Summarize transcript ratios from count expression");
+			entry.setTarget("TRANSCRIPT_RATIO_FROM_COUNTS_SUMMARY.OK");
+			entry.addCommand(expressionTemplate.render());
+			entry.addCommand("touch $@");
+			entry.addDependencies(quantCommands);
+			
+			make.addMakeEntry(entry);
+		}
+		
+		{
+			ST expressionTemplate = new ST("java -jar <pipeline> --kallistoMerge --outTranscriptRatioMatrix --gtf <gtf> --fileIn <kallistoList> --fileOut <out> --outRPKM");
+			expressionTemplate
+			.add("pipeline",applicationOptions.getJarLocation())
+			.add("gtf",applicationOptions.getGtf())
+			.add("kallistoList", outList)
+			.add("out",baseDir + "/transcript.ratios.from.tpm.expression.txt");
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Summarize transcript ratios from TPM expression");
+			entry.setTarget("TRANSCRIPT_RATIO_FROM_TPM_SUMMARY.OK");
+			entry.addCommand(expressionTemplate.render());
+			entry.addCommand("touch $@");
+			entry.addDependencies(quantCommands);
+			
+			make.addMakeEntry(entry);
+		}
+		
+		{
+			ST expressionTemplate = new ST("java -jar <pipeline> --kallistoMerge --outGeneExpressionMatrix --gtf <gtf> --fileIn <kallistoList> --fileOut <out>");
+			expressionTemplate
+			.add("pipeline",applicationOptions.getJarLocation())
+			.add("gtf",applicationOptions.getGtf())
+			.add("kallistoList", outList)
+			.add("out",baseDir + "/gene.count.expression.txt");
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Summarize gene count expression");
+			entry.setTarget("GENE_COUNT_SUMMARY.OK");
+			entry.addCommand(expressionTemplate.render());
+			entry.addCommand("touch $@");
+			entry.addDependencies(quantCommands);
+			
+			make.addMakeEntry(entry);
+		}
+		
+		{
+			ST expressionTemplate = new ST("java -jar <pipeline> --kallistoMerge --outGeneExpressionMatrix --gtf <gtf> --fileIn <kallistoList> --fileOut <out> --outRPKM");
+			expressionTemplate
+			.add("pipeline",applicationOptions.getJarLocation())
+			.add("gtf",applicationOptions.getGtf())
+			.add("kallistoList", outList)
+			.add("out",baseDir + "/gene.gpm.expression.txt");
+			
+			MakeEntry entry = new MakeEntry();
+			entry.setComment("Summarize gene genes per million (GPM) expression");
+			entry.setTarget("GENE_RPKM_SUMMARY.OK");
+			entry.addCommand(expressionTemplate.render());
+			entry.addCommand("touch $@");
+			entry.addDependencies(quantCommands);
+			
+			make.addMakeEntry(entry);
 		}
 		
 		

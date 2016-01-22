@@ -68,10 +68,13 @@ public class MakeFileWriterTest {
 		
 		when(applicationOptionsMock.getKallisto()).thenReturn("/tmp/kallisto");
 		
+		when(applicationOptionsMock.getGtf()).thenReturn("/tmp/gtf.gtf");
+		
 		when(applicationOptionsMock.getOutputDirectory()).thenReturn("/tmp/test");
 		
 		when(applicationOptionsMock.getNumThreadsKallisto()).thenReturn("2");
 		
+		when(applicationOptionsMock.getJarLocation()).thenReturn("/tmp/jarfile");
 		
 		LoggerService loggerService = new LoggerService();
 		

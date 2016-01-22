@@ -1,4 +1,4 @@
-all:	/tmp/transcriptome.fa.idx	/tmp/test/SAMPLE2.OK	/tmp/test/SAMPLE1.OK	
+all:	/tmp/transcriptome.fa.idx	/tmp/test/SAMPLE2.OK	/tmp/test/SAMPLE1.OK	TRANSCRIPT_COUNT_SUMMARY.OK	TRANSCRIPT_TPM_SUMMARY.OK	TRANSCRIPT_RATIO_FROM_COUNTS_SUMMARY.OK	TRANSCRIPT_RATIO_FROM_TPM_SUMMARY.OK	GENE_COUNT_SUMMARY.OK	GENE_RPKM_SUMMARY.OK	
 	touch $@.OK
 
 #Indexing the transcriptome
@@ -14,5 +14,35 @@ all:	/tmp/transcriptome.fa.idx	/tmp/test/SAMPLE2.OK	/tmp/test/SAMPLE1.OK
 #Quantifying expression for SAMPLE1
 /tmp/test/SAMPLE1.OK:	/tmp/transcriptome.fa.idx	
 	/tmp/kallisto quant -i /tmp/transcriptome.fa.idx -t2 -o /tmp/test/SAMPLE1/ /tmp/fastq1.fastq.gz /tmp/fastq2.fastq.gz
+	touch $@
+
+#Summarize transcript count expression
+TRANSCRIPT_COUNT_SUMMARY.OK:	/tmp/test/SAMPLE2.OK	/tmp/test/SAMPLE1.OK	
+	java -jar /tmp/jarfile --kallistoMerge --outTranscriptExpressionMatrix --gtf /tmp/gtf.gtf --fileIn /tmp/test/transcript.quant.list.txt --fileOut /tmp/test/transcript.count.expression.txt
+	touch $@
+
+#Summarize transcript tpm expression
+TRANSCRIPT_TPM_SUMMARY.OK:	/tmp/test/SAMPLE2.OK	/tmp/test/SAMPLE1.OK	
+	java -jar /tmp/jarfile --kallistoMerge --outTranscriptExpressionMatrix --gtf /tmp/gtf.gtf --fileIn /tmp/test/transcript.quant.list.txt --fileOut /tmp/test/transcript.tpm.expression.txt --outRPKM
+	touch $@
+
+#Summarize transcript ratios from count expression
+TRANSCRIPT_RATIO_FROM_COUNTS_SUMMARY.OK:	/tmp/test/SAMPLE2.OK	/tmp/test/SAMPLE1.OK	
+	java -jar /tmp/jarfile --kallistoMerge --outTranscriptRatioMatrix --gtf /tmp/gtf.gtf --fileIn /tmp/test/transcript.quant.list.txt --fileOut /tmp/test/transcript.ratios.from.count.expression.txt
+	touch $@
+
+#Summarize transcript ratios from TPM expression
+TRANSCRIPT_RATIO_FROM_TPM_SUMMARY.OK:	/tmp/test/SAMPLE2.OK	/tmp/test/SAMPLE1.OK	
+	java -jar /tmp/jarfile --kallistoMerge --outTranscriptRatioMatrix --gtf /tmp/gtf.gtf --fileIn /tmp/test/transcript.quant.list.txt --fileOut /tmp/test/transcript.ratios.from.tpm.expression.txt --outRPKM
+	touch $@
+
+#Summarize gene count expression
+GENE_COUNT_SUMMARY.OK:	/tmp/test/SAMPLE2.OK	/tmp/test/SAMPLE1.OK	
+	java -jar /tmp/jarfile --kallistoMerge --outGeneExpressionMatrix --gtf /tmp/gtf.gtf --fileIn /tmp/test/transcript.quant.list.txt --fileOut /tmp/test/gene.count.expression.txt
+	touch $@
+
+#Summarize gene genes per million (GPM) expression
+GENE_RPKM_SUMMARY.OK:	/tmp/test/SAMPLE2.OK	/tmp/test/SAMPLE1.OK	
+	java -jar /tmp/jarfile --kallistoMerge --outGeneExpressionMatrix --gtf /tmp/gtf.gtf --fileIn /tmp/test/transcript.quant.list.txt --fileOut /tmp/test/gene.gpm.expression.txt --outRPKM
 	touch $@
 

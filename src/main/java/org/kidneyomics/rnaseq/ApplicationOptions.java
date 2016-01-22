@@ -708,6 +708,11 @@ public class ApplicationOptions {
 				System.exit(1);
 			}
 			
+			if(StringUtils.isEmpty(getGtf())) {
+				logger.error("please specify a gtf file");
+				System.exit(1);
+			}
+			
 			result = Mode.KALLISTO;
 		}
 		
