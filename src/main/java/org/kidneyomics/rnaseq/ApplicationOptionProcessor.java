@@ -83,14 +83,15 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 		options.addOption("fileOut",true,"the output file after finding unique mapping reads");
 		options.addOption("findUniqueMappedReads",false,"finds the reads that are uniquely mapped. This removes reads whose mapping quality is not 255.");
 		
-		options.addOption("outRPKM",false,"output the RPKM");
-		options.addOption("outGeneExpressionMatrix",false,"output a gene expression matrix from flux capacitor gtf list");
-		options.addOption("outTranscriptExpressionMatrix",false,"output a transcript expression matrix from flux capacitor gtf list");
-		options.addOption("outTranscriptRatioMatrix",false,"output a transcript ratio expression matrix from flux results. For each sample you will have the transcript expression / total expression across the gene the transcript comes from");
+		options.addOption("outRPKM",false,"output the RPKM from flux or TPM from Kallisto. Default is to do counts");
+		options.addOption("outGeneExpressionMatrix",false,"output a gene expression matrix from flux capacitor gtf list or kallisto out list");
+		options.addOption("outTranscriptExpressionMatrix",false,"output a transcript expression matrix from flux capacitor gtf list or kallisto out list");
+		options.addOption("outTranscriptRatioMatrix",false,"output a transcript ratio expression matrix from flux results or kallisto out list. For each sample you will have the transcript expression / total expression across the gene the transcript comes from");
 		
 		
 		options.addOption("mapExpressionIds",false,"map the expression sample ids to new values. specify the fileIn option with a file containing a tab separated line for each sample that you want to remap: OLD_ID\tNEW_ID");
 		
+		options.addOption("kallistoMerge",true,"perform kallisto merging and not flux merge");
 		options.addOption("kallisto",true,"the path to the program kallisto");
 		options.addOption("kallistoThreads",true,"the number of threads for kallisto to use");
 		options.addOption("referenceTranscriptome",true,"the reference transcriptome for kallisto");
@@ -111,6 +112,12 @@ public class ApplicationOptionProcessor implements OptionProcessor {
 			applicationOptions.setHelp(true);
 		} else {
 			applicationOptions.setHelp(false);
+		}
+		
+		if(cmd.hasOption("kallistoMerge")) {
+			applicationOptions.setKallistoMerge(true);
+		} else {
+			applicationOptions.setKallistoMerge(false);
 		}
 		
 		if(cmd.hasOption("outRPKM")) {

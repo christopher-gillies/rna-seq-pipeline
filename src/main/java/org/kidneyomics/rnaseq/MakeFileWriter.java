@@ -144,7 +144,7 @@ public class MakeFileWriter implements ApplicationCommand {
 			KallistoSample ks = new KallistoSample();
 			ks.id = sample.getSampleId();
 			ks.dir = outDir;
-			ks.matrix = outDir + "/abundance.txt";
+			ks.matrix = outDir + "/abundance.tsv";
 			ks.stats =  outDir + "/abundance.hd5";
 			
 			ksSamples.add(ks);

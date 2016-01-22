@@ -18,7 +18,7 @@ import org.kidneyomics.gtf.GTFFeatureBuilder;
 import org.kidneyomics.gtf.GTFFeatureRenderer;
 import org.kidneyomics.gtf.GTFReader;
 import org.kidneyomics.gtf.GTFWriter;
-import org.kidneyomics.rnaseq.FluxMerge.TranscriptRatioResult;
+import org.kidneyomics.rnaseq.TranscriptResultsMerger.TranscriptRatioResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;

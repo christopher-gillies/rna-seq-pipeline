@@ -61,8 +61,13 @@ public class RnaSeqPipelineApplication {
 	        case TRANSCRIPT_EXPRESSION_MATRIX:
 	        case TRANSCRIPT_RATIO_MATRIX:
 	        case GENE_EXPRESSION_MATRIX: {
-	        	logger.info("Running flux merge");
-	        	command = context.getBean(FluxMerge.class);
+	        	if(applicationOptions.isKallistoMerge()) {
+	        		logger.info("Running kallisto merge");
+	        		command = context.getBean(KallistoMerge.class);
+	        	} else {
+	        		logger.info("Running flux merge");
+	        		command = context.getBean(FluxMerge.class);
+	        	}
 	        	break;
 	        }
 	        case COUNT_READS_IN_EXONS: {

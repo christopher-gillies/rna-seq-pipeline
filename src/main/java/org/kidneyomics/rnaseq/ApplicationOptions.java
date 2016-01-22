@@ -1,6 +1,7 @@
 package org.kidneyomics.rnaseq;
 
 
+import org.neo4j.cypher.internal.compiler.v2_2.planner.logical.steps.outerHashJoin;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationHome;
@@ -34,6 +35,7 @@ public class ApplicationOptions {
 	private String fileIn;
 	private String fileOut;
 	private boolean help = false;
+	private boolean kallistoMerge = false;
 	private boolean findUniqueMappedReads = false;
 	private boolean noSharedMemory = false;
 	private boolean outCounts = true;
@@ -86,6 +88,14 @@ public class ApplicationOptions {
 	
 	
 	
+	boolean isKallistoMerge() {
+		return kallistoMerge;
+	}
+
+	void setKallistoMerge(boolean kallistoMerge) {
+		this.kallistoMerge = kallistoMerge;
+	}
+
 	String getReferenceTranscriptome() {
 		return referenceTranscriptome;
 	}
