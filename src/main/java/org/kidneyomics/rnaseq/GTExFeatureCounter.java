@@ -46,7 +46,7 @@ public class GTExFeatureCounter implements FeatureCounter {
 	 * 
 	 * Note: count read pairs
 	 * 
-	 * Unqiuely mappped reads
+	 * Uniquely mapped reads
 	 * properly paired
 	 * maybe we will do the edit distance thing
 	 * 
@@ -469,6 +469,20 @@ public class GTExFeatureCounter implements FeatureCounter {
 		return union;
 	}
 	
+	/**
+	 * 
+	 * @param union the union of the mapped features for both mates
+	 * @param totalMappedBases the sum of the total bases mapped for both mates
+	 * @return true if all mapped bases are exonic
+	 */
+	static boolean completelyExonic(Map<Feature,Integer> union, int totalMappedBases) {
+		int sum = 0;
+		for(int count : union.values()) {
+			sum += count;
+		}
+		return sum == totalMappedBases;
+	}
+	
 	@Override
 	public void count(SAMRecordPair samRecordPair) {
 				
@@ -506,6 +520,12 @@ public class GTExFeatureCounter implements FeatureCounter {
 			int totalMappedBases = mate1MappedBases + mate2MappedBases;
 			
 			
+			/**
+			 * if read pairs map to multiple genes, ignore them
+			 * if either mate is unmapped then do not count it
+			 * if a read pair overlaps an intron do not count it
+			 * else count the mates
+			 */
 			
 			//logger.info("Ambiguous count: " + ambiguousCount);
 			//logger.info("Read name: " + samRecordPair.getMate1().getReadName());
@@ -514,39 +534,48 @@ public class GTExFeatureCounter implements FeatureCounter {
 				ambiguousCount += 1;
 				readLogger.logRead("ambiguous", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
 				readLogger.logRead("ambiguous", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
-			} else if(isUnmappedMate1 && isUnmappedMate2) {
+			} else if(isUnmappedMate1 || isUnmappedMate2) {
+				//either read overlaps an intron or intergenic region
 				unmappedCount += 1;
 				readLogger.logRead("unmapped", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
 				readLogger.logRead("unmapped", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
-			} else if(isUnmappedMate1) {
-				//Mate 2 is mapped otherwise the above case
-				double unmappedFrac = addToFeatures(totalMappedBases, mappedFeaturesAcrossChunksForMate2, featureCounts);
-				mappedCount += (1 - unmappedFrac);
-				unmappedCount += unmappedFrac;
-				if(Math.abs(unmappedFrac) >= 0.0001) {
-					partiallyUnmappedReads++;
-					readLogger.logRead("partially_unmapped", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
-					readLogger.logRead("partially_unmapped", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
-				} 
-			} else if(isUnmappedMate2) {
-				//Mate 1 is mapped otherwise the above case
-				double unmappedFrac = addToFeatures(totalMappedBases, mappedFeaturesAcrossChunksForMate1, featureCounts);
-				mappedCount += (1 - unmappedFrac);
-				unmappedCount += unmappedFrac;
-				if(Math.abs(unmappedFrac) >= 0.0001) {
-					partiallyUnmappedReads++;
-					readLogger.logRead("partially_unmapped", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
-					readLogger.logRead("partially_unmapped", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
-				} 
+//			} else if(isUnmappedMate1) {
+//				//Mate 2 is mapped otherwise the above case
+//				double unmappedFrac = addToFeatures(totalMappedBases, mappedFeaturesAcrossChunksForMate2, featureCounts);
+//				mappedCount += (1 - unmappedFrac);
+//				unmappedCount += unmappedFrac;
+//				if(Math.abs(unmappedFrac) >= 0.0001) {
+//					partiallyUnmappedReads++;
+//					readLogger.logRead("partially_unmapped", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
+//					readLogger.logRead("partially_unmapped", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
+//				} 
+//			} else if(isUnmappedMate2) {
+//				//Mate 1 is mapped otherwise the above case
+//				double unmappedFrac = addToFeatures(totalMappedBases, mappedFeaturesAcrossChunksForMate1, featureCounts);
+//				mappedCount += (1 - unmappedFrac);
+//				unmappedCount += unmappedFrac;
+//				if(Math.abs(unmappedFrac) >= 0.0001) {
+//					partiallyUnmappedReads++;
+//					readLogger.logRead("partially_unmapped", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
+//					readLogger.logRead("partially_unmapped", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
+//				} 
+			} else if(!completelyExonic(union,totalMappedBases)) {
+				unmappedCount++;
+				readLogger.logRead("non_exon_overlap", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
+				readLogger.logRead("non_exon_overlap", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
 			} else {
 				double unmappedFrac = addToFeatures(totalMappedBases, union, featureCounts);
-				mappedCount += (1 - unmappedFrac);
-				unmappedCount += unmappedFrac;
+				//mappedCount += (1 - unmappedFrac);
+				//unmappedCount += unmappedFrac;
 				if(Math.abs(unmappedFrac) >= 0.0001) {
-					partiallyUnmappedReads++;
-					readLogger.logRead("partially_unmapped", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
-					readLogger.logRead("partially_unmapped", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
-				} 
+					//partiallyUnmappedReads++;
+//					unmappedCount++;
+//					readLogger.logRead("non_exon_overlap", samRecordPair.getMate1(),mappedFeaturesAcrossChunksForMate1);
+//					readLogger.logRead("non_exon_overlap", samRecordPair.getMate2(),mappedFeaturesAcrossChunksForMate2);
+					throw new IllegalStateException("Inconsitency in read counts");
+				} else {
+					mappedCount += 1;
+				}
 			}
 			//logger.info("Ambiguous count: " + ambiguousCount);	
 			

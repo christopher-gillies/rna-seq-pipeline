@@ -1,7 +1,6 @@
 package org.kidneyomics.rnaseq;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,6 +40,24 @@ public class GTExFeatureCounterTest {
 
 	Logger logger = LoggerFactory.getLogger(GTExFeatureCounterTest.class);
 	
+	@Test
+	public void testCompletelyExonic() {
+		Feature f1 = mock(Feature.class);
+		Feature f2 = mock(Feature.class);
+		Feature f3 = mock(Feature.class);
+		
+		Map<Feature,Integer> union = new HashMap<>();
+		
+		union.put(f1, 1);
+		union.put(f2, 2);
+		union.put(f3, 3);
+		
+		assertTrue(GTExFeatureCounter.completelyExonic(union, 6));
+		assertFalse(GTExFeatureCounter.completelyExonic(union, 7));
+		
+		union.put(f1, 0);
+		assertFalse(GTExFeatureCounter.completelyExonic(union, 6));
+	}
 	
 	
 	@Test
@@ -179,8 +196,8 @@ public class GTExFeatureCounterTest {
 	@Test
 	public void testMapToMultipleGenes() {
 		logger.info("testMapToMultipleGenes");
-		FindOverlappingFeatures findOverlappingFeatures = new FindOverlappingFeatures();
-		GTExFeatureCounter gfc = new GTExFeatureCounter(findOverlappingFeatures, new LoggerService());
+		//FindOverlappingFeatures findOverlappingFeatures = new FindOverlappingFeatures();
+		//GTExFeatureCounter gfc = new GTExFeatureCounter(findOverlappingFeatures, new LoggerService());
 		String line1 = "chr1	HAVANA	exon	788771	794826	.	+	.	gene_id \"ENSG00000228794\"; transcript_id \"ENST00000445118\";";
 		Feature f1 = GTFFeatureBuilder.createFromLine(line1);
 		
@@ -197,7 +214,7 @@ public class GTExFeatureCounterTest {
 		features.add(f2);
 		assertTrue(features.size() == 2);
 		
-		assertTrue(gfc.mapToMultipleGenes(features) == false);
+		assertTrue(GTExFeatureCounter.mapToMultipleGenes(features) == false);
 		
 		
 		String line3 = "chr1	HAVANA	exon	788771	794827	.	+	.	gene_id \"ENSG0000022879\"; transcript_id \"ENST00000445118\";";
@@ -206,7 +223,7 @@ public class GTExFeatureCounterTest {
 		features.add(f3);
 		assertTrue(features.size() == 3);
 		
-		assertTrue(gfc.mapToMultipleGenes(features) == true);
+		assertTrue(GTExFeatureCounter.mapToMultipleGenes(features) == true);
 	}
 	
 	@Test
@@ -482,9 +499,11 @@ public class GTExFeatureCounterTest {
 		assertEquals(0,gfc.getNumberOfPartiallyUnmappedReads());
 	}
 	
-	
+	//count that the bases are fractionally counted correctly
 	@Test
 	public void testCountPair2() throws IOException {
+		//chr1	HAVANA	exon	11869	12227
+		//chr1	HAVANA	exon	12613	12721
 		logger.info("testCountPair1");
 		Resource r = new ClassPathResource("genecode.v19.annotation.head.10000.gtf.gz");
 		File gtf = r.getFile();
@@ -493,16 +512,17 @@ public class GTExFeatureCounterTest {
 		GTExFeatureCounter gfc = new GTExFeatureCounter(findOverlappingFeatures, new LoggerService());
 		gfc.buildFeatures(gtf, "exon");
 		
-		
+		//10 bases mapped to first exon
 		SAMRecord record1 = new SAMRecord(new SAMFileHeader());
 		record1.setReferenceName("chr1");
 		record1.setAlignmentStart(11869);
-		record1.setCigarString("50M");
+		record1.setCigarString("10M735N29M");
 		
+		//68 bases mapped to second exon
 		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
 		record2.setReferenceName("chr1");
-		record2.setAlignmentStart(12200);
-		record2.setCigarString("50M");
+		record2.setAlignmentStart(12650);
+		record2.setCigarString("39M");
 		
 		SAMRecordPair pair = new SAMRecordPair();
 		pair.setMate1(record1);
@@ -510,7 +530,9 @@ public class GTExFeatureCounterTest {
 		
 		gfc.count(pair);
 		
-		FeatureCount fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
+		FeatureCount fc =  gfc.getCounts("ENSG00000223972_chr1_11869_12227");
+		FeatureCount fc2 = gfc.getCounts("ENSG00000223972_chr1_12595_12721");
+		
 		logger.info(GTFFeatureRenderer.render(fc.getFeature()));
 		
 		logger.info("Total counts for ENSG00000223972_chr1_11869_12227: " + fc.getCount());
@@ -520,39 +542,86 @@ public class GTExFeatureCounterTest {
 		logger.info("Total counts ambiguous read count: " + gfc.getAmbiguousReadCount());
 		logger.info("Partially unmapped reads: " + gfc.getNumberOfPartiallyUnmappedReads());
 		
-		assertEquals( 78 / 100.0,fc.getCount(),0.000001);
+		assertEquals(10.0 / 78.0,fc.getCount(),0.000001);
+		assertEquals(68 / 78.0,fc2.getCount(),0.000001);
 		
 		assertEquals(1.0,gfc.getTotalCount(),0.000001);
-		assertEquals(78 / 100.0,gfc.getMappedReadCount(),0.000001);
-		assertEquals(22 / 100.0,gfc.getUnmappedReadCount(),0.000001);
+		assertEquals(1.0,gfc.getMappedReadCount(),0.000001);
+		assertEquals(0.0,gfc.getUnmappedReadCount(),0.000001);
 		assertEquals(0.0,gfc.getAmbiguousReadCount(),0.000001);
-		assertEquals(1,gfc.getNumberOfPartiallyUnmappedReads());
-		
-		
-		/*
-		 * Count again
-		 */
-		
-		gfc.count(pair);
-		
-		fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
-		logger.info(GTFFeatureRenderer.render(fc.getFeature()));
-		
-		logger.info("Total counts for ENSG00000223972_chr1_11869_12227: " + fc.getCount());
-		logger.info("Total counts reads: " + gfc.getTotalCount());
-		logger.info("Total counts mappedReadCount: " + gfc.getMappedReadCount());
-		logger.info("Total counts unmappedReadCount: " + gfc.getUnmappedReadCount());
-		logger.info("Total counts ambiguous read count: " + gfc.getAmbiguousReadCount());
-		logger.info("Partially unmapped reads: " + gfc.getNumberOfPartiallyUnmappedReads());
-		
-		assertEquals( 156 / 100.0,fc.getCount(),0.000001);
-		
-		assertEquals(2.0,gfc.getTotalCount(),0.000001);
-		assertEquals(156 / 100.0,gfc.getMappedReadCount(),0.000001);
-		assertEquals(44 / 100.0,gfc.getUnmappedReadCount(),0.000001);
-		assertEquals(0.0,gfc.getAmbiguousReadCount(),0.000001);
-		assertEquals(2,gfc.getNumberOfPartiallyUnmappedReads());
+		assertEquals(0,gfc.getNumberOfPartiallyUnmappedReads());
 	}
+	
+//	@Test
+//	public void testCountPair2() throws IOException {
+//		logger.info("testCountPair1");
+//		Resource r = new ClassPathResource("genecode.v19.annotation.head.10000.gtf.gz");
+//		File gtf = r.getFile();
+//		
+//		FindOverlappingFeatures findOverlappingFeatures = new FindOverlappingFeatures();
+//		GTExFeatureCounter gfc = new GTExFeatureCounter(findOverlappingFeatures, new LoggerService());
+//		gfc.buildFeatures(gtf, "exon");
+//		
+//		
+//		SAMRecord record1 = new SAMRecord(new SAMFileHeader());
+//		record1.setReferenceName("chr1");
+//		record1.setAlignmentStart(11869);
+//		record1.setCigarString("50M");
+//		
+//		SAMRecord record2 = new SAMRecord(new SAMFileHeader());
+//		record2.setReferenceName("chr1");
+//		record2.setAlignmentStart(12200);
+//		record2.setCigarString("50M");
+//		
+//		SAMRecordPair pair = new SAMRecordPair();
+//		pair.setMate1(record1);
+//		pair.setMate2(record2);
+//		
+//		gfc.count(pair);
+//		
+//		FeatureCount fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
+//		logger.info(GTFFeatureRenderer.render(fc.getFeature()));
+//		
+//		logger.info("Total counts for ENSG00000223972_chr1_11869_12227: " + fc.getCount());
+//		logger.info("Total counts reads: " + gfc.getTotalCount());
+//		logger.info("Total counts mappedReadCount: " + gfc.getMappedReadCount());
+//		logger.info("Total counts unmappedReadCount: " + gfc.getUnmappedReadCount());
+//		logger.info("Total counts ambiguous read count: " + gfc.getAmbiguousReadCount());
+//		logger.info("Partially unmapped reads: " + gfc.getNumberOfPartiallyUnmappedReads());
+//		
+//		assertEquals( 78 / 100.0,fc.getCount(),0.000001);
+//		
+//		assertEquals(1.0,gfc.getTotalCount(),0.000001);
+//		assertEquals(78 / 100.0,gfc.getMappedReadCount(),0.000001);
+//		assertEquals(22 / 100.0,gfc.getUnmappedReadCount(),0.000001);
+//		assertEquals(0.0,gfc.getAmbiguousReadCount(),0.000001);
+//		assertEquals(1,gfc.getNumberOfPartiallyUnmappedReads());
+//		
+//		
+//		/*
+//		 * Count again
+//		 */
+//		
+//		gfc.count(pair);
+//		
+//		fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
+//		logger.info(GTFFeatureRenderer.render(fc.getFeature()));
+//		
+//		logger.info("Total counts for ENSG00000223972_chr1_11869_12227: " + fc.getCount());
+//		logger.info("Total counts reads: " + gfc.getTotalCount());
+//		logger.info("Total counts mappedReadCount: " + gfc.getMappedReadCount());
+//		logger.info("Total counts unmappedReadCount: " + gfc.getUnmappedReadCount());
+//		logger.info("Total counts ambiguous read count: " + gfc.getAmbiguousReadCount());
+//		logger.info("Partially unmapped reads: " + gfc.getNumberOfPartiallyUnmappedReads());
+//		
+//		assertEquals( 156 / 100.0,fc.getCount(),0.000001);
+//		
+//		assertEquals(2.0,gfc.getTotalCount(),0.000001);
+//		assertEquals(156 / 100.0,gfc.getMappedReadCount(),0.000001);
+//		assertEquals(44 / 100.0,gfc.getUnmappedReadCount(),0.000001);
+//		assertEquals(0.0,gfc.getAmbiguousReadCount(),0.000001);
+//		assertEquals(2,gfc.getNumberOfPartiallyUnmappedReads());
+//	}
 	
 	
 	@Test
@@ -600,7 +669,7 @@ public class GTExFeatureCounterTest {
 	
 	@Test
 	public void testCountOneMapped1() throws IOException {
-		
+		//chr1	HAVANA	exon	11869	12227	.	+	.	gene_id "ENSG00000223972.4"; transcript_id "ENST00000456328.2"; gene_type "pseudogene"; gene_status "KNOWN"; gene_name "DDX11L1"; transcript_type "processed_transcript"; transcript_status "KNOWN"; transcript_name "DDX11L1-002"; exon_number 1;  exon_id "ENSE00002234944.1";  level 2; tag "basic"; havana_gene "OTTHUMG00000000961.2"; havana_transcript "OTTHUMT00000362751.1";
 		Resource r = new ClassPathResource("genecode.v19.annotation.head.10000.gtf.gz");
 		File gtf = r.getFile();
 		
@@ -629,18 +698,20 @@ public class GTExFeatureCounterTest {
 		
 		gfc.count(pair);
 		
+		//should be 0 now
 		FeatureCount fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
-		assertEquals(0.5,fc.getCount(),0.00001);
+		assertEquals(00,fc.getCount(),0.00001);
 		
 		assertEquals(1.0,gfc.getTotalCount(),0.000001);
-		assertEquals(0.5,gfc.getMappedReadCount(),0.000001);
-		assertEquals(0.5,gfc.getUnmappedReadCount(),0.000001);
+		assertEquals(0,gfc.getMappedReadCount(),0.000001);
+		assertEquals(1.0,gfc.getUnmappedReadCount(),0.000001);
 		assertEquals(0,gfc.getAmbiguousReadCount(),0.000001);
-		assertEquals(1,gfc.getNumberOfPartiallyUnmappedReads());
+		assertEquals(0,gfc.getNumberOfPartiallyUnmappedReads());
 	}
 	
 	@Test
 	public void testCountOneMapped2() throws IOException {
+		//chr1	HAVANA	exon	11869	12227	.	+	.	gene_id "ENSG00000223972.4"; transcript_id "ENST00000456328.2"; gene_type "pseudogene"; gene_status "KNOWN"; gene_name "DDX11L1"; transcript_type "processed_transcript"; transcript_status "KNOWN"; transcript_name "DDX11L1-002"; exon_number 1;  exon_id "ENSE00002234944.1";  level 2; tag "basic"; havana_gene "OTTHUMG00000000961.2"; havana_transcript "OTTHUMT00000362751.1";
 		
 		Resource r = new ClassPathResource("genecode.v19.annotation.head.10000.gtf.gz");
 		File gtf = r.getFile();
@@ -671,13 +742,13 @@ public class GTExFeatureCounterTest {
 		gfc.count(pair);
 		
 		FeatureCount fc = gfc.getCounts("ENSG00000223972_chr1_11869_12227");
-		assertEquals(0.5,fc.getCount(),0.00001);
+		assertEquals(0.0,fc.getCount(),0.00001);
 		
 		assertEquals(1.0,gfc.getTotalCount(),0.000001);
-		assertEquals(0.5,gfc.getMappedReadCount(),0.000001);
-		assertEquals(0.5,gfc.getUnmappedReadCount(),0.000001);
+		assertEquals(0.0,gfc.getMappedReadCount(),0.000001);
+		assertEquals(1.0,gfc.getUnmappedReadCount(),0.000001);
 		assertEquals(0,gfc.getAmbiguousReadCount(),0.000001);
-		assertEquals(1,gfc.getNumberOfPartiallyUnmappedReads());
+		assertEquals(0,gfc.getNumberOfPartiallyUnmappedReads());
 	}
 	
 	@Test
