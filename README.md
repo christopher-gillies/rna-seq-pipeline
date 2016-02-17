@@ -213,7 +213,7 @@ ___
 ###################
 # RUN KALLISTO
 ###################
-export GTF=$OUT/Homo_sapiens.GRCh37.75.gtf
+export GTF=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/Homo_sapiens.GRCh37.75.gtf
 export FASTQ=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/fastq.files.txt
 export PIPELINE=/net/wonderland/home/cgillies/programs/rna-seq-pipeline/release/rna-seq-pipeline-1.0.0.jar 
 export kallisto=/net/wonderland/home/cgillies/programs/kallisto_linux-v0.42.4/kallisto
