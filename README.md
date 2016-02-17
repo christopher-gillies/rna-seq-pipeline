@@ -208,6 +208,23 @@ OLD_ID4 NEW_ID4
 ```
 ___
 ___
+#Run Kallisto
+```
+###################
+# RUN KALLISTO
+###################
+export GTF=$OUT/Homo_sapiens.GRCh37.75.gtf
+export FASTQ=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/fastq.files.txt
+export PIPELINE=/net/wonderland/home/cgillies/programs/rna-seq-pipeline/release/rna-seq-pipeline-1.0.0.jar 
+export kallisto=/net/wonderland/home/cgillies/programs/kallisto_linux-v0.42.4/kallisto
+export OUT=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/KALLISTO/
+export REF=/net/assembly/cgillies/data/NEPTUNE/RNA-Seq/11_24_2015/Homo_sapiens.GRCh37.75.cdna.all.fa.gz
+cd $OUT
+java -jar $PIPELINE --gtf $GTF --fastqList $FASTQ --kallisto $kallisto --referenceTranscriptome $REF --outputDir $OUT
+nohup make -j10 1> nohup.out 2> nohup.err &
+```
 
+___
+___
 #Other
 banner generated at http://patorjk.com/software/taag/
